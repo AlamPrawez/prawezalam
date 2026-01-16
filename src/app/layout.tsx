@@ -29,10 +29,11 @@ Dedicated to delivering on-time, scalable, and business-oriented solutions that 
     title: "Prawez Alam",
     description:
       "Expert Full Stack Developer specializing in React, Vue, Nuxt, Next.js, Node.js, and Laravel.",
+    url: "https://prawezalam.vercel.app",
     siteName: "Prawez Alam",
     images: [
       {
-        url: "/prawez.JPEG", // now SAFE
+        url: "https://prawezalam.vercel.app/prawez.JPEG", // must be absolute URL
         width: 1200,
         height: 630,
         alt: "Prawez Alam – Expert Full Stack Developer",
@@ -46,7 +47,7 @@ Dedicated to delivering on-time, scalable, and business-oriented solutions that 
     title: "Prawez Alam",
     description:
       "Expert Full Stack Developer building scalable, high-performance web applications.",
-    images: ["/prawez.JPEG"],
+    images: ["https://prawezalam.vercel.app/prawez.JPEG"],
   },
 };
 
