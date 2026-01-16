@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { FaLinkedin, FaGithub, FaGitlab } from "react-icons/fa";
 
 export default function Home() {
   return (
@@ -36,6 +37,39 @@ export default function Home() {
                 <div className="text-sm text-gray-500">
                   prawezalam9@gmail.com
                 </div>
+
+                <div className="flex items-center gap-4 text-gray-500 mt-5">
+                  <a
+                    href="https://www.linkedin.com/in/prawez-alam/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-blue-600 transition-colors"
+                    aria-label="LinkedIn"
+                  >
+                    <FaLinkedin className="w-5 h-5" />
+                  </a>
+
+                  <a
+                    href="https://github.com/AlamPrawez"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-gray-800 transition-colors"
+                    aria-label="GitHub"
+                  >
+                    <FaGithub className="w-5 h-5" />
+                  </a>
+
+                  <a
+                    href="https://gitlab.com/prawezAlam"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-orange-600 transition-colors"
+                    aria-label="GitLab"
+                  >
+                    <FaGitlab className="w-5 h-5" />
+                  </a>
+                </div>
+
               </div>
 
             </div>
