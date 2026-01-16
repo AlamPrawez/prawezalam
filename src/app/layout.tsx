@@ -13,6 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://prawezalam.vercel.app"), // temporary
   title: "Prawez Alam",
   description: `Experienced Software Developer hands-on industry experience delivering high-quality web applications.
 Strong expertise in React.js, Vue.js, Nuxt.js, and Next.js for building modern, responsive, and scalable front-end solutions.
@@ -23,6 +24,30 @@ Experienced in user feedback-driven feature development, ensuring practical, use
 Effective communicator and team collaborator, comfortable working in agile, remote, and independent environments.
 Continuously learning and adopting new technologies, frameworks, and best practices.
 Dedicated to delivering on-time, scalable, and business-oriented solutions that exceed client expectations.`,
+
+  openGraph: {
+    title: "Prawez Alam",
+    description:
+      "Expert Full Stack Developer specializing in React, Vue, Nuxt, Next.js, Node.js, and Laravel.",
+    siteName: "Prawez Alam",
+    images: [
+      {
+        url: "/prawez.JPEG", // now SAFE
+        width: 1200,
+        height: 630,
+        alt: "Prawez Alam – Expert Full Stack Developer",
+      },
+    ],
+    type: "profile",
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "Prawez Alam",
+    description:
+      "Expert Full Stack Developer building scalable, high-performance web applications.",
+    images: ["/prawez.JPEG"],
+  },
 };
 
 export default function RootLayout({
