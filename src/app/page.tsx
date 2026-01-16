@@ -38,7 +38,7 @@ export default function Home() {
                   prawezalam9@gmail.com
                 </div>
 
-                <div className="flex items-center gap-4 text-gray-500 mt-5">
+                <div className="flex sm:justify-center justify-start items-center gap-4 text-gray-500 mt-5">
                   <a
                     href="https://www.linkedin.com/in/prawez-alam/"
                     target="_blank"
