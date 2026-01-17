@@ -23,7 +23,7 @@ const ProfileCard: React.FC = () => {
                         {/* Profile info */}
                         <div className="text-center sm:text-left">
                             <div className="text-lg font-semibold text-gray-800">
-                                Er. Pravej Alam
+                                Er. Prawez Alam
                             </div>
 
                             <div className="text-sm text-gray-500">

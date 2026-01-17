@@ -32,6 +32,8 @@ const ExpertiseSection: React.FC = () => {
         { name: "MySQL", img: "/skills/mysql.png" },
         { name: "PostgreSQL", img: "/skills/postgresql.webp" },
         { name: "MongoDB", img: "/skills/mongodb.png" },
+        { name: "Sqlite", img: "/skills/sqlite.png" },
+        { name: "Redis", img: "/skills/redis.webp" },
     ];
 
     return (
