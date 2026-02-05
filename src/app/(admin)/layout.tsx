@@ -3,8 +3,8 @@
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 
-import SideMenu from "./@sideMenu/page";
 import Breadcrumb from "@/components/Breadcrumb";
+import SideMenu from "@/components/SideMenu";
 
 
 export default function ClientLayout({
