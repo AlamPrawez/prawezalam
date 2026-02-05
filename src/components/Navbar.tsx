@@ -1,12 +1,14 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 const navItems = [
-    { label: "Home", href: "#home" },
-    { label: "About", href: "#about" },
-    { label: "Skills", href: "#skills" },
-    { label: "Experience", href: "#experience" },
+    { label: "Hire for tasks", href: "/hire_for_tasks" },
+    { label: "Home", href: "/#home" },
+    { label: "About", href: "/#about" },
+    { label: "Skills", href: "/#skills" },
+    { label: "Experience", href: "/#experience" },
 ];
 
 const Navbar = () => {
@@ -16,23 +18,23 @@ const Navbar = () => {
         <header className="fixed top-0 z-50 w-full bg-white shadow-sm">
             <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
                 {/* Logo */}
-                <a
-                    href="#home"
+                <Link
+                    href="/#home"
                     className="text-xl font-bold text-gray-900"
                 >
                     Prawez
-                </a>
+                </Link>
 
                 {/* Desktop Menu */}
                 <ul className="hidden items-center space-x-8 md:flex">
                     {navItems.map((item) => (
                         <li key={item.label}>
-                            <a
+                            <Link
                                 href={item.href}
                                 className="text-sm font-medium text-gray-700 hover:text-gray-900 transition"
                             >
                                 {item.label}
-                            </a>
+                            </Link>
                         </li>
                     ))}
                 </ul>
