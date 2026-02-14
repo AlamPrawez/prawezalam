@@ -67,9 +67,9 @@ export default function HireForTasks() {
       {response && <OrderSuccess />}
 
       {!response && <div className="w-full">
-        <div className="flex px-30 gap-10">
-          <div className="w-5xl">
-            <div className="mx-auto p-6 pe-12 border-e border-gray-300">
+        <div className="flex-row sm:flex sm:px-30 gap-10">
+          <div className="w-xl sm:w-5xl">
+            <div className="m-4 sm:mx-auto p-6 pe-12 border border-gray-300 sm:border-0 sm:border-e sm:border-gray-300 rounded-xl sm:rounded-none">
               <h2 className="mb-6 text-xl font-semibold text-gray-800">
                 Hire for Task
               </h2>

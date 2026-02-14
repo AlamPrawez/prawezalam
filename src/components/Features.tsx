@@ -58,7 +58,7 @@ export default function Features() {
                 return (
                     <div
                         key={index}
-                        className="rounded-xl border border-gray-200 bg-white transition hover:shadow-md"
+                        className="mx-4 sm:mx-0 rounded-xl border border-gray-200 bg-white transition hover:shadow-md"
                     >
                         {/* Title */}
                         <button

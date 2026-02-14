@@ -9,10 +9,10 @@ const ProfileCard: React.FC = () => {
                 <div className="w-full max-w-4xl rounded-xl border border-gray-300 p-5">
 
                     {/* Profile wrapper */}
-                    <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-center sm:gap-6">
+                    <div className="min-w-full flex flex-col items-center gap-4 sm:flex-row sm:items-center sm:gap-6">
 
                         {/* Profile image */}
-                        <div className="w-42 h-42 rounded-full overflow-hidden border border-gray-200">
+                        <div className="max-w-42 h-42 rounded-full overflow-hidden border border-gray-200">
                             <img
                                 src="/prawez.JPEG"
                                 alt="profile"
@@ -21,21 +21,29 @@ const ProfileCard: React.FC = () => {
                         </div>
 
                         {/* Profile info */}
-                        <div className="text-center sm:text-left">
-                            <div className="text-lg font-semibold text-gray-800">
-                                Er. Prawez Alam
-                            </div>
+                        <div className="text-center sm:text-left w-full max-w-4xl">
+                            <div className="flex-row sm:flex justify-between">
+                                <div>
+                                    <div className="text-lg font-semibold text-gray-800">
+                                        Er. Prawez Alam
+                                    </div>
 
-                            <div className="text-sm text-gray-500">
-                                Expert Full Stack Developer
-                            </div>
+                                    <div className="text-sm text-gray-500">
+                                        Expert Full Stack Developer
+                                    </div>
 
-                            <div className="mt-2 text-sm text-gray-500">
-                                +977 9804083811
-                            </div>
+                                    <div className="mt-2 text-sm text-gray-500">
+                                        +977 9804083811
+                                    </div>
 
-                            <div className="text-sm text-gray-500">
-                                prawezalam9@gmail.com
+                                    <div className="text-sm text-gray-500">
+                                        prawezalam9@gmail.com
+                                    </div>
+                                </div>
+                                <div className="mt-2 sm:mt-0">
+                                    $17/hour (USD)
+                                </div>
+
                             </div>
 
                             <div className="flex justify-center sm:justify-start items-center gap-4 text-gray-500 mt-5">
