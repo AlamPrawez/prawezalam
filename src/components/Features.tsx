@@ -51,7 +51,7 @@ export default function Features() {
     };
     return (
 
-        <div className="w-xl space-y-4">
+        <div className="w-full sm:w-xl space-y-4">
             {features.map((item, index) => {
                 const isOpen = activeIndex === index;
 
