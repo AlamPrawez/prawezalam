@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Prawez Alam | Hire Developer for Small Tasks, Full Projects, Challenge Tasks | Bug Fixes, Features & DevOps Support",
   description:
-    "Hire an experienced Full Stack Developer for small tasks, urgent bug fixes, feature additions, DevOps support, Docker setup, CI/CD pipelines, and server deployment. Fast turnaround and reliable delivery.",
+    "Hire an experienced Full Stack Developer for small tasks,  Full Projects, Challenge Tasks ,urgent bug fixes, feature additions, DevOps support, Docker setup, CI/CD pipelines, and server deployment. Fast turnaround and reliable delivery.",
   keywords: [
     "Hire Developer for Small Tasks",
     "Fix Website Bugs",
