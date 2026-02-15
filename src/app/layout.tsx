@@ -113,6 +113,8 @@ export const metadata: Metadata = {
     canonical: "https://prawez.com",
   },
 };
+
+
 // export const metadata: Metadata = {
 //   metadataBase: new URL("https://prawez.com"), // temporary
 //   title: "Prawez Alam",
