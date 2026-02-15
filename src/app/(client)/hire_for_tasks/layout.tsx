@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Prawez Alam | Hire Developer for Small Tasks, Full Projects, Challenge Tasks | Bug Fixes, Features & DevOps Support",
   description:
-    "Hire an experienced Full Stack Developer for small tasks,  Full Projects, Challenge Tasks ,urgent bug fixes, feature additions, DevOps support, Docker setup, CI/CD pipelines, and server deployment. Fast turnaround and reliable delivery.",
+    "Hire an experienced Full Stack Developer for small tasks, Full Projects, Challenge Tasks, urgent bug fixes, feature additions, DevOps support, Docker setup, CI/CD pipelines, and server deployment. Fast turnaround and reliable delivery.",
   keywords: [
     "Hire Developer for Small Tasks",
     "Fix Website Bugs",
@@ -20,17 +20,27 @@ export const metadata: Metadata = {
     canonical: "https://prawez.com/hire_for_tasks",
   },
   openGraph: {
-    title: "Hire Developer for Small Tasks | Fast & Reliable Support",
+    title: "Hire Developer for Small Tasks, Full Projects, Challenge Tasks | Fast & Reliable Support",
     description:
       "Get quick bug fixes, feature upgrades, DevOps setup, and server deployment support from an experienced Full Stack Developer.",
     url: "https://prawez.com/hire_for_tasks",
+    images: [
+      {
+        url: "https://prawez.com/prawez.webp",
+        width: 1200,
+        height: 630,
+        alt: "Prawez Alam - Full Stack Developer",
+      },
+    ],
+    locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Hire Developer for Tasks | Bug Fixes & DevOps",
+    title: "Hire Developer for Tasks, Full Projects, Challenge Tasks | Bug Fixes & DevOps",
     description:
       "Professional developer available for small tasks, urgent fixes, and DevOps support.",
+    images: ["https://prawez.com/prawez.webp"],  
   },
 };
 const faqs = [
