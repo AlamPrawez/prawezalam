@@ -45,7 +45,7 @@ export default class Auth {
             return { error: error.message };
         }
 
-        console.log(data)
+        // console.log(data)
 
         // optional profile update
         // if (payload.name && data.user) {
@@ -199,24 +199,3 @@ export class Orders {
 
 export const orders = new Orders();
 
-
-
-
-// const signUp = async () => {
-//     const { data, error } = await authentication.signUp({
-//         email: "prawezalambhai@gmail.com",
-//         password: "1@Else#1234",
-//         name: "prawez alam",
-//     });
-
-//     if (error) {
-//         console.error("Register error:", error);
-//         return;
-//     }
-
-//     console.log("User registered:", data);
-// };
-
-// useEffect(() => {
-//     signUp();
-// }, []);

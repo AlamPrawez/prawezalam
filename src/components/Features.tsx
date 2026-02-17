@@ -57,6 +57,14 @@ export default function Features() {
         <>
 
             <div className="w-full sm:w-xl space-y-4">
+
+                 <div className="flex justify-center mx-4 sm:mx-0 rounded-xl border border-gray-200 sm:border-0 bg-white transition hover:shadow-md">
+                   <img
+                                src="/prawez.png"
+                                alt="profile"
+                                className="w-lg h-lg object-cover rounded-xl"
+                            />
+                 </div>
                 {features.map((item, index) => {
                     const isOpen = activeIndex === index;
 
