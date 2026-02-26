@@ -195,6 +195,22 @@ export class Orders {
         return { data, error: null };
     };
 
+    updateOrderStatus = async (
+        id: number,
+        status: "PENDING" | "APPROVED" | "PROGRESS" | "CANCELLED"
+    ): Promise<{ data: any | null; error: any | null }> => {
+        
+        const { data, error } = await supabase
+            .from("hire_tasks")      // your table name
+            .update({ status })      // update status column
+            .eq("id", id);           // filter by order id  
+        if (error) {
+            return { data: null, error };
+        }
+
+        return { data, error: null };
+    };
+
 }
 
 export const orders = new Orders();

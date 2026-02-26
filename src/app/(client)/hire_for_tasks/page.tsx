@@ -6,7 +6,7 @@ import OrderSuccess from "@/components/OrderSuccess";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { orders } from "@/services/endpoints";
+import { orders } from "@/services/api/endpoints";
 import Features from "@/components/Features";
 
 

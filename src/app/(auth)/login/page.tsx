@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { authentication } from "@/services/endpoints";
+import { authentication } from "@/services/api/endpoints";
 
 import { useRouter } from "next/navigation";
 

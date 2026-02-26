@@ -1,6 +1,6 @@
 "use client";
 
-import { HireTask, orders } from "@/services/endpoints";
+import { HireTask, orders } from "@/services/api/endpoints";
 import { Trash2, Eye } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";

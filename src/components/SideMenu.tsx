@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from 'next/navigation';
 import { FaLinkedin, FaGithub, FaGitlab } from "react-icons/fa";
-import { authentication } from "@/services/endpoints";
+import { authentication } from "@/services/api/endpoints";
 import { useRouter } from "next/navigation";
 
 const SideMenu: React.FC = () => {
