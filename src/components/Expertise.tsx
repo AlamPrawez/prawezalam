@@ -76,7 +76,7 @@ const ExpertiseSection: React.FC = () => {
                     <div className="w-full max-w-6xl rounded-xl">
                         <div className="ps-9 pt-6 text-center sm:text-start">
                             <h2 className="text-lg sm:text-2xl font-semibold text-gray-800 text-center sm:text-left mb-5">
-                                Experiences & Organizations I’ve Contributed To
+                                Skills
                             </h2>
                         </div>
                         <section className="">
