@@ -98,19 +98,20 @@ export const experiences: Experience[] = [
 
 const ExperienceCard: React.FC = () => {
     return (
-        <div className="container mx-auto px-4 py-6">
+        <div className="container mx-auto py-6">
             <div className="flex justify-center">
-                <div className="w-full max-w-4xl rounded-xl border border-gray-300 p-5">
+                <div className="w-full max-w-6xl py-5">
+                    <h2 className="text-lg sm:text-2xl font-semibold text-gray-800 text-center sm:text-left mb-5">
+                        Experiences & Organizations I’ve Contributed To
+                    </h2>
+                   
 
-                    <div className="space-y-6 pt-2">
-                         <h2 className="text-lg font-semibold text-gray-800 text-center sm:text-left">
-                            Experiences & Organizations I’ve Contributed To
-                        </h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 ">
 
                         {experiences.map((exp, index) => (
                             <div
                                 key={index}
-                                className="py-1"
+                                className="p-4 rounded-xl border border-gray-300 bg-white shadow-sm"
                             >
                                 <h2 className="text-xl font-semibold text-gray-900">
                                     {exp.role}
@@ -134,6 +135,8 @@ const ExperienceCard: React.FC = () => {
                                 </ul>
                             </div>
                         ))}
+
+
                     </div>
 
                 </div>

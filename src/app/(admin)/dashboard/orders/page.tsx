@@ -66,8 +66,9 @@ export default function Order() {
                                 <div className="w-50 px-3 py-2 text-left">Email</div>
                                 <div className="w-25 px-3 py-2 text-left">Phone</div>
                                 <div className="w-20 px-3 py-2 text-left">Country</div>
-                                <div className="w-20 px-3 py-2 text-left">Budget</div>
-                                <div className="w-25 px-3 py-2 text-left">Duration</div>
+                                <div className="w-15 px-3 py-2 text-left">Budget</div>
+                                <div className="w-22 px-3 py-2 text-left">Duration</div>
+                                 <div className="w-22 px-3 py-2 text-left">Status</div>
                                 <div className="w-20 px-3 py-2 text-left">Created</div>
                                 <div className="w-30 px-3 py-2 text-left">Action</div>
                             </div>
@@ -79,10 +80,11 @@ export default function Order() {
                                     <div className="w-50 px-3 py-2 text-left">{order.email}</div>
                                     <div className="w-25 px-3 py-2 text-left">{order.phone}</div>
                                     <div className="w-20 px-3 py-2 text-left">{order.country}</div>
-                                    <div className="w-20 px-3 py-2 text-left">${order.budget}</div>
-                                    <div className="w-25 px-3 py-2 text-left">
+                                    <div className="w-15 px-3 py-2 text-left">${order.budget}</div>
+                                    <div className="w-22 px-3 py-2 text-left">
                                         {order.duration_value} {order.duration_unit}
                                     </div>
+                                     <div className="w-22 px-3 py-2 text-left">{order?.status}</div>
                                     <div className="w-20 px-3 py-2 text-left">
                                         {new Date(order.created_at).toLocaleDateString()}
                                     </div>

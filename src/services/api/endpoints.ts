@@ -10,6 +10,7 @@ export type HireTask = {
     duration_value: number;
     duration_unit: string;
     created_at: string;
+    status?:string;
 };
 
 type FetchResult<T> = {

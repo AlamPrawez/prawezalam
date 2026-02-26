@@ -11,12 +11,9 @@ export default function Home() {
   return (
     <>
       <Navbar />
-      <main className="pt-20">
+      <main className="pt-15">
         <section id="home">
           <ProfileCard />
-        </section>
-        <section id="about">
-          <About />
         </section>
         <section id="experience">
           <ExperienceCard />
