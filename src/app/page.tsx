@@ -5,6 +5,7 @@ import Expertise from "@/components/Expertise";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import ProfileCard from "@/components/ProfileCard";
+import ServicesSection from "@/components/Services";
 
 
 export default function Home() {
@@ -15,12 +16,8 @@ export default function Home() {
         <section id="home">
           <ProfileCard />
         </section>
-        <section id="experience">
-          <ExperienceCard />
-        </section>
-        <section id="skills">
-          <Expertise />
-          <DevOpsSection />
+        <section id="service">
+          <ServicesSection />
         </section>
       </main>
       <Footer />

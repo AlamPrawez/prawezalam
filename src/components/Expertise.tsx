@@ -54,7 +54,12 @@ const ExpertiseSection: React.FC = () => {
         { name: "NuxtJS", img: "/skills/nuxtjs.png", experience: 5, shortDesc: "SSR Vue framework" },
         { name: "React.js", img: "/skills/react.png", experience: 5, shortDesc: "Component-based UI library" },
         { name: "Next.js", img: "/skills/nextjs-logo.png", experience: 5, shortDesc: "Full-stack React framework" },
-
+        {
+            name: "React Native",
+            img: "/skills/react-native.png",  // make sure the image file matches React Native logo
+            experience: 2,
+            shortDesc: "Build native mobile apps using React Native framework"
+        },
         { name: "HTML5", img: "/skills/html.png", experience: 8, shortDesc: "Web page structure" },
         { name: "CSS3", img: "/skills/css3.png", experience: 8, shortDesc: "Modern UI styling" },
         { name: "Bootstrap", img: "/skills/boostrap-logo.png", experience: 8, shortDesc: "Responsive UI framework" },

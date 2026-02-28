@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { orders } from "@/services/api/endpoints";
 import Features from "@/components/Features";
+import { useHireStore } from "@/store/hireStore";
 
 
 /* ------------------ Zod Schema ------------------ */
@@ -40,6 +41,7 @@ type HireTaskFormData = z.infer<typeof hireTaskSchema>;
 export default function HireForTasks() {
 
   const [response, setResponse] = useState<any>(false)
+  const serviceTitle = useHireStore((state) => state.serviceTitle);
 
   const {
     register,
@@ -47,18 +49,18 @@ export default function HireForTasks() {
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(hireTaskSchema),
+    defaultValues: {
+      title: serviceTitle || "", // Prefill with Zustand title
+    },
   });
 
   const onSubmit = async (data: HireTaskFormData) => {
     const result = await orders.hireTask(data);
     if (result.error) {
-      // alert(result.error);
       setResponse(false)
       return;
     }
     setResponse(true)
-    // alert("Task submitted successfully 🚀");
-
   };
 
   return (
