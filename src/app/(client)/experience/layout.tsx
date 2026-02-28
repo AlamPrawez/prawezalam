@@ -24,13 +24,13 @@ export const metadata: Metadata = {
     "Scalable Application Design",
   ],
   alternates: {
-    canonical: "https://prawez.com/skills",
+    canonical: "https://prawez.com/experience",
   },
   openGraph: {
     title: "Prawez Alam | Full-Stack & DevOps Technical Skills",
     description:
       "Discover the technical stack and engineering capabilities of Prawez Alam including modern frontend, backend, DevOps, cloud architecture, and scalable system design.",
-    url: "https://prawez.com/skills",
+    url: "https://prawez.com/experience",
     images: [
       {
         url: "https://prawez.com/prawez.webp",

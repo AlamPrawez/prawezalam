@@ -23,13 +23,13 @@ export const metadata: Metadata = {
     "Hourly Developer",
   ],
   alternates: {
-    canonical: "https://prawez.com/hire_for_tasks",
+    canonical: "https://prawez.com/about",
   },
   openGraph: {
     title: "Prawez Alam | Full-Stack Developer & AWS DevOps Expert | Bug Fixes, Features, System Design",
     description:
       "Hire Prawez Alam, an expert Full-Stack Developer skilled in React, Vue, Nuxt, Next, Node.js, NestJS, Laravel, Python, and AWS DevOps. Fast, reliable solutions for bug fixes, feature development, system design, CI/CD, and cloud deployments.",
-    url: "https://prawez.com/hire_for_tasks",
+    url: "https://prawez.com/about",
     images: [
       {
         url: "https://prawez.com/prawez.webp",
