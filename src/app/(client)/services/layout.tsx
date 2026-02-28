@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     url: "https://prawez.com/services",
     images: [
       {
-        url: "https://prawez.com/prawez.webp",
+        url: "https://prawez.com/serives.png",
         width: 1200,
         height: 630,
         alt: "Prawez Alam - Services",
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     title: "Prawez Alam | Development & Cloud Services",
     description:
       "Professional services including web & mobile development, SaaS solutions, DevOps consulting, system architecture, and deployment support.",
-    images: ["https://prawez.com/prawez.webp"],
+    images: ["https://prawez.com/serives.png"],
   },
 };
 
