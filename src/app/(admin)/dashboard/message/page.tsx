@@ -3,15 +3,12 @@
 import { contacts } from "@/services/api/endpoints";
 import { Trash2, Eye } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-
 
 
 export default function Message() {
     const [messageData, setMessage] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    // const router = useRouter();
 
     const fetchMessage = async () => {
         setLoading(true);
@@ -25,23 +22,6 @@ export default function Message() {
         }
         setLoading(false);
     };
-    // const handleDelete = async (id: number) => {
-    //     setLoading(true);
-
-    //     const result = await message.deleteOrder(id);
-
-    //     if (result.error) {
-    //         setError(result.error);
-    //     } else {
-    //         setMessage((prev) => prev.filter((order) => order.id !== id));
-    //     }
-
-    //     setLoading(false);
-    // };
-
-    // const handleDetails = async (id: any) => {
-    //     router.push(`/dashboard/message/${id}`);
-    // }
     useEffect(() => {
         fetchMessage();
     }, []);
@@ -57,8 +37,6 @@ export default function Message() {
                 {!loading && messageData.length === 0 && (
                     <p>No message found.</p>
                 )}
-
-
                 <div className="overflow-x-auto">
                     <div className="min-w-full border-0 rounded-lg">
                         <div className="bg-gray-100 rounded-lg">
@@ -81,7 +59,6 @@ export default function Message() {
                                     <div className="w-30 px-3 py-2 flex gap-2">
                                         {/* Delete Button */}
                                         <button
-                                            // onClick={() => handleDelete(order.id)}
                                             className="flex items-center justify-center rounded p-2 border border-gray-300 hover:text-white text-gray-400 hover:bg-gray-300 transition"
                                             title="Delete"
                                         >
@@ -90,7 +67,6 @@ export default function Message() {
 
                                         {/* Details Button */}
                                         <button
-                                            // onClick={() => handleDetails(order.id)}
                                             className="flex items-center justify-center rounded p-2 border border-gray-300 hover:text-white text-gray-400 hover:bg-gray-300 transition"
                                             title="View Details"
                                         >
