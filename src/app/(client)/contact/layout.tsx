@@ -77,7 +77,7 @@ const faqs = [
       "Pricing depends on task complexity and scope. I offer flexible task-based or hourly pricing with transparent cost estimates before starting any work.",
   },
 ];
-export default function AboutLayout({
+export default function ContactLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
