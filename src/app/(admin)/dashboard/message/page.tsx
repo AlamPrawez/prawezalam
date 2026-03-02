@@ -49,12 +49,12 @@ export default function Message() {
                         </div>
 
                         <div>
-                            {messageData.map((order) => (
-                                <div key={order.id} className="flex justify-between items-center w-full max-w-4xl text-sm text-gray-500 hover:bg-gray-50 border border-gray-300 rounded-lg my-1">
-                                    <div className="w-50 px-3 py-2 text-left">{order.email}</div>
-                                    <div className="w-50 px-3 py-2 text-left">{order.message}</div>
+                            {messageData.map((mes) => (
+                                <div key={mes.id} className="flex justify-between items-center w-full max-w-4xl text-sm text-gray-500 hover:bg-gray-50 border border-gray-300 rounded-lg my-1">
+                                    <div className="w-50 px-3 py-2 text-left">{mes.email}</div>
+                                    <div className="w-50 px-3 py-2 text-left">{mes.message}</div>
                                     <div className="w-20 px-3 py-2 text-left">
-                                        {new Date(order.created_at).toLocaleDateString()}
+                                        {new Date(mes.created_at).toLocaleDateString()}
                                     </div>
                                     <div className="w-30 px-3 py-2 flex gap-2">
                                         {/* Delete Button */}
