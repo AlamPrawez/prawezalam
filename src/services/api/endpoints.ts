@@ -10,7 +10,7 @@ export type HireTask = {
     duration_value: number;
     duration_unit: string;
     created_at: string;
-    status?:string;
+    status?: string;
 };
 
 type FetchResult<T> = {
@@ -200,7 +200,7 @@ export class Orders {
         id: number,
         status: "PENDING" | "APPROVED" | "PROGRESS" | "CANCELLED"
     ): Promise<{ data: any | null; error: any | null }> => {
-        
+
         const { data, error } = await supabase
             .from("hire_tasks")      // your table name
             .update({ status })      // update status column
@@ -213,6 +213,45 @@ export class Orders {
     };
 
 }
-
 export const orders = new Orders();
+
+export class Contacts {
+    contactInquiries = async (
+        payload: any
+    ): Promise<{ data: any | null; error: any | null }> => {
+
+        const { data, error } = await supabase
+            .from("contact_inquiries")
+            .insert([payload]);
+
+        if (error) {
+            return { data: null, error };
+        } else {
+            return { data, error: null };
+        }
+    };
+
+    fetchMessage = async (): Promise<{ data: any[] | null; error: string | null }> => {
+        const { data, error } = await supabase
+            .from("contact_inquiries")
+            .select("*")
+            .order("created_at", { ascending: false });
+
+        if (error) {
+            return {
+                data: null,
+                error: error.message,
+            };
+        }
+
+        return {
+            data: data || [],
+            error: null,
+        };
+    };
+
+}
+export const contacts = new Contacts()
+
+
 

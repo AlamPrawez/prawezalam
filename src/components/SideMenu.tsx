@@ -38,6 +38,11 @@ const SideMenu: React.FC = () => {
             title: "Orders",
             href: "/dashboard/orders",
             icon: "fa-solid fa-gear"
+        },
+        {
+            title: "message",
+            href: "/dashboard/message",
+            icon: "fa-solid fa-gear"
         }
     ];
 
