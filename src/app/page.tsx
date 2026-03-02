@@ -1,7 +1,7 @@
-import About from "@/components/About";
-import DevOpsSection from "@/components/DevOpsSection";
-import ExperienceCard from "@/components/ExperienceCard";
-import Expertise from "@/components/Expertise";
+// import About from "@/components/About";
+// import DevOpsSection from "@/components/DevOpsSection";
+// import ExperienceCard from "@/components/ExperienceCard";
+// import Expertise from "@/components/Expertise";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import ProfileCard from "@/components/ProfileCard";
