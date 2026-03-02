@@ -25,7 +25,6 @@ export default function Message() {
         }
         setLoading(false);
     };
-
     // const handleDelete = async (id: number) => {
     //     setLoading(true);
 
