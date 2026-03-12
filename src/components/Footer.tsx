@@ -16,7 +16,7 @@ const Footer = () => {
           {/* Navigation */}
           <nav>
             <ul className="flex flex-wrap gap-4 text-sm text-gray-600">
-              <li><a href="/#home" className="hover:text-gray-900">Home</a></li>
+              <li><a href="/" className="hover:text-gray-900">Home</a></li>
               <li><a href="/about" className="hover:text-gray-900">About</a></li>
               <li><a href="/skills" className="hover:text-gray-900">Skills</a></li>
               <li><a href="/experience" className="hover:text-gray-900">Experience</a></li>

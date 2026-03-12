@@ -82,25 +82,46 @@ export default function AboutLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Using the @graph structure to combine Person and FAQPage
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": "https://prawez.com",
+        "name": "Prawez Alam",
+        "url": "https://prawez.com",
+        "jobTitle": "Full-Stack Developer",
+        "image": "https://prawez.com/prawez.webp",
+        "sameAs": [
+          "https://linkedin.com/in/prawez-alam",
+          "https://github.com/AlamPrawez"
+        ],
+        "knowsAbout": ["React", "Next.js", "Node.js", "Python", "AWS", "DevOps", "System Design"]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://prawez.com/about",
+        "mainEntity": faqs.map((faq) => ({
+          "@type": "Question",
+          "name": faq.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": faq.answer,
+          },
+        })),
+      }
+    ]
+  };
+
   return (
     <>
+
       {/* Structured Data for FAQ */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "FAQPage",
-            mainEntity: faqs.map((faq) => ({
-              "@type": "Question",
-              name: faq.question,
-              acceptedAnswer: {
-                "@type": "Answer",
-                text: faq.answer,
-              },
-            })),
-          }),
-        }} />
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {children}
     </>
   );

@@ -1,5 +1,6 @@
+import { MessagePayload } from "@/@types/ message";
 import { supabase } from "@/lib/supabase";
-import { promises } from "dns";
+import { Message } from "react-hook-form";
 
 export type HireTask = {
     id: number;
@@ -215,9 +216,9 @@ export class Orders {
 }
 export const orders = new Orders();
 
-export class Contacts {
+export class Contact {
     contactInquiries = async (
-        payload: any
+        payload: MessagePayload
     ): Promise<{ data: any | null; error: any | null }> => {
 
         const { data, error } = await supabase
@@ -251,7 +252,7 @@ export class Contacts {
     };
 
 }
-export const contacts = new Contacts()
+export const contacts = new Contact()
 
 
 

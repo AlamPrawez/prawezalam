@@ -1,12 +1,13 @@
 "use client";
 
+import { Message } from "@/@types/ message";
 import { contacts } from "@/services/api/endpoints";
 import { Trash2, Eye } from "lucide-react";
 import { useEffect, useState } from "react";
 
 
-export default function Message() {
-    const [messageData, setMessage] = useState<any[]>([]);
+export default function MessagePage() {
+    const [messageData, setMessage] = useState<Message[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -53,9 +54,9 @@ export default function Message() {
                                 <div key={mes.id} className="flex justify-between items-center w-full max-w-4xl text-sm text-gray-500 hover:bg-gray-50 border border-gray-300 rounded-lg my-1">
                                     <div className="w-50 px-3 py-2 text-left">{mes.email}</div>
                                     <div className="w-50 px-3 py-2 text-left">{mes.message}</div>
-                                    <div className="w-20 px-3 py-2 text-left">
+                                    {mes.created_at && <div className="w-20 px-3 py-2 text-left">
                                         {new Date(mes.created_at).toLocaleDateString()}
-                                    </div>
+                                    </div>}
                                     <div className="w-30 px-3 py-2 flex gap-2">
                                         {/* Delete Button */}
                                         <button

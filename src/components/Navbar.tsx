@@ -21,7 +21,7 @@ const Navbar = () => {
             <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
                 {/* Logo */}
                 <Link
-                    href="/#home"
+                    href="/"
                     className="text-xl font-bold text-gray-900"
                 >
                     Prawez
