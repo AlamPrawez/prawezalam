@@ -41,7 +41,7 @@ const SideMenu: React.FC = () => {
         },
         {
             title: "message",
-            href: "/dashboard/message",
+            href: "/dashboard/messages",
             icon: "fa-solid fa-gear"
         }
     ];
