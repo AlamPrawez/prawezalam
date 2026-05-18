@@ -139,7 +139,7 @@ export default function HireForTasks() {
                   {/* Title */}
                   <div>
                     <label className="mb-1 block text-sm font-medium">
-                      Title of of Jobs or Task 
+                      Title of the Job or Task
                     </label>
                     <input
                       type="text"
@@ -205,7 +205,7 @@ export default function HireForTasks() {
                   {/* Description */}
                   <div>
                     <label className="mb-1 block text-sm font-medium">
-                      Describe your Jobs or task
+                      Describe your job or task
                     </label>
                     <textarea
                       rows={4}
@@ -228,7 +228,7 @@ export default function HireForTasks() {
                       disabled={isSubmitting}
                     >
 
-                      {isSubmitting ? "Submit..." : "Submit Post Jobs"}
+                      {isSubmitting ? "Submitting..." : "Post Jobs"}
                     </button>
                   </div>
                 </form>
