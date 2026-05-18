@@ -73,7 +73,7 @@ export default function HireForTasks() {
             <div className="w-full sm:w-5xl">
               <div className="m-4 sm:mx-auto p-6 sm:pe-12 border border-gray-300 sm:border-0 sm:border-e sm:border-gray-300 rounded-xl sm:rounded-none">
                 <h2 className="mb-6 text-xl font-semibold text-gray-800">
-                  Hire for Task
+                  Post Jobs or Hire
                 </h2>
 
                 <form
@@ -139,7 +139,7 @@ export default function HireForTasks() {
                   {/* Title */}
                   <div>
                     <label className="mb-1 block text-sm font-medium">
-                      Title of Task
+                      Title of of Jobs or Task 
                     </label>
                     <input
                       type="text"
@@ -205,7 +205,7 @@ export default function HireForTasks() {
                   {/* Description */}
                   <div>
                     <label className="mb-1 block text-sm font-medium">
-                      Describe your task
+                      Describe your Jobs or task
                     </label>
                     <textarea
                       rows={4}
@@ -228,7 +228,7 @@ export default function HireForTasks() {
                       disabled={isSubmitting}
                     >
 
-                      {isSubmitting ? "Submit..." : "Submit Task"}
+                      {isSubmitting ? "Submit..." : "Submit Post Jobs"}
                     </button>
                   </div>
                 </form>
