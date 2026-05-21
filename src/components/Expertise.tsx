@@ -104,13 +104,21 @@ const ExpertiseSection: React.FC = () => {
 
                                         {/* Left Side: Tech Logo Wrapper with Interactive Depth */}
                                         <div className="flex-shrink-0 w-20 h-20 flex items-center justify-center bg-gray-50/80 rounded-xl mb-3 sm:mb-0 sm:mr-4 border border-gray-100 group-hover:bg-indigo-50/30 group-hover:border-indigo-100/50 transition-colors duration-300">
-                                            <Image
+                                            {/* <Image
                                                 src={skill.img}
                                                 alt={`${skill.name} Environment Deployment Asset`}
                                                 width={100}
                                                 height={100}
                                                 className="w-20 h-20 object-contain block filter drop-shadow-3xs transition-transform duration-300 group-hover:scale-105"
                                                 loading="lazy"
+                                            /> */}
+                                            <Image
+                                                src={skill.img}
+                                                alt={`${skill.name} Environment Deployment Asset`}
+                                                width={80} //  Matches w-20 (20 * 4px = 80px) exactly
+                                                height={80} //  Matches h-20 (20 * 4px = 80px) exactly
+                                                className="w-20 h-20 object-contain block filter drop-shadow-3xs transition-transform duration-300 group-hover:scale-105"
+                                                loading="lazy" // Keep lazy loading active for below-the-fold list elements
                                             />
                                         </div>
 

@@ -34,12 +34,22 @@ export default function FullyResponsiveCompactProfile() {
                     {/* Width: 100% on mobile/tablet, anchors perfectly to 35% on lg screens */}
                     {/* Height: Stays aspect-square on smaller viewports, switches to full-height container layout on large screens */}
                     <div className="w-full lg:w-[35%] aspect-square sm:aspect-[4/3] lg:aspect-auto min-h-[280px] sm:min-h-[380px] lg:min-h-full relative flex-shrink-0 rounded-2xl overflow-hidden shadow-sm bg-gray-200">
-                        <Image
+                        {/* <Image
                             src="/prawez.JPEG"
                             alt="ER. PRAWEZ ALAM"
                             width={5000}
                             height={5000}
                             className="absolute inset-0 w-full h-full object-cover object-top"
+                            loading="lazy"
+                        /> */}
+                        <Image
+                            src="/prawez.JPEG"
+                            alt="ER. PRAWEZ ALAM"
+                            fill
+                            priority // THIS IS THE MAGIC BULLET: Removes loading="lazy", adds fetchpriority="high"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            className="object-cover object-top"
+                            defaultValue="async"
                         />
                     </div>
 
