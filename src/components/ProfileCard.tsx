@@ -1,8 +1,14 @@
 import Image from 'next/image';
 import React from 'react';
 import { FaLinkedin, FaGithub, FaGitlab } from 'react-icons/fa';
+import ReactDOM from 'react-dom';
 
 export default function FullyResponsiveCompactProfile() {
+    // ⚡ Force inject a high-priority preload link directly into the document HTML <head>
+  ReactDOM.preload('/_next/image?url=%2Fprawez.JPEG&w=750&q=75', { 
+    as: 'image', 
+    fetchPriority: 'high' 
+  });
     return (
         <div id="person" className="bg-gray-100 min-h-screen py-8 px-4 sm:px-6 lg:px-8 font-sans antialiased text-gray-800 relative overflow-hidden flex items-center justify-center">
             
