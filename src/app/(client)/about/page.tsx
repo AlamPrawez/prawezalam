@@ -1,5 +1,6 @@
 
 import About from "@/components/About";
+import AboutFAQ from "@/components/AboutFAQ";
 
 export default function AboutPage() {
 
@@ -9,6 +10,9 @@ export default function AboutPage() {
                 <section id="about">
                     <About />
                 </section>
+                <div className='mx-7 my-10'>
+                    <AboutFAQ />
+                </div>
             </main>
         </>
 

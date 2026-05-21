@@ -1,9 +1,10 @@
+import Image from 'next/image';
 import React from 'react';
 import { FaLinkedin, FaGithub, FaGitlab } from 'react-icons/fa';
 
 export default function FullyResponsiveCompactProfile() {
     return (
-        <div className="bg-gray-100 min-h-screen py-8 px-4 sm:px-6 lg:px-8 font-sans antialiased text-gray-800 relative overflow-hidden flex items-center justify-center">
+        <div id="person" className="bg-gray-100 min-h-screen py-8 px-4 sm:px-6 lg:px-8 font-sans antialiased text-gray-800 relative overflow-hidden flex items-center justify-center">
             
             {/* Dynamic visual shaping lines running from bottom-left up toward top-right */}
             <div className="absolute -bottom-32 -left-32 w-[600px] h-[600px] bg-gradient-to-tr from-indigo-200/30 via-sky-100/20 to-transparent rounded-full blur-3xl pointer-events-none"></div>
@@ -33,9 +34,11 @@ export default function FullyResponsiveCompactProfile() {
                     {/* Width: 100% on mobile/tablet, anchors perfectly to 35% on lg screens */}
                     {/* Height: Stays aspect-square on smaller viewports, switches to full-height container layout on large screens */}
                     <div className="w-full lg:w-[35%] aspect-square sm:aspect-[4/3] lg:aspect-auto min-h-[280px] sm:min-h-[380px] lg:min-h-full relative flex-shrink-0 rounded-2xl overflow-hidden shadow-sm bg-gray-200">
-                        <img
+                        <Image
                             src="/prawez.JPEG"
                             alt="ER. PRAWEZ ALAM"
+                            width={5000}
+                            height={5000}
                             className="absolute inset-0 w-full h-full object-cover object-top"
                         />
                     </div>

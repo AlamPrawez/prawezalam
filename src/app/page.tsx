@@ -16,7 +16,7 @@ export default function Home() {
         <section id="home">
           <ProfileCard />
         </section>
-        <section id="service">
+        <section id="professional-service">
           <ServicesSection />
         </section>
       </main>

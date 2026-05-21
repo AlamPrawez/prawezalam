@@ -1,5 +1,6 @@
 import DevOpsSection from "@/components/DevOpsSection";
 import Expertise from "@/components/Expertise";
+import SkillsFAQ from "@/components/SkillsFAQ";
 
 export default function SkillPage() {
 
@@ -10,6 +11,10 @@ export default function SkillPage() {
                     <Expertise />
                     <DevOpsSection />
                 </section>
+
+                <div className='mx-16 my-5'>
+                    <SkillsFAQ />
+                </div>
             </main>
         </>
 
