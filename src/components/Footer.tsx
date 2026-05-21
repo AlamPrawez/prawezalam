@@ -3,7 +3,7 @@ const Footer = () => {
     <footer className="bg-white border-t border-gray-200">
       <div className="mx-auto max-w-7xl px-4 py-10">
         <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
-          
+
           {/* Brand */}
           <div>
             <h3 className="text-lg font-bold text-gray-900">Prawez Alam</h3>
@@ -48,7 +48,7 @@ const Footer = () => {
               LinkedIn
             </a>
             <a
-              href="prawezalam9@gmail.com"
+              href="mailto:prawezalam9@gmail.com"
               className="text-gray-500 hover:text-gray-900"
             >
               Email
