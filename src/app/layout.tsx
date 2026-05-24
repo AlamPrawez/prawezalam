@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from 'next/script';
 // import Navbar from "@/components/Navbar";
 
 import "./globals.css";
@@ -279,6 +280,14 @@ export default function RootLayout({
   };
 return (
   <html lang="en">
+    <head>
+        {/* Place the script here in the head */}
+        <Script 
+          src="https://analytics.ahrefs.com/analytics.js" 
+          data-key="shO09nrtYl4h6+p++cxBZw" 
+          strategy="beforeInteractive"
+        />
+      </head>
     <body
       className={`${geistSans.variable} ${geistMono.variable} antialiased`}
     >
