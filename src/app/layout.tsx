@@ -282,11 +282,7 @@ return (
   <html lang="en">
     <head>
         {/* Place the script here in the head */}
-        <Script 
-          src="https://analytics.ahrefs.com/analytics.js" 
-          data-key="shO09nrtYl4h6+p++cxBZw" 
-          strategy="beforeInteractive"
-        />
+        <script src="https://analytics.ahrefs.com/analytics.js" data-key="shO09nrtYl4h6+p++cxBZw" async></script>
       </head>
     <body
       className={`${geistSans.variable} ${geistMono.variable} antialiased`}
