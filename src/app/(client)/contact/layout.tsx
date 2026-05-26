@@ -118,6 +118,12 @@ export default function ContactLayout({
       {
         "@type": "FAQPage",
         "@id": "https://prawez.com/contact/#faq",
+        "author": {
+          "@id": "https://prawez.com/#person"
+        },
+        "about": {
+          "@id": "https://prawez.com/#person"
+        },
         "mainEntity": faqs.map((faq) => ({
           "@type": "Question",
           "name": faq.question,

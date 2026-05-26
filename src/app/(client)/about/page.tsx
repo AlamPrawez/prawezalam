@@ -10,7 +10,7 @@ export default function AboutPage() {
                 <section id="about">
                     <About />
                 </section>
-                <div className='mx-7 my-10'>
+                <div className='sm:mx-7 mx-5 my-10'>
                     <AboutFAQ />
                 </div>
             </main>

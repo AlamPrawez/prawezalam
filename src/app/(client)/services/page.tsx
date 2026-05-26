@@ -9,7 +9,7 @@ export default function SkillPage() {
                     <ServicesSection />
                 </section>
                 
-                <div className='mx-7 my-10'>
+                <div className='mx-5 sm:mx-7 my-5 my-10'>
                 <ServicesFAQ />
                 </div>
 

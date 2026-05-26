@@ -121,6 +121,12 @@ export default function HireLayout({
           "@type": "Person",
           "@id": "https://prawez.com/#person"
         },
+        "author": {
+          "@id": "https://prawez.com/#person"
+        },
+        "about": {
+          "@id": "https://prawez.com/#person"
+        },
         "mainEntity": hireFaqs.map((faq) => ({
           "@type": "Question",
           "name": faq.question,

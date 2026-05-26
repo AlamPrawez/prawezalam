@@ -276,7 +276,7 @@ export default function RootLayout({
     },
     {
       "@type": "FAQPage",
-      "@id": "https://prawez.com", // Points to your about or landing page
+      "@id": "https://prawez.com",
       "mainEntity": faqSchema.mainEntity,
     }
     ]

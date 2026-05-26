@@ -12,7 +12,7 @@ export default function SkillPage() {
                     <DevOpsSection />
                 </section>
 
-                <div className='mx-16 my-5'>
+                <div className='mx-5 sm:mx-16 my-5'>
                     <SkillsFAQ />
                 </div>
             </main>

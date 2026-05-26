@@ -341,7 +341,7 @@ export default function HireForTasks() {
       )}
 
 
-      <div className='mx-16 mt-30 mb-5'>
+      <div className='mx-16 ms:mx-5 mt-30 mb-5'>
         <HireFAQ />
       </div>
 
