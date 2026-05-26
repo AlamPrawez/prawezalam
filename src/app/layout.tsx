@@ -32,6 +32,7 @@ export const metadata: Metadata = {
   keywords: [
     // Global & Remote Client Intent
     "Remote Full Stack Engineer",
+    "Remote Full Stack Engineer in Nepal",
     "Contract Software Architect",
     "Freelance Next.js Specialist",
     "FastAPI Backend Developer",
@@ -47,7 +48,8 @@ export const metadata: Metadata = {
 
     // Geographic / Competitive Fallback
     "Full Stack Developer Nepal",
-    "Top Software Engineer Kathmandu"
+    "Top Software Engineer Kathmandu",
+    "MERN Stack Developer in Nepal"
   ],
 
   authors: [{ name: "Prawez Alam", url: "https://prawez.com" }],
@@ -256,6 +258,7 @@ export default function RootLayout({
       "knowsAbout": [
         "Software Architecture",
         "Full Stack Web Development",
+        "Full Stack Development in nepal",
         "FastAPI",
         "Next.js",
         "gRPC API Gateway Design",
