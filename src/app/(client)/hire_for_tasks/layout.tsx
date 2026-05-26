@@ -1,3 +1,5 @@
+import { FAQItem } from "@/@types/faq";
+import { generatePageGraph } from "@/lib/faq-utils.";
 import type { Metadata } from "next";
 
 // Premium transactional meta optimization targeting clients ready to deploy budgets
@@ -81,7 +83,7 @@ export const metadata: Metadata = {
 };
 
 // High-converting, actionable answers targeting immediate hiring concerns
-const hireFaqs = [
+const hireFaqs: FAQItem[] = [
   {
     question: "What technical jobs or tasks can I post or hire you for?",
     answer: "You can contract me for comprehensive full-stack applications, urgent production bug repairs, API optimizations, performance tuning, Docker configuration, automated CI/CD flow setups, secure Linux server engineering, and specialized FastAPI + Next.js integrations."
@@ -110,34 +112,36 @@ export default function HireLayout({
   children: React.ReactNode;
 }>) {
 
+  const hireJsonGraph = generatePageGraph(hireFaqs, "https://prawez.com/hire_for_tasks");
+  // const faqSchema = generateFAQSchema(hireFaqs);
   // Directly establishes your commercial availability under your unified person identifier
-  const hireJsonGraph = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "FAQPage",
-        "@id": "https://prawez.com/hire_for_tasks/#faq",
-        "provider": {
-          "@type": "Person",
-          "@id": "https://prawez.com/#person"
-        },
-        "author": {
-          "@id": "https://prawez.com/#person"
-        },
-        "about": {
-          "@id": "https://prawez.com/#person"
-        },
-        "mainEntity": hireFaqs.map((faq) => ({
-          "@type": "Question",
-          "name": faq.question,
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": faq.answer,
-          },
-        })),
-      }
-    ]
-  };
+  // const hireJsonGraph = {
+  //   "@context": "https://schema.org",
+  //   "@graph": [
+  //     {
+  //       "@type": "FAQPage",
+  //       "@id": "https://prawez.com/hire_for_tasks/#faq",
+  //       "provider": {
+  //         "@type": "Person",
+  //         "@id": "https://prawez.com/#person"
+  //       },
+  //       "author": {
+  //         "@id": "https://prawez.com/#person"
+  //       },
+  //       "about": {
+  //         "@id": "https://prawez.com/#person"
+  //       },
+  //       "mainEntity": hireFaqs.map((faq) => ({
+  //         "@type": "Question",
+  //         "name": faq.question,
+  //         "acceptedAnswer": {
+  //           "@type": "Answer",
+  //           "text": faq.answer,
+  //         },
+  //       })),
+  //     }
+  //   ]
+  // };
 
   return (
     <>

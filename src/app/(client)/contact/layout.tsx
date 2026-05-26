@@ -1,3 +1,4 @@
+import { generatePageGraph } from "@/lib/faq-utils.";
 import type { Metadata } from "next";
 
 // Highly targeted SEO Metadata optimization for top-tier search rankings
@@ -63,7 +64,7 @@ export const metadata: Metadata = {
   },
 };
 
-const faqs = [
+const constFaqs = [
   {
     question: "What kind of tasks can I hire you for?",
     answer:
@@ -98,50 +99,51 @@ export default function ContactLayout({
 }>) {
   
   // Combines Local Business/Professional Identity and FAQ Data into a single JSON-LD loop for fast crawling
-  const structuredDataJson = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "ProfessionalService",
-        "@id": "https://prawez.com/#professional-service",
-        "name": "Er. Prawez Alam - Full Stack Developer",
-        "url": "https://prawez.com",
-        "image": "https://prawez.com/prawez.webp",
-        "description": "Expert Full-Stack Developer providing high-performance Next.js and FastAPI web solutions, system designs, and custom cloud DevOps pipelines.",
-        "telephone": "+9779804083811",
-        "priceRange": "$$",
-        "address": {
-          "@type": "PostalAddress",
-          "addressCountry": "NP"
-        }
-      },
-      {
-        "@type": "FAQPage",
-        "@id": "https://prawez.com/contact/#faq",
-        "author": {
-          "@id": "https://prawez.com/#person"
-        },
-        "about": {
-          "@id": "https://prawez.com/#person"
-        },
-        "mainEntity": faqs.map((faq) => ({
-          "@type": "Question",
-          "name": faq.question,
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": faq.answer,
-          },
-        })),
-      }
-    ]
-  };
+  // const structuredDataJson = {
+  //   "@context": "https://schema.org",
+  //   "@graph": [
+  //     {
+  //       "@type": "ProfessionalService",
+  //       "@id": "https://prawez.com/#professional-service",
+  //       "name": "Er. Prawez Alam - Full Stack Developer",
+  //       "url": "https://prawez.com",
+  //       "image": "https://prawez.com/prawez.webp",
+  //       "description": "Expert Full-Stack Developer providing high-performance Next.js and FastAPI web solutions, system designs, and custom cloud DevOps pipelines.",
+  //       "telephone": "+9779804083811",
+  //       "priceRange": "$$",
+  //       "address": {
+  //         "@type": "PostalAddress",
+  //         "addressCountry": "NP"
+  //       }
+  //     },
+  //     {
+  //       "@type": "FAQPage",
+  //       "@id": "https://prawez.com/contact/#faq",
+  //       "author": {
+  //         "@id": "https://prawez.com/#person"
+  //       },
+  //       "about": {
+  //         "@id": "https://prawez.com/#person"
+  //       },
+  //       "mainEntity": constFaqs.map((faq) => ({
+  //         "@type": "Question",
+  //         "name": faq.question,
+  //         "acceptedAnswer": {
+  //           "@type": "Answer",
+  //           "text": faq.answer,
+  //         },
+  //       })),
+  //     }
+  //   ]
+  // };
 
+  const contactJsonGraph = generatePageGraph(constFaqs, "https://prawez.com/contact");
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(structuredDataJson),
+          __html: JSON.stringify(contactJsonGraph),
         }}
       />
       {children}
