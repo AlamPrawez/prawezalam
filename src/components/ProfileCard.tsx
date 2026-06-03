@@ -50,7 +50,7 @@ export default function FullyResponsiveCompactProfile() {
                         /> */}
                         <Image
                             src="/prawez.JPEG"
-                            alt="ER. PRAWEZ ALAM"
+                            alt="Remote Full Stack Developer & Architect"
                             fill
                             priority // THIS IS THE MAGIC BULLET: Removes loading="lazy", adds fetchpriority="high"
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -66,12 +66,12 @@ export default function FullyResponsiveCompactProfile() {
                         <div>
                             <div className="border-b border-gray-300/70 pb-5 flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 text-center sm:text-left">
                                 <div>
-                                    <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">
+                                    <p className="text-3xl font-extrabold tracking-tight text-gray-900">
                                         ER. PRAWEZ ALAM
-                                    </h1>
-                                    <p className="text-sm font-semibold text-indigo-600 mt-1">
-                                        Expert Full Stack Developer
                                     </p>
+                                    <h1 className="text-sm font-semibold text-indigo-600 mt-1">
+                                        Expert Full Stack Developer
+                                    </h1>
                                     
                                     {/* Contact Elements */}
                                     <div className="mt-3 flex flex-wrap justify-center sm:justify-start gap-x-4 gap-y-1 text-xs sm:text-sm text-gray-600 font-medium">
