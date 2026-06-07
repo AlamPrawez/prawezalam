@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     "System Architecture Consultant"
   ],
   alternates: {
-    canonical: "https://prawez.com/hire_for_tasks",
+    canonical: "https://prawez.com/hire-for-tasks",
   },
   robots: {
     index: true,
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
     title: "Post Jobs or Hire Er. Prawez Alam | Elite Development & Infrastructure Support",
     description:
       "Onboard an expert systems engineer for high-stakes technical features, urgent production resolution, full-cycle applications, and automated deployments.",
-    url: "https://prawez.com/hire_for_tasks",
+    url: "https://prawez.com/hire-for-tasks",
     images: [
       {
         url: "https://prawez.com/prawez.webp",
@@ -112,7 +112,7 @@ export default function HireLayout({
   children: React.ReactNode;
 }>) {
 
-  const hireJsonGraph = generatePageGraph(hireFaqs, "https://prawez.com/hire_for_tasks");
+  const hireJsonGraph = generatePageGraph(hireFaqs, "https://prawez.com/hire-for-tasks");
   // const faqSchema = generateFAQSchema(hireFaqs);
   // Directly establishes your commercial availability under your unified person identifier
   // const hireJsonGraph = {
