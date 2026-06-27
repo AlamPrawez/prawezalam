@@ -73,6 +73,12 @@ const ExpertiseSection: React.FC = () => {
         { name: "MongoDB", img: "/skills/mongodb.png", experience: 3, shortDesc: "NoSQL document database" },
         { name: "Sqlite", img: "/skills/sqlite.png", experience: 2, shortDesc: "Lightweight embedded database" },
         { name: "Redis", img: "/skills/redis.webp", experience: 4, shortDesc: "In-memory caching system" },
+        {
+            name: "Kafka",
+            img: "/skills/kafka.png",
+            experience: 4,
+            shortDesc: "Distributed event streaming platform"
+        }
     ];
 
     return (
