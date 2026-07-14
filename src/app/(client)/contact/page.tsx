@@ -240,7 +240,7 @@ export default function ContactPage() {
                 </div>
             </section>
 
-        </main>
+        </main>                    
         <div className='mx-5 sm:mx-16 my-5'>
         <FAQSection/>
         </div>

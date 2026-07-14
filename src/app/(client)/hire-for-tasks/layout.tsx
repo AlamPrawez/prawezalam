@@ -1,86 +1,179 @@
 import { FAQItem } from "@/@types/faq";
 import { generatePageGraph } from "@/lib/faq-utils.";
 import type { Metadata } from "next";
+import fs from 'fs';
+import path from 'path';
+import matter from 'gray-matter';
 
-// Premium transactional meta optimization targeting clients ready to deploy budgets
-export const metadata: Metadata = {
-  title: "Post Jobs & Hire Er. Prawez Alam | Expert Full-Stack Developer & DevOps Specialist",
-  description:
-    "Post technical jobs or hire Er. Prawez Alam for full-stack web applications, urgent production bug fixes, complex feature development, and specialized AWS DevOps consulting. Offering fast, milestone-based engineering deliverables.",
-  keywords: [
-    // --- The "Problem-First" Client (Role & Contract focused) ---
-    "Post Technical Jobs",
-    "Hire Full Stack Developer",
-    "Contract Software Engineer",
-    "Hire Remote Full Stack Engineer",
-    "Freelance Web Developer for Hire",
-    "Hourly Developer Support",
-    "On-Demand Software Developer",
-    "Hire Developer for Small Tasks",
-    "Post a Web Development Job",
+export async function generateMetadata(): Promise<Metadata> {
+  // 1. Establish structural transactional defaults
+  let pageTitle = "Post Jobs & Hire Er. Prawez Alam | Expert Full-Stack Developer & DevOps Specialist";
+  let pageDesc = "Post technical jobs or hire Er. Prawez Alam for full-stack web applications, urgent production bug fixes, and specialized AWS DevOps consulting.";
 
-    // --- The "Tech-Stack Specific" Client (High-Value Expert Searches) ---
-    "Hire Next.js Expert",
-    "Hire FastAPI Backend Developer",
-    "Next.js Freelance Developer",
-    "FastAPI Developer for Hire",
-    "React Developer for Tasks",
-    "Python Backend Engineer Contract",
-    "TypeScript Full Stack Expert",
+  try {
+    const filePath = path.join(process.cwd(), 'content', 'hire-for-tasks.md');
+    
+    // Dynamic filesystem read for front matter values
+    if (fs.existsSync(filePath)) {
+      const fileContent = fs.readFileSync(filePath, 'utf8');
+      const { data } = matter(fileContent);
+      if (data.title) pageTitle = data.title;
+      if (data.description) pageDesc = data.description;
+    }
+  } catch (error) {
+    console.error("System failed to process hire-for-tasks.md, running hardcoded fallbacks:", error);
+  }
 
-    // --- The Urgent / Fix-It Client (Immediate Transactional Intent) ---
-    "Urgent Website Production Fixes",
-    "Fix Production Server Crash",
-    "Emergency Bug Fixing Services",
-    "Urgent Web Developer Support",
-    "Onboard Developer to Existing Project",
-
-    // --- Infrastructure & DevOps Client (Systems & Operations focused) ---
-    "Docker Infrastructure Setup",
-    "CI/CD Pipeline Automation",
-    "Nginx Reverse Proxy Configuration",
-    "Linux Server Management Services",
-    "AWS Cloud Deployment Specialist",
-    "System Architecture Consultant"
-  ],
-  alternates: {
-    canonical: "https://prawez.com/hire-for-tasks",
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+  return {
+    title: pageTitle,
+    description: pageDesc,
+    keywords: [
+      "Post Technical Jobs",
+      "Hire Full Stack Developer",
+      "Contract Software Engineer",
+      "Hire Remote Full Stack Engineer",
+      "Freelance Web Developer for Hire",
+      "Hourly Developer Support",
+      "On-Demand Software Developer",
+      "Hire Developer for Small Tasks",
+      "Post a Web Development Job",
+      "Hire Next.js Expert",
+      "Hire FastAPI Backend Developer",
+      "Next.js Freelance Developer",
+      "FastAPI Developer for Hire",
+      "React Developer for Tasks",
+      "Python Backend Engineer Contract",
+      "TypeScript Full Stack Expert",
+      "Urgent Website Production Fixes",
+      "Fix Production Server Crash",
+      "Emergency Bug Fixing Services",
+      "Urgent Web Developer Support",
+      "Onboard Developer to Existing Project",
+      "Docker Infrastructure Setup",
+      "CI/CD Pipeline Automation",
+      "Nginx Reverse Proxy Configuration",
+      "Linux Server Management Services",
+      "AWS Cloud Deployment Specialist",
+      "System Architecture Consultant"
+    ],
+    alternates: {
+      canonical: "https://prawez.com/hire-for-tasks",
+    },
+    robots: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
-  },
-  openGraph: {
-    title: "Post Jobs or Hire Er. Prawez Alam | Elite Development & Infrastructure Support",
-    description:
-      "Onboard an expert systems engineer for high-stakes technical features, urgent production resolution, full-cycle applications, and automated deployments.",
-    url: "https://prawez.com/hire-for-tasks",
-    images: [
-      {
-        url: "https://prawez.com/prawez.webp",
-        width: 1200,
-        height: 630,
-        alt: "Hire Er. Prawez Alam - Project Milestones & Deliverables",
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
       },
-    ],
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Hire Er. Prawez Alam | On-Demand Full-Stack & DevOps Engineering",
-    description:
-      "Available for small high-impact tasks, complete system development, production system repair, and architecture consulting.",
-    images: ["https://prawez.com/prawez.webp"],
-  },
-};
+    },
+    openGraph: {
+      title: "Post Jobs or Hire Er. Prawez Alam | Elite Development & Infrastructure Support",
+      description: pageDesc,
+      url: "https://prawez.com/hire-for-tasks",
+      images: [
+        {
+          url: "https://prawez.com/prawez.webp",
+          width: 1200,
+          height: 630,
+          alt: "Hire Er. Prawez Alam - Project Milestones & Deliverables",
+        },
+      ],
+      locale: "en_US",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Hire Er. Prawez Alam | On-Demand Full-Stack & DevOps Engineering",
+      description: pageDesc,
+      images: ["https://prawez.com/prawez.webp"],
+    },
+  };
+}
+// import type { Metadata } from "next";
+
+// // Premium transactional meta optimization targeting clients ready to deploy budgets
+// export const metadata: Metadata = {
+//   title: "Post Jobs & Hire Er. Prawez Alam | Expert Full-Stack Developer & DevOps Specialist",
+//   description:
+//     "Post technical jobs or hire Er. Prawez Alam for full-stack web applications, urgent production bug fixes, complex feature development, and specialized AWS DevOps consulting. Offering fast, milestone-based engineering deliverables.",
+//   keywords: [
+//     // --- The "Problem-First" Client (Role & Contract focused) ---
+//     "Post Technical Jobs",
+//     "Hire Full Stack Developer",
+//     "Contract Software Engineer",
+//     "Hire Remote Full Stack Engineer",
+//     "Freelance Web Developer for Hire",
+//     "Hourly Developer Support",
+//     "On-Demand Software Developer",
+//     "Hire Developer for Small Tasks",
+//     "Post a Web Development Job",
+
+//     // --- The "Tech-Stack Specific" Client (High-Value Expert Searches) ---
+//     "Hire Next.js Expert",
+//     "Hire FastAPI Backend Developer",
+//     "Next.js Freelance Developer",
+//     "FastAPI Developer for Hire",
+//     "React Developer for Tasks",
+//     "Python Backend Engineer Contract",
+//     "TypeScript Full Stack Expert",
+
+//     // --- The Urgent / Fix-It Client (Immediate Transactional Intent) ---
+//     "Urgent Website Production Fixes",
+//     "Fix Production Server Crash",
+//     "Emergency Bug Fixing Services",
+//     "Urgent Web Developer Support",
+//     "Onboard Developer to Existing Project",
+
+//     // --- Infrastructure & DevOps Client (Systems & Operations focused) ---
+//     "Docker Infrastructure Setup",
+//     "CI/CD Pipeline Automation",
+//     "Nginx Reverse Proxy Configuration",
+//     "Linux Server Management Services",
+//     "AWS Cloud Deployment Specialist",
+//     "System Architecture Consultant"
+//   ],
+//   alternates: {
+//     canonical: "https://prawez.com/hire-for-tasks",
+//   },
+//   robots: {
+//     index: true,
+//     follow: true,
+//     googleBot: {
+//       index: true,
+//       follow: true,
+//       'max-video-preview': -1,
+//       'max-image-preview': 'large',
+//       'max-snippet': -1,
+//     },
+//   },
+//   openGraph: {
+//     title: "Post Jobs or Hire Er. Prawez Alam | Elite Development & Infrastructure Support",
+//     description:
+//       "Onboard an expert systems engineer for high-stakes technical features, urgent production resolution, full-cycle applications, and automated deployments.",
+//     url: "https://prawez.com/hire-for-tasks",
+//     images: [
+//       {
+//         url: "https://prawez.com/prawez.webp",
+//         width: 1200,
+//         height: 630,
+//         alt: "Hire Er. Prawez Alam - Project Milestones & Deliverables",
+//       },
+//     ],
+//     locale: "en_US",
+//     type: "website",
+//   },
+//   twitter: {
+//     card: "summary_large_image",
+//     title: "Hire Er. Prawez Alam | On-Demand Full-Stack & DevOps Engineering",
+//     description:
+//       "Available for small high-impact tasks, complete system development, production system repair, and architecture consulting.",
+//     images: ["https://prawez.com/prawez.webp"],
+//   },
+// };
 
 // High-converting, actionable answers targeting immediate hiring concerns
 const hireFaqs: FAQItem[] = [

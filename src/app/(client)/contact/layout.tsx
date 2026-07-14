@@ -1,68 +1,151 @@
 import { generatePageGraph } from "@/lib/faq-utils.";
 import type { Metadata } from "next";
+import fs from 'fs';
+import path from 'path';
+import matter from 'gray-matter';
 
 // Highly targeted SEO Metadata optimization for top-tier search rankings
-export const metadata: Metadata = {
-  title: "Hire Prawez Alam | Expert Full-Stack Developer & DevOps Engineer",
-  description:
-    "Hire Er. Prawez Alam, a premium Full-Stack Developer specializing in high-performance Next.js and FastAPI architectures. Expert services for custom web applications, urgent bug fixes, AWS DevOps, system design, and performance tuning with rapid delivery.",
-  keywords: [
-    "Hire Full-Stack Developer",
-    "Next.js Developer Expert",
-    "FastAPI Back-End Developer",
-    "Er Prawez Alam Portfolio",
-    "Hire React Developer",
-    "Node.js Engineer",
-    "Python Web Developer",
-    "AWS DevOps Support",
-    "System Design Consultant",
-    "Application Architecture",
-    "Urgent Bug Fixes",
-    "Feature Development",
-    "CI/CD Pipeline Setup",
-    "Docker Server Deployment",
-    "Website Performance Optimization",
-    "Hourly Freelance Developer",
-    "Remote Software Engineer"
-  ],
-  alternates: {
-    canonical: "https://prawez.com/contact",
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+// export const metadata: Metadata = {
+//   title: "Hire Prawez Alam | Expert Full-Stack Developer & DevOps Engineer",
+//   description:
+//     "Hire Er. Prawez Alam, a premium Full-Stack Developer specializing in high-performance Next.js and FastAPI architectures. Expert services for custom web applications, urgent bug fixes, AWS DevOps, system design, and performance tuning with rapid delivery.",
+//   keywords: [
+//     "Hire Full-Stack Developer",
+//     "Next.js Developer Expert",
+//     "FastAPI Back-End Developer",
+//     "Er Prawez Alam Portfolio",
+//     "Hire React Developer",
+//     "Node.js Engineer",
+//     "Python Web Developer",
+//     "AWS DevOps Support",
+//     "System Design Consultant",
+//     "Application Architecture",
+//     "Urgent Bug Fixes",
+//     "Feature Development",
+//     "CI/CD Pipeline Setup",
+//     "Docker Server Deployment",
+//     "Website Performance Optimization",
+//     "Hourly Freelance Developer",
+//     "Remote Software Engineer"
+//   ],
+//   alternates: {
+//     canonical: "https://prawez.com/contact",
+//   },
+//   robots: {
+//     index: true,
+//     follow: true,
+//     googleBot: {
+//       index: true,
+//       follow: true,
+//       'max-video-preview': -1,
+//       'max-image-preview': 'large',
+//       'max-snippet': -1,
+//     },
+//   },
+//   openGraph: {
+//     title: "Er. Prawez Alam | Expert Full-Stack Developer & DevOps Engineer",
+//     description:
+//       "Looking for rapid feature development, robust system design, or critical bug fixes? Hire Prawez Alam for cutting-edge FastAPI, Next.js, and AWS cloud solutions.",
+//     url: "https://prawez.com/contact",
+//     images: [
+//       {
+//         url: "https://prawez.com/prawez.webp",
+//         width: 1200,
+//         height: 630,
+//         alt: "Er. Prawez Alam - Expert Full Stack Developer",
+//       },
+//     ],
+//     locale: "en_US",
+//     type: "website",
+//   },
+//   twitter: {
+//     card: "summary_large_image",
+//     title: "Hire Prawez Alam | Full-Stack Developer & DevOps Expert",
+//     description:
+//       "Available for scalable web applications, urgent production fixes, system engineering, and automated cloud deployments.",
+//     images: ["https://prawez.com/prawez.webp"],
+//   },
+// };
+
+
+export async function generateMetadata(): Promise<Metadata> {
+  // 1. Fallback base configurations using your exact corporate parameters
+  let pageTitle = "Hire Prawez Alam | Expert Full-Stack Developer & DevOps Engineer";
+  let pageDesc = "Hire Er. Prawez Alam, a premium Full-Stack Developer specializing in high-performance Next.js and FastAPI architectures.";
+
+  try {
+    const filePath = path.join(process.cwd(), 'content', 'contact.md');
+    
+    // Read your contact markdown file if it exists at root
+    if (fs.existsSync(filePath)) {
+      const fileContent = fs.readFileSync(filePath, 'utf8');
+      const { data } = matter(fileContent);
+      if (data.title) pageTitle = data.title;
+      if (data.description) pageDesc = data.description;
+    }
+  } catch (error) {
+    console.error("System failed to read contact.md, running hardcoded fallbacks:", error);
+  }
+
+  return {
+    title: pageTitle,
+    description: pageDesc,
+    keywords: [
+      "Hire Full-Stack Developer",
+      "Next.js Developer Expert",
+      "FastAPI Back-End Developer",
+      "Er Prawez Alam Portfolio",
+      "Hire React Developer",
+      "Node.js Engineer",
+      "Python Web Developer",
+      "AWS DevOps Support",
+      "System Design Consultant",
+      "Application Architecture",
+      "Urgent Bug Fixes",
+      "Feature Development",
+      "CI/CD Pipeline Setup",
+      "Docker Server Deployment",
+      "Website Performance Optimization",
+      "Hourly Freelance Developer",
+      "Remote Software Engineer"
+    ],
+    alternates: {
+      canonical: "https://prawez.com/contact",
+    },
+    robots: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
-  },
-  openGraph: {
-    title: "Er. Prawez Alam | Expert Full-Stack Developer & DevOps Engineer",
-    description:
-      "Looking for rapid feature development, robust system design, or critical bug fixes? Hire Prawez Alam for cutting-edge FastAPI, Next.js, and AWS cloud solutions.",
-    url: "https://prawez.com/contact",
-    images: [
-      {
-        url: "https://prawez.com/prawez.webp",
-        width: 1200,
-        height: 630,
-        alt: "Er. Prawez Alam - Expert Full Stack Developer",
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
       },
-    ],
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Hire Prawez Alam | Full-Stack Developer & DevOps Expert",
-    description:
-      "Available for scalable web applications, urgent production fixes, system engineering, and automated cloud deployments.",
-    images: ["https://prawez.com/prawez.webp"],
-  },
-};
+    },
+    openGraph: {
+      title: pageTitle,
+      description: pageDesc,
+      url: "https://prawez.com/contact",
+      images: [
+        {
+          url: "https://prawez.com/prawez.webp",
+          width: 1200,
+          height: 630,
+          alt: "Er. Prawez Alam - Expert Full Stack Developer",
+        },
+      ],
+      locale: "en_US",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Hire Prawez Alam | Full-Stack Developer & DevOps Expert",
+      description: pageDesc,
+      images: ["https://prawez.com/prawez.webp"],
+    },
+  };
+}
 
 const constFaqs = [
   {
@@ -98,7 +181,26 @@ export default function ContactLayout({
   children: React.ReactNode;
 }>) {
   
-  // Combines Local Business/Professional Identity and FAQ Data into a single JSON-LD loop for fast crawling
+ 
+
+  const contactJsonGraph = generatePageGraph(constFaqs, "https://prawez.com/contact");
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(contactJsonGraph),
+        }}
+      />
+      {children}
+    </>
+  );
+}
+
+
+
+
+ // Combines Local Business/Professional Identity and FAQ Data into a single JSON-LD loop for fast crawling
   // const structuredDataJson = {
   //   "@context": "https://schema.org",
   //   "@graph": [
@@ -137,19 +239,6 @@ export default function ContactLayout({
   //   ]
   // };
 
-  const contactJsonGraph = generatePageGraph(constFaqs, "https://prawez.com/contact");
-  return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(contactJsonGraph),
-        }}
-      />
-      {children}
-    </>
-  );
-}
 
 // import type { Metadata } from "next";
 // export const metadata: Metadata = {

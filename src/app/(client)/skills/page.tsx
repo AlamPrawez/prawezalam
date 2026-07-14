@@ -11,7 +11,6 @@ export default function SkillPage() {
                     <Expertise />
                     <DevOpsSection />
                 </section>
-
                 <div className='mx-5 sm:mx-16 my-5'>
                     <SkillsFAQ />
                 </div>

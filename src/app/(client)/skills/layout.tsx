@@ -1,62 +1,140 @@
 import type { Metadata } from "next";
 
-// Premium technical capability SEO optimization targeting specialized engineering queries
-export const metadata: Metadata = {
-  title: "Er. Prawez Alam | Technical Skills & Enterprise Software Architecture",
-  description:
-    "Explore the production-grade technology stack of Er. Prawez Alam. Expert capabilities across high-performance Next.js frontends, asynchronous FastAPI backends, AWS cloud DevOps orchestration, and complex database clustering.",
-  keywords: [
-    "Er Prawez Alam Skills",
-    "Full-Stack Developer Stack",
-    "Next.js Frontend Expert",
-    "FastAPI Backend Development",
-    "TypeScript Software Engineer",
-    "AWS Cloud Infrastructure",
-    "Docker Containerization",
-    "CI/CD Automation Pipelines",
-    "gRPC Microservices Architecture",
-    "PostgreSQL Database Optimization",
-    "Load Balancing & Nginx",
-    "Lighthouse Performance Optimization"
-  ],
-  alternates: {
-    canonical: "https://prawez.com/skills",
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+import fs from 'fs';
+import path from 'path';
+import matter from 'gray-matter';
+
+export async function generateMetadata(): Promise<Metadata> {
+  // 1. Establish structural skill fallbacks using your precise properties
+  let pageTitle = "Er. Prawez Alam | Technical Skills & Enterprise Software Architecture";
+  let pageDesc = "Explore the production-grade technology stack of Er. Prawez Alam. Expert capabilities across high-performance Next.js and FastAPI.";
+
+  try {
+    const filePath = path.join(process.cwd(), 'content', 'skills.md');
+    
+    // Server-side filesystem validation and extraction
+    if (fs.existsSync(filePath)) {
+      const fileContent = fs.readFileSync(filePath, 'utf8');
+      const { data } = matter(fileContent);
+      if (data.title) pageTitle = data.title;
+      if (data.description) pageDesc = data.description;
+    }
+  } catch (error) {
+    console.error("System failed to process skills.md, running hardcoded fallbacks:", error);
+  }
+
+  return {
+    title: pageTitle,
+    description: pageDesc,
+    keywords: [
+      "Er Prawez Alam Skills",
+      "Full-Stack Developer Stack",
+      "Next.js Frontend Expert",
+      "FastAPI Backend Development",
+      "TypeScript Software Engineer",
+      "AWS Cloud Infrastructure",
+      "Docker Containerization",
+      "CI/CD Automation Pipelines",
+      "gRPC Microservices Architecture",
+      "PostgreSQL Database Optimization",
+      "Load Balancing & Nginx",
+      "Lighthouse Performance Optimization"
+    ],
+    alternates: {
+      canonical: "https://prawez.com/skills",
+    },
+    robots: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
-  },
-  openGraph: {
-    title: "Er. Prawez Alam | Full-Stack Engineering & Cloud DevOps Skills",
-    description:
-      "Deep dive into the core engineering technologies utilized by Er. Prawez Alam. Building resilient ecosystems with perfect performance profiling.",
-    url: "https://prawez.com/skills",
-    images: [
-      {
-        url: "https://prawez.com/prawez.webp",
-        width: 1200,
-        height: 630,
-        alt: "Er. Prawez Alam - Technical Architecture Stack Summary",
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
       },
-    ],
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Er. Prawez Alam | Full-Stack Engineering & Architecture Profile",
-    description:
-      "Production technical expertise across frontend applications, async API development, cloud automation, and database tuning.",
-    images: ["https://prawez.com/prawez.webp"],
-  },
-};
+    },
+    openGraph: {
+      title: "Er. Prawez Alam | Full-Stack Engineering & Cloud DevOps Skills",
+      description:
+        "Deep dive into the core engineering technologies utilized by Er. Prawez Alam. Building resilient ecosystems with perfect performance profiling.",
+      url: "https://prawez.com/skills",
+      images: [
+        {
+          url: "https://prawez.com/prawez.webp",
+          width: 1200,
+          height: 630,
+          alt: "Er. Prawez Alam - Technical Architecture Stack Summary",
+        },
+      ],
+      locale: "en_US",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Er. Prawez Alam | Full-Stack Engineering & Architecture Profile",
+      description: pageDesc,
+      images: ["https://prawez.com/prawez.webp"],
+    },
+  };
+}
+// Premium technical capability SEO optimization targeting specialized engineering queries
+// export const metadata: Metadata = {
+//   title: "Er. Prawez Alam | Technical Skills & Enterprise Software Architecture",
+//   description:
+//     "Explore the production-grade technology stack of Er. Prawez Alam. Expert capabilities across high-performance Next.js frontends, asynchronous FastAPI backends, AWS cloud DevOps orchestration, and complex database clustering.",
+//   keywords: [
+//     "Er Prawez Alam Skills",
+//     "Full-Stack Developer Stack",
+//     "Next.js Frontend Expert",
+//     "FastAPI Backend Development",
+//     "TypeScript Software Engineer",
+//     "AWS Cloud Infrastructure",
+//     "Docker Containerization",
+//     "CI/CD Automation Pipelines",
+//     "gRPC Microservices Architecture",
+//     "PostgreSQL Database Optimization",
+//     "Load Balancing & Nginx",
+//     "Lighthouse Performance Optimization"
+//   ],
+//   alternates: {
+//     canonical: "https://prawez.com/skills",
+//   },
+//   robots: {
+//     index: true,
+//     follow: true,
+//     googleBot: {
+//       index: true,
+//       follow: true,
+//       'max-video-preview': -1,
+//       'max-image-preview': 'large',
+//       'max-snippet': -1,
+//     },
+//   },
+//   openGraph: {
+//     title: "Er. Prawez Alam | Full-Stack Engineering & Cloud DevOps Skills",
+//     description:
+//       "Deep dive into the core engineering technologies utilized by Er. Prawez Alam. Building resilient ecosystems with perfect performance profiling.",
+//     url: "https://prawez.com/skills",
+//     images: [
+//       {
+//         url: "https://prawez.com/prawez.webp",
+//         width: 1200,
+//         height: 630,
+//         alt: "Er. Prawez Alam - Technical Architecture Stack Summary",
+//       },
+//     ],
+//     locale: "en_US",
+//     type: "website",
+//   },
+//   twitter: {
+//     card: "summary_large_image",
+//     title: "Er. Prawez Alam | Full-Stack Engineering & Architecture Profile",
+//     description:
+//       "Production technical expertise across frontend applications, async API development, cloud automation, and database tuning.",
+//     images: ["https://prawez.com/prawez.webp"],
+//   },
+// };
 
 // Deep, skill-focused FAQs targeting engineering workflows, protocols, and deployment models
 const skillsFaqs = [

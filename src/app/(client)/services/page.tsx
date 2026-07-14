@@ -1,6 +1,6 @@
 import ServicesSection from "@/components/Services";
 import ServicesFAQ from "@/components/ServicesFAQ";
-export default function SkillPage() {
+export default function ServicesPage() {
 
     return (
         <>
