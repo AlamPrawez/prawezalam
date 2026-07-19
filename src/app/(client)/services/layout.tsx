@@ -78,67 +78,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
   };
 }
-// Premium Service-tier SEO Meta optimization for search ranking dominance
-// export const metadata: Metadata = {
-//   title: "Professional Web Development & AWS DevOps Services | Er. Prawez Alam",
-//   description:
-//     "Explore elite development services offered by Er. Prawez Alam. Specializing in high-performance Next.js and FastAPI applications, custom SaaS development, API integrations, AWS cloud system design, and production-ready CI/CD pipelines.",
-//   keywords: [
-//     "Er Prawez Alam Services",
-//     "Web Development Services",
-//     "Next.js Development Services",
-//     "FastAPI Back-End Engineering",
-//     "SaaS Platform Development",
-//     "Custom API Integration",
-//     "DevOps Consulting Services",
-//     "AWS System Design Architecture",
-//     "VPS Server Setup & Hardening",
-//     "Bug Fixing Services",
-//     "Website Performance Optimization",
-//     "Project Deployment Support",
-//     "Technical Consulting",
-//     "Scalable Software Infrastructure"
-//   ],
-//   alternates: {
-//     canonical: "https://prawez.com/services",
-//   },
-//   robots: {
-//     index: true,
-//     follow: true,
-//     googleBot: {
-//       index: true,
-//       follow: true,
-//       'max-video-preview': -1,
-//       'max-image-preview': 'large',
-//       'max-snippet': -1,
-//     },
-//   },
-//   openGraph: {
-//     title: "Er. Prawez Alam | High-Performance Development & Cloud Services",
-//     description:
-//       "Accelerate your business with expert services including web development, robust SaaS architecture, clean API systems, cloud engineering, and automated deployment pipelines.",
-//     url: "https://prawez.com/services",
-//     images: [
-//       {
-//         url: "https://prawez.com/services.png", // Corrected typo path from serives.png
-//         width: 1200,
-//         height: 630,
-//         alt: "Er. Prawez Alam - Professional Software Development Services",
-//       },
-//     ],
-//     locale: "en_US",
-//     type: "website",
-//   },
-//   twitter: {
-//     card: "summary_large_image",
-//     title: "Er. Prawez Alam | Premium Development & DevOps Services",
-//     description:
-//       "Scalable web applications, custom SaaS systems, AWS cloud setups, and rapid bug fixing services by an expert software engineer.",
-//     images: ["https://prawez.com/services.png"], // Corrected typo path
-//   },
-// };
 
-// Deep, service-focused FAQs targeting feature delivery, architecture, and technology specs
 const servicesFaqs = [
   {
     question: "What core development services do you provide?",

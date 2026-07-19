@@ -7,51 +7,68 @@ import OrderServiceButton from "./OrderServiceButton";
 const services = [
     {
         title: "Mobile App Development",
-        desc: "Build scalable, modern Android, iOS & cross-platform mobile apps tailored to your business goals. Engineered using high-performance runtime logic focused on responsive usability and long-term codebase maintainability."
+        desc: "Build scalable, modern Android, iOS & cross-platform mobile apps tailored to your business goals. Engineered using high-performance runtime logic focused on responsive usability and long-term codebase maintainability.",
+        link: null
     },
     {
         title: "Web Apps & Websites",
-        desc: "Develop exceptionally fast, highly secure, and fully responsive full-stack web applications designed using a mobile-first philosophy to seamlessly manage concurrent user growth."
+        desc: "Develop exceptionally fast, highly secure, and fully responsive full-stack web applications designed using a mobile-first philosophy to seamlessly manage concurrent user growth.",
+        link: null
     },
     {
         title: "Tech & DevOps Consulting",
-        desc: "Get expert system architect guidance on mapping your multi-protocol backend microservices, optimizing database schemas, selecting technical stacks, and outlining multi-region deployment infrastructures."
+        desc: "Get expert system architect guidance on mapping your multi-protocol backend microservices, optimizing database schemas, selecting technical stacks, and outlining multi-region deployment infrastructures.",
+        link: null
     },
     {
         title: "API & Third-Party Integration",
-        desc: "Connect your ecosystem with modern payment gateways, cloud CRMs, external messaging tools, or enterprise data services through highly secure and modular REST or gRPC API pipelines."
+        desc: "Connect your ecosystem with modern payment gateways, cloud CRMs, external messaging tools, or enterprise data services through highly secure and modular REST or gRPC API pipelines.",
+        link: null
     },
     {
         title: "Code Review & Optimization",
-        desc: "Deeply analyze your existing codebase to systematically reduce structural technical debt while engineering fine-tuned performance optimizations to hit lightning-fast loading speeds."
+        desc: "Deeply analyze your existing codebase to systematically reduce structural technical debt while engineering fine-tuned performance optimizations to hit lightning-fast loading speeds.",
+        link: null
     },
     {
         title: "SaaS Application Design",
-        desc: "Design and ship high-availability SaaS platforms incorporating secure multi-tenant structures, custom access management tiers, and scalable cloud-ready backend workflows."
+        desc: "Design and ship high-availability SaaS platforms incorporating secure multi-tenant structures, custom access management tiers, and scalable cloud-ready backend workflows.",
+        link: null
     },
     {
         title: "System Architecture (AWS)",
-        desc: "Map secure cloud-native systems utilizing proven AWS infrastructure blueprints to guarantee absolute reliability, automatic failover routines, and high computational performance."
+        desc: "Map secure cloud-native systems utilizing proven AWS infrastructure blueprints to guarantee absolute reliability, automatic failover routines, and high computational performance.",
+        link: null
     },
     {
         title: "VPS Setup & Management",
-        desc: "Configure, secure, and monitor production-ready Linux VPS environments using reverse proxy structures like Nginx, automated Docker multi-container setups, and live tracking diagnostics."
+        desc: "Configure, secure, and monitor production-ready Linux VPS environments using reverse proxy structures like Nginx, automated Docker multi-container setups, and live tracking diagnostics.",
+        link: null
     },
     {
         title: "Complex Feature Development",
-        desc: "Implement high-fidelity custom system features—including end-to-end live chat architectures, real-time node tracking, and interactive video streaming modules—requiring advanced programming logic."
+        desc: "Implement high-fidelity custom system features—including end-to-end live chat architectures, real-time node tracking, and interactive video streaming modules—requiring advanced programming logic.",
+        link: null
     },
     {
         title: "Bug Detection & Fixing",
-        desc: "Isolate and debug buried performance bottlenecks, async failures, or database deadlocks affecting overall service availability, resolving system bugs efficiently."
+        desc: "Isolate and debug buried performance bottlenecks, async failures, or database deadlocks affecting overall service availability, resolving system bugs efficiently.",
+        link: null
     },
     {
         title: "Figma / PDF to Frontend Conversion",
-        desc: "Convert static UI designs into pixel-perfect, accessible, and ultra-performant Next.js, NuxtJS, or modern utility-first Tailwind CSS frontend interfaces."
+        desc: "Convert static UI designs into pixel-perfect, accessible, and ultra-performant Next.js, NuxtJS, or modern utility-first Tailwind CSS frontend interfaces.",
+        link: null
     },
     {
         title: "Project Deployment",
-        desc: "Execute complete continuous delivery (CI/CD) pipelines from local code commits to stable, live production web architectures with highly optimized runtime configurations."
+        desc: "Execute complete continuous delivery (CI/CD) pipelines from local code commits to stable, live production web architectures with highly optimized runtime configurations.",
+        link: null
+    },
+    {
+        title: "React.js Development Services",
+        desc: "Need a modern web application that is fast, responsive, and easy to scale? I build high-quality React.js applications for startups, businesses, and agencies looking for a reliable development partner.",
+        link: "/services/react-js-development"
     }
 ];
 
@@ -92,8 +109,21 @@ export default function ServicesSection() {
                                 </div>
 
                                 {/* Core Semantic Technical SEO Heading Key */}
-                                <h3 className="text-lg font-bold text-gray-900 mb-2.5 tracking-tight group-hover:text-indigo-600 transition-colors duration-200">
+                                {/* <h3 className="text-lg font-bold text-gray-900 mb-2.5 tracking-tight group-hover:text-indigo-600 transition-colors duration-200">
                                     {item.title}
+                                </h3> */}
+
+                                <h3 className="text-lg font-bold text-gray-900 mb-2.5 tracking-tight group-hover:text-indigo-600 transition-colors duration-200">
+                                    {item.link ? (
+                                        <a
+                                            href={item.link}
+                                            className="text-inherit font-inherit no-underline block relative z-20"
+                                        >
+                                            {item.title}
+                                        </a>
+                                    ) : (
+                                        item.title
+                                    )}
                                 </h3>
 
                                 <p className="text-gray-600 text-[14px] leading-relaxed mb-6 font-normal">
@@ -103,6 +133,10 @@ export default function ServicesSection() {
 
                             {/* Button Section matches the original layout constraint */}
                             <div className="flex justify-end mt-auto pt-2 border-t border-gray-50 group-hover:border-gray-100 transition-colors duration-300">
+
+
+
+
                                 <OrderServiceButton title={item.title} />
                             </div>
                         </div>
