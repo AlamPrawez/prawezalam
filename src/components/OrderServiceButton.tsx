@@ -9,7 +9,7 @@ export default function OrderServiceButton({ title }: { title: string }) {
 
     const openHire = (serviceTitle: string) => {
         setService(serviceTitle);     // store selected service
-        router.push("/hire_for_tasks");         // go to hire page
+        router.push("/hire-for-tasks");         // go to hire page
     };
 
     return (

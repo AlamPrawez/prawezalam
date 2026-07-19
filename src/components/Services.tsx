@@ -133,10 +133,6 @@ export default function ServicesSection() {
 
                             {/* Button Section matches the original layout constraint */}
                             <div className="flex justify-end mt-auto pt-2 border-t border-gray-50 group-hover:border-gray-100 transition-colors duration-300">
-
-
-
-
                                 <OrderServiceButton title={item.title} />
                             </div>
                         </div>
