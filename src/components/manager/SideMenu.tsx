@@ -26,24 +26,19 @@ const SideMenu: React.FC = () => {
     const linksList = [
         {
             title: "Dashboard",
-            href: "/dashboard",
+            href: "/manager/dashboard",
             icon: "fa-solid fa-border-all"
         },
         {
-            title: "My Gigs",
-            href: "/dashboard/gigs",
-            icon: "fa-solid fa-gear"
+            title: "Blogs",
+            href: "/manager/blogs",
+            icon: "fa-solid fa-border-all"
         },
         {
-            title: "Orders",
-            href: "/dashboard/orders",
-            icon: "fa-solid fa-gear"
+            title: "Services",
+            href: "/manager/services",
+            icon: "fa-solid fa-border-all"
         },
-        {
-            title: "message",
-            href: "/dashboard/messages",
-            icon: "fa-solid fa-gear"
-        }
     ];
 
     return (

@@ -36,7 +36,6 @@ export default function Login() {
 
 
     const onSubmit = async (data: LoginFormData) => {
-        // console.log(data)
         setServerError(null);
 
         const res = await authentication.signIn(data);
@@ -45,14 +44,20 @@ export default function Login() {
             setServerError(res.error);
             return;
         }
-        if (res.session) {
-            // window.location.href = "/dashboard";
-            router.refresh();
-            router.replace("/dashboard");
-        }
-    };
 
-   
+        if (res.session && res.user) {
+            router.refresh();
+
+            // --- NEW: Dynamic routing based on the role we fetched ---
+            if (res.user.role === 'admin') {
+                router.replace("/admin/dashboard");
+            } else {
+                router.replace("/manager/dashboard");
+            }
+        }
+    }
+
+
 
     return (
         <div className="container mx-auto px-4 py-16">

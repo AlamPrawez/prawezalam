@@ -138,6 +138,77 @@ const faqSchema = {
   ]
 };
 
+
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [{
+      "@type": "Person",
+      "name": "Prawez Alam",
+      "jobTitle": "Full Stack Engineer & Software Architect",
+      "url": "https://prawez.com",
+      "image": "https://prawez.com/prawez.JPEG",
+      "sameAs": [
+        "https://github.com/AlamPrawez",
+        "https://linkedin.com/in/prawez-alam"
+      ],
+      "knowsAbout": [
+        "Software Architecture",
+        "Full Stack Web Development",
+        "Full Stack Development in nepal",
+        "FastAPI",
+        "Next.js",
+        "gRPC API Gateway Design",
+        "Geospatial Data Engineering",
+        "Web Performance Optimization"
+      ],
+      "offers": {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Remote Software Engineering & Custom Application Development",
+          "areaServed": "Worldwide"
+        }
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://prawez.com",
+      "mainEntity": faqSchema.mainEntity,
+    }
+    ]
+  };
+
+return (
+  <html lang="en">
+    <head>
+        {/* Place the script here in the head */}
+        <script src="https://analytics.ahrefs.com/analytics.js" data-key="shO09nrtYl4h6+p++cxBZw" async></script>
+      </head>
+    <body
+      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+    >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      {children}
+    </body>
+  </html>
+);
+}
+
+
+
+
+
+
 // export const metadata: Metadata = {
 //   metadataBase: new URL("https://prawez.com"),
 
@@ -236,70 +307,3 @@ const faqSchema = {
 //     canonical: "https://prawez.com",
 //   },
 // };
-
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@graph": [{
-      "@type": "Person",
-      "name": "Prawez Alam",
-      "jobTitle": "Full Stack Engineer & Software Architect",
-      "url": "https://prawez.com",
-      "image": "https://prawez.com/prawez.JPEG",
-      "sameAs": [
-        "https://github.com/AlamPrawez",
-        "https://linkedin.com/in/prawez-alam"
-      ],
-      "knowsAbout": [
-        "Software Architecture",
-        "Full Stack Web Development",
-        "Full Stack Development in nepal",
-        "FastAPI",
-        "Next.js",
-        "gRPC API Gateway Design",
-        "Geospatial Data Engineering",
-        "Web Performance Optimization"
-      ],
-      "offers": {
-        "@type": "Offer",
-        "itemOffered": {
-          "@type": "Service",
-          "name": "Remote Software Engineering & Custom Application Development",
-          "areaServed": "Worldwide"
-        }
-      }
-    },
-    {
-      "@type": "FAQPage",
-      "@id": "https://prawez.com",
-      "mainEntity": faqSchema.mainEntity,
-    }
-    ]
-  };
-return (
-  <html lang="en">
-    <head>
-        {/* Place the script here in the head */}
-        <script src="https://analytics.ahrefs.com/analytics.js" data-key="shO09nrtYl4h6+p++cxBZw" async></script>
-      </head>
-    <body
-      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-    >
-
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-
-      {children}
-
-      {/* <Footer /> */}
-    </body>
-  </html>
-);
-}
