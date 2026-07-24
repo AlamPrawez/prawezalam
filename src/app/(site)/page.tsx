@@ -23,7 +23,7 @@ export default function Home() {
           {/* <ServicesSection /> */}
           <ServicesSectionNew />
         </section>
-        <div className="px-40 py-20">
+       <div className="px-4 py-8 sm:px-8 sm:py-12 lg:px-20 lg:py-16 xl:px-40 xl:py-20">
         <Faq faqs={faqs}/>
         </div>
       </main>
