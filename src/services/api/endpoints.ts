@@ -349,7 +349,7 @@ export class CmsServiceRepository {
 
         let query = supabase
             .from('cms_services')
-            .select('id, title, slug, status, updated_at, cms_service_details(hero)')
+            .select('id, title, slug, status, updated_at, cms_service_details(hero,seo)')
             .order('updated_at', { ascending: false });
 
         if (!canViewDrafts) {

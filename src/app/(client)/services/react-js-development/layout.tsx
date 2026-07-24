@@ -93,13 +93,7 @@ const servicesFaqs = [
   }
 ];
 
-export default function ReactServicesLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  
-  // Interconnected JSON-LD schema referencing your updated React service path mapping
+ // Interconnected JSON-LD schema referencing your updated React service path mapping
   const servicesJsonGraph = {
     "@context": "https://schema.org",
     "@graph": [
@@ -136,6 +130,14 @@ export default function ReactServicesLayout({
       }
     ]
   };
+
+export default function ReactServicesLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  
+ 
 
   return (
     <>

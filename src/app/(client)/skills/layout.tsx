@@ -100,14 +100,7 @@ const skillsFaqs = [
   }
 ];
 
-export default function SkillLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  
-  // Creates a clean entity loop breaking your tech skills down into an indexed list linked back to you
-  const skillsJsonGraph = {
+const skillsJsonGraph = {
     "@context": "https://schema.org",
     "@graph": [
       {
@@ -141,6 +134,15 @@ export default function SkillLayout({
       }
     ]
   };
+
+export default function SkillLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  
+  // Creates a clean entity loop breaking your tech skills down into an indexed list linked back to you
+  
 
   return (
     <>

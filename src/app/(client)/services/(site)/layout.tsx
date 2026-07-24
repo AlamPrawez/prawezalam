@@ -98,13 +98,7 @@ const servicesFaqs = [
   }
 ];
 
-export default function ServicesLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  
-  // Clean interconnected JSON-LD schema linking your page-specific services back to your identity graph
+// Clean interconnected JSON-LD schema linking your page-specific services back to your identity graph
   const servicesJsonGraph = {
     "@context": "https://schema.org",
     "@graph": [
@@ -141,7 +135,12 @@ export default function ServicesLayout({
       }
     ]
   };
-
+  
+export default function ServicesLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <>
       <script

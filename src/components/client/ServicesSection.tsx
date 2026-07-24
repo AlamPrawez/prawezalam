@@ -22,12 +22,13 @@ export default function ServicesSectionNew() {
                 setLoading(true);
                 // Fetch published CMS services from Supabase repository
                 const data = await cmsService.fetchServicesList();
+
                 if (data && data.length > 0) {
                     const cmsItems: ServiceItem[] = data.map((item: any) => ({
                         id: item.id,
                         title: item.cms_service_details?.hero?.badge || item.title,
                         desc:
-                            item.description ||
+                            item.cms_service_details.seo.description ||
                             item.meta_description ||
                             "Explore our specialized engineering solutions and technical consulting services built for performance and scalability.",
                         link: item.slug ? `/services/${item.slug}` : null,
@@ -49,7 +50,7 @@ export default function ServicesSectionNew() {
     }, []);
 
     return (
-        <section className="py-24 bg-gray-50/60 transition-colors duration-300 font-sans">
+        <section className="py-24 bg-gray-100 transition-colors duration-300 font-sans">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
                 {/* Modern Centered Premium Heading */}
