@@ -20,6 +20,8 @@ import OrderServiceButton from '@/components/OrderServiceButton';
 import { FeatureItem, FeaturesIndustriesPayload, IndustryItem } from '@/@types/cms';
 // import { buildPageJsonLd } from '@/lib/seo/schema-builder';
 import { JsonLd } from '@/components/seo/JsonLd';
+import { renderText } from '@/utils/renderText';
+
 
 interface PageProps {
     params: Promise<{
@@ -30,14 +32,44 @@ interface PageProps {
 /**
  * Universal text extractor to safely prevent "Objects are not valid as a React child" errors
  */
-function getText(value: any): string {
-    if (value === null || value === undefined) return '';
-    if (typeof value === 'string' || typeof value === 'number') return String(value);
-    if (typeof value === 'object') {
-        return value.text || value.title || value.label || value.heading || value.name || value.desc || value.description || '';
-    }
-    return '';
-}
+// function getText(value: any): string {
+//     if (value === null || value === undefined) return '';
+//     if (typeof value === 'string' || typeof value === 'number') return String(value);
+//     if (typeof value === 'object') {
+//         return value.text || value.title || value.label || value.heading || value.name || value.desc || value.description || '';
+//     }
+//     return '';
+// }
+
+// export function getText(value: any): string {
+//   if (value === null || value === undefined) return '';
+
+//   let rawText = '';
+
+//   if (typeof value === 'string' || typeof value === 'number') {
+//     rawText = String(value);
+//   } else if (typeof value === 'object') {
+//     rawText =
+//       value.text ||
+//       value.title ||
+//       value.label ||
+//       value.heading ||
+//       value.name ||
+//       value.desc ||
+//       value.description ||
+//       '';
+//   }
+
+//   if (!rawText) return '';
+
+//   // Converts markdown link pattern [Label](URL) into an HTML <a> tag
+//   return rawText.replace(
+//     /\[([^\]]+)\]\(([^)]+)\)/g,
+//     '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:underline font-medium">$1</a>'
+//   );
+// }
+
+
 
 /**
  * 1. DYNAMIC METADATA GENERATION FOR SEO
@@ -188,11 +220,11 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
     //     serviceTitle: serviceData?.title,
     // });
 
-  
+
 
     return (
         <>
-        <JsonLd seo={details?.seo} faqs={details?.faqs} />
+            <JsonLd seo={details?.seo} faqs={details?.faqs} />
             {/* <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{
@@ -224,7 +256,7 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                             {hero.badge && (
                                 <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-indigo-500/15 border border-indigo-400/30 text-indigo-200 text-xs font-bold uppercase tracking-widest shadow-lg backdrop-blur-md ring-1 ring-inset ring-white/5">
                                     <Sparkles className="w-4 h-4 text-indigo-300 animate-pulse" />
-                                    <span>{getText(hero.badge)}</span>
+                                    <span>{renderText(hero.badge)}</span>
                                 </div>
                             )}
 
@@ -240,13 +272,13 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                                         __html: DOMPurify.sanitize(
                                             typeof hero.paragraphHtml === 'string'
                                                 ? hero.paragraphHtml
-                                                : getText(hero.paragraphHtml)
+                                                : renderText(hero.paragraphHtml)
                                         )
                                     }}
                                 />
                             ) : (
                                 <p className="text-slate-200 text-base sm:text-lg leading-relaxed break-words">
-                                    {getText(details.seo?.description) || serviceData.title}
+                                    {renderText(details.seo?.description) || serviceData.title}
                                 </p>
                             )}
 
@@ -261,7 +293,7 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                                         href={hero.buttons[1].url || hero.buttons[1].href || '#services'}
                                         className="group inline-flex items-center gap-2 px-6 py-3.5 rounded-xl text-sm font-semibold text-white bg-white/10 hover:bg-white/15 border border-white/20 transition-all duration-300 shadow-sm hover:-translate-y-0.5 backdrop-blur-sm"
                                     >
-                                        <span>{getText(hero.buttons[1]) || 'Explore Services'}</span>
+                                        <span>{renderText(hero.buttons[1]) || 'Explore Services'}</span>
                                         <ArrowRight className="w-4 h-4 text-slate-300 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-white" />
                                     </a>
                                 )}
@@ -279,7 +311,7 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                                 </h2>
                                 {services.sectionSubtitle && (
                                     <p className="text-slate-500 mt-4 text-base leading-relaxed">
-                                        {getText(services.sectionSubtitle)}
+                                        {renderText(services.sectionSubtitle)}
                                     </p>
                                 )}
                             </div>
@@ -303,7 +335,7 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                                                     {card.title}
                                                 </h3>
                                                 <p className="text-slate-500 text-sm leading-relaxed mb-6 font-normal">
-                                                    {getText(card.description || card.desc)}
+                                                    {renderText(card.description || card.desc)}
                                                 </p>
                                             </div>
 
@@ -318,7 +350,7 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                                                             <li key={pt?.id || pIdx} className="text-xs text-slate-600 flex items-center gap-2">
                                                                 <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 shrink-0" />
                                                                 {/* Handles both plain strings like "SaaS platforms" AND objects */}
-                                                                <span>{getText(pt)}</span>
+                                                                <span>{renderText(pt)}</span>
                                                             </li>
                                                         ))}
                                                     </ul>
@@ -348,7 +380,7 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
 
                                     {whyChoose.description && (
                                         <p className="text-indigo-100/80 mt-4 text-base sm:text-lg leading-relaxed">
-                                            {getText(whyChoose.description)}
+                                            {renderText(whyChoose.description)}
                                         </p>
                                     )}
 
@@ -360,7 +392,7 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                                                     className="bg-white/5 backdrop-blur-md p-4 rounded-xl border border-white/10 hover:border-indigo-400/40 transition-colors flex items-center gap-3 text-indigo-100 font-medium text-sm"
                                                 >
                                                     <Check className="w-4 h-4 text-indigo-300 shrink-0" />
-                                                    <span>{getText(feat)}</span>
+                                                    <span>{renderText(feat)}</span>
                                                 </div>
                                             ))}
                                         </div>
@@ -368,7 +400,7 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
 
                                     {whyChoose.bottomDescription && (
                                         <p className="text-indigo-200/60 text-xs sm:text-sm mt-8 pt-6 border-t border-white/10 leading-relaxed">
-                                            {getText(whyChoose.bottomDescription)}
+                                            {renderText(whyChoose.bottomDescription)}
                                         </p>
                                     )}
                                 </div>
@@ -385,15 +417,15 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                             <div className="text-center mb-16 max-w-2xl mx-auto">
                                 {process.badge && (
                                     <span className="text-xs font-bold uppercase tracking-widest text-indigo-600 bg-indigo-50 px-3.5 py-1.5 rounded-full inline-block mb-3.5 border border-indigo-100">
-                                        {getText(process.badge)}
+                                        {renderText(process.badge)}
                                     </span>
                                 )}
                                 <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-                                    {getText(process.title)}
+                                    {renderText(process.title)}
                                 </h2>
                                 {process.subtitle && (
                                     <p className="text-slate-500 mt-4 text-base leading-relaxed">
-                                        {getText(process.subtitle)}
+                                        {renderText(process.subtitle)}
                                     </p>
                                 )}
                             </div>
@@ -418,21 +450,21 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                                                     {/* TITLE */}
                                                     {stepTitle && (
                                                         <h3 className="text-lg font-bold text-slate-900 tracking-tight">
-                                                            {getText(stepTitle)}
+                                                            {renderText(stepTitle)}
                                                         </h3>
                                                     )}
 
                                                     {/* MAIN DESCRIPTION */}
                                                     {stepDesc && (
                                                         <p className="text-slate-600 text-sm leading-relaxed">
-                                                            {getText(stepDesc)}
+                                                            {renderText(stepDesc)}
                                                         </p>
                                                     )}
 
                                                     {/* SUBTEXT / INTRO TO BULLETS */}
                                                     {step?.subText && (
                                                         <p className="text-slate-500 text-xs font-medium pt-1">
-                                                            {getText(step.subText)}
+                                                            {renderText(step.subText)}
                                                         </p>
                                                     )}
 
@@ -442,7 +474,7 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                                                             {step.bulletList.map((bullet: string, bIdx: number) => (
                                                                 <li key={bIdx} className="flex items-start gap-2">
                                                                     <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
-                                                                    <span>{getText(bullet)}</span>
+                                                                    <span>{renderText(bullet)}</span>
                                                                 </li>
                                                             ))}
                                                         </ul>
@@ -451,14 +483,14 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                                                     {/* DETAILS (BACKWARD COMPATIBILITY) */}
                                                     {step?.details && (
                                                         <p className="text-slate-500 text-xs leading-relaxed border-t border-slate-200 pt-3">
-                                                            {getText(step.details)}
+                                                            {renderText(step.details)}
                                                         </p>
                                                     )}
 
                                                     {/* SECOND PARAGRAPH */}
                                                     {step?.secondParagraph && (
                                                         <p className="text-slate-500 text-xs leading-relaxed border-t border-slate-200 pt-3">
-                                                            {getText(step.secondParagraph)}
+                                                            {renderText(step.secondParagraph)}
                                                         </p>
                                                     )}
                                                 </div>
@@ -471,57 +503,77 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                     </section>
                 )}
 
-                {/* FEATURES & INDUSTRIES DYNAMIC SECTION — light gray band, distinct from the white Process section above */}
-                {features_industries && (
-                    <section className="relative py-24 bg-slate-50 border-b border-slate-100">
-                        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                            <div className="grid gap-16 lg:grid-cols-2">
+                {/* FEATURES & INDUSTRIES DYNAMIC SECTION */}
+                {(() => {
+                    if (!features_industries) return null;
 
-                                {/* Column A: Frequently Built Features */}
-                                {features_industries.featuresSection && <div>
-                                    <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-2">
-                                        {features_industries.featuresSection?.title || "Frequently Built Features"}
-                                    </h3>
-                                    <p className="text-slate-500 text-sm mb-6">
-                                        {features_industries.featuresSection?.subtitle || "Some of the solutions I regularly engineer into custom web applications:"}
-                                    </p>
-                                    <div className="flex flex-wrap gap-2">
-                                        {features_industries.featuresSection?.items?.map((item: FeatureItem, fIdx: number) => (
-                                            <span
-                                                key={item.id || fIdx}
-                                                className="text-xs bg-white text-slate-700 border border-slate-200 hover:border-indigo-300 hover:text-indigo-600 transition-colors px-3 py-1.5 rounded-lg font-medium shadow-sm"
-                                            >
-                                                {item.label}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>}
+                    const hasFeatures = Boolean(features_industries.featuresSection?.title?.trim());
+                    const hasIndustries = Boolean(features_industries.industriesSection?.title?.trim());
+                    const hasBoth = hasFeatures && hasIndustries;
 
-                                {/* Column B: Industries Served */}
-                                {features_industries.industriesSection && features_industries.industriesSection?.items.length > 0 && <div>
-                                    <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-2">
-                                        {features_industries.industriesSection?.title || "Industries I Work With"}
-                                    </h3>
-                                    <p className="text-slate-500 text-sm mb-6">
-                                        {features_industries.industriesSection?.subtitle || "React structures fit seamlessly into many domain configurations, including:"}
-                                    </p>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        {features_industries.industriesSection?.items?.map((ind: IndustryItem, iIdx: number) => (
-                                            <div
-                                                key={ind.id || iIdx}
-                                                className="flex items-center gap-2.5 p-3 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 transition-colors text-slate-700 font-medium text-sm shadow-sm"
-                                            >
-                                                <span className="h-2 w-2 rounded-full bg-indigo-500 shrink-0" />
-                                                {ind.name}
+                    // Rule 1: Hide section if both titles are empty or missing
+                    if (!hasFeatures && !hasIndustries) return null;
+
+                    return (
+                        <section className="relative py-24 bg-slate-50 border-b border-slate-100">
+                            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                                {/* Dynamically switch between 2-column grid or centered single-column layout */}
+                                <div className={hasBoth ? "grid gap-16 lg:grid-cols-2" : "max-w-2xl mx-auto text-center flex flex-col items-center"}>
+
+                                    {/* Column A: Frequently Built Features */}
+                                    {hasFeatures && (
+                                        <div className={!hasBoth ? "w-full flex flex-col items-center" : ""}>
+                                            <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-2">
+                                                {features_industries.featuresSection?.title}
+                                            </h3>
+                                            {features_industries.featuresSection?.subtitle && (
+                                                <p className="text-slate-500 text-sm mb-6">
+                                                    {features_industries.featuresSection.subtitle}
+                                                </p>
+                                            )}
+                                            <div className={`flex flex-wrap gap-2 ${!hasBoth ? "justify-center" : ""}`}>
+                                                {features_industries.featuresSection?.items?.map((item: FeatureItem, fIdx: number) => (
+                                                    <span
+                                                        key={item.id || fIdx}
+                                                        className="text-xs bg-white text-slate-700 border border-slate-200 hover:border-indigo-300 hover:text-indigo-600 transition-colors px-3 py-1.5 rounded-lg font-medium shadow-sm"
+                                                    >
+                                                        {item.label}
+                                                    </span>
+                                                ))}
                                             </div>
-                                        ))}
-                                    </div>
-                                </div>}
+                                        </div>
+                                    )}
 
+                                    {/* Column B: Industries Served */}
+                                    {hasIndustries && (
+                                        <div className={!hasBoth ? "w-full flex flex-col items-center" : ""}>
+                                            <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-2">
+                                                {features_industries.industriesSection?.title}
+                                            </h3>
+                                            {features_industries.industriesSection?.subtitle && (
+                                                <p className="text-slate-500 text-sm mb-6">
+                                                    {features_industries.industriesSection.subtitle}
+                                                </p>
+                                            )}
+                                            <div className={`grid grid-cols-2 gap-3 w-full ${!hasBoth ? "max-w-md" : ""}`}>
+                                                {features_industries.industriesSection?.items?.map((ind: IndustryItem, iIdx: number) => (
+                                                    <div
+                                                        key={ind.id || iIdx}
+                                                        className="flex items-center gap-2.5 p-3 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 transition-colors text-slate-700 font-medium text-sm shadow-sm"
+                                                    >
+                                                        <span className="h-2 w-2 rounded-full bg-indigo-500 shrink-0" />
+                                                        {ind.name}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                </div>
                             </div>
-                        </div>
-                    </section>
-                )}
+                        </section>
+                    );
+                })()}
 
                 {/* 5. WHY WORK WITH ME — white band */}
                 {whyWorkWithMe.title && (
@@ -538,7 +590,7 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                                         </h3>
                                         {whyWorkWithMe.subtitle && (
                                             <p className="text-slate-600 mt-3 text-base leading-relaxed">
-                                                {getText(whyWorkWithMe.subtitle)}
+                                                {renderText(whyWorkWithMe.subtitle)}
                                             </p>
                                         )}
 
@@ -548,7 +600,7 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                                                 {whyWorkWithMe.bullets.map((bullet: any, bIdx: number) => (
                                                     <p key={bullet?.id || bIdx} className="flex items-start gap-2.5">
                                                         <span className="text-indigo-600 font-bold mt-0.5">✓</span>
-                                                        <span>{getText(bullet)}</span>
+                                                        <span>{renderText(bullet)}</span>
                                                     </p>
                                                 ))}
                                             </div>
@@ -556,7 +608,7 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
 
                                         {whyWorkWithMe.footerText && (
                                             <p className="text-slate-400 text-xs mt-6 pt-4 border-t border-slate-200 leading-relaxed">
-                                                {getText(whyWorkWithMe.footerText)}
+                                                {renderText(whyWorkWithMe.footerText)}
                                             </p>
                                         )}
                                     </div>
@@ -583,7 +635,7 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                                     )}
                                     {sec.body && (
                                         <div className="prose max-w-none text-sm text-slate-600 leading-relaxed whitespace-pre-line">
-                                            {getText(sec.body)}
+                                            {renderText(sec.body)}
                                         </div>
                                     )}
                                 </div>
@@ -618,7 +670,7 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                                                     {faq.question}
                                                 </h3>
                                                 <p className="text-slate-500 text-sm leading-relaxed mt-2 font-normal">
-                                                    {getText(faq.answerHtml)}
+                                                    {renderText(faq.answerHtml)}
                                                 </p>
                                             </div>
                                         </div>
@@ -637,12 +689,12 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                             {cta.title || `Ready to Engineer Your ${serviceData.title}?`}
                         </h2>
                         <p className="text-slate-300 mt-4 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
-                            {getText(cta.description) ||
+                            {renderText(cta.description) ||
                                 "Let's map out your architecture requirements, deployment strategy, and technical scope."}
                         </p>
 
                         {cta.subText && <p className="text-gray-500 mt-2 text-sm max-w-xl mx-auto">
-                            {getText(cta.subText)}
+                            {renderText(cta.subText)}
                         </p>}
 
                         {/* Link / Button Action */}
@@ -736,7 +788,7 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
 // /**
 //  * Universal text extractor to safely prevent "Objects are not valid as a React child" errors
 //  */
-// function getText(value: any): string {
+// function renderText(value: any): string {
 //     if (value === null || value === undefined) return '';
 //     if (typeof value === 'string' || typeof value === 'number') return String(value);
 //     if (typeof value === 'object') {

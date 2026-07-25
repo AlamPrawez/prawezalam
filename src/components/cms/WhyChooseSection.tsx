@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useFormContext, useFieldArray, ArrayPath } from 'react-hook-form';
 import { CheckCircle2, Plus, Trash2, HelpCircle, Zap, ClipboardCheck, AlignLeft } from 'lucide-react';
 import { FullPagePayload } from '@/@types/cms';
+import { htmlToTextWithLinks } from '@/utils/renderText';
 
 export default function WhyChooseSection() {
   const { register, control, setValue } = useFormContext<FullPagePayload>();
@@ -139,21 +140,27 @@ export default function WhyChooseSection() {
     }
   };
 
-  // Handle paste directly into Section Title input
+  
+
   const handleSectionPaste = (e: React.ClipboardEvent) => {
-    const pasteText = e.clipboardData.getData('text');
-    if (pasteText.split('\n').filter((l) => l.trim()).length > 2) {
+    const htmlData = e.clipboardData.getData('text/html');
+    const plainText = e.clipboardData.getData('text');
+    const sourceText = htmlData ? htmlToTextWithLinks(htmlData) : plainText;
+
+    if (sourceText.split('\n').filter((l) => l.trim()).length > 2) {
       e.preventDefault();
-      parseAndPopulateFullSection(pasteText);
+      parseAndPopulateFullSection(sourceText);
     }
   };
 
-  // Handle paste inside an individual feature input
+
   const handleFeatureInputPaste = (
     e: React.ClipboardEvent<HTMLInputElement>,
     index: number
   ) => {
-    const pasteText = e.clipboardData.getData('text');
+    const htmlData = e.clipboardData.getData('text/html');
+    const plainText = e.clipboardData.getData('text');
+    const pasteText = htmlData ? htmlToTextWithLinks(htmlData) : plainText;
 
     if (pasteText.includes(',') || pasteText.includes('\n')) {
       e.preventDefault();
@@ -178,6 +185,45 @@ export default function WhyChooseSection() {
       }
     }
   };
+
+  // Handle paste directly into Section Title input
+  // const handleSectionPaste = (e: React.ClipboardEvent) => {
+  //   const pasteText = e.clipboardData.getData('text');
+  //   if (pasteText.split('\n').filter((l) => l.trim()).length > 2) {
+  //     e.preventDefault();
+  //     parseAndPopulateFullSection(pasteText);
+  //   }
+  // };
+  // Handle paste inside an individual feature input
+  // const handleFeatureInputPaste = (
+  //   e: React.ClipboardEvent<HTMLInputElement>,
+  //   index: number
+  // ) => {
+  //   const pasteText = e.clipboardData.getData('text');
+
+  //   if (pasteText.includes(',') || pasteText.includes('\n')) {
+  //     e.preventDefault();
+
+  //     const items = pasteText
+  //       .split(/[\n,]/)
+  //       .map((item) => item.replace(/^[\textbullet\-\*\d\.\)\s]+/, '').trim())
+  //       .filter((item) => item.length > 0);
+
+  //     if (items.length === 0) return;
+
+  //     setValue(`whyChoose.features.${index}.text` as never, items[0] as never, {
+  //       shouldValidate: true,
+  //       shouldDirty: true,
+  //     });
+
+  //     for (let i = 1; i < items.length; i++) {
+  //       appendFeature({
+  //         id: `feat-${Date.now()}-${i}`,
+  //         text: items[i],
+  //       } as never);
+  //     }
+  //   }
+  // };
 
   return (
     <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">

@@ -74,70 +74,138 @@ export default function FaqSection() {
   };
 
   // PARSER FOR RAW FAQ TEXT BLOCKS
-  const parseAndPopulateFaqs = (rawText: string) => {
-    const lines = rawText
-      .split('\n')
-      .map((l) => l.trim())
-      .filter((l) => l.length > 0);
+const parseAndPopulateFaqs = (rawText: string) => {
+  const lines = rawText
+    .split('\n')
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
 
-    if (lines.length === 0) return;
+  if (lines.length === 0) return;
 
-    const parsedItems: ParsedFaq[] = [];
-    let currentQuestion = '';
-    let currentAnswerLines: string[] = [];
+  const parsedItems: ParsedFaq[] = [];
+  let currentQuestion = '';
+  let currentAnswerLines: string[] = [];
 
-    // Filter out common header line
-    let startIndex = 0;
-    if (lines[0].toLowerCase().includes('frequently asked questions')) {
-      startIndex = 1;
-    }
+  // Filter out common header line
+  let startIndex = 0;
+  if (lines[0].toLowerCase().includes('frequently asked questions')) {
+    startIndex = 1;
+  }
 
-    for (let i = startIndex; i < lines.length; i++) {
-      const line = lines[i];
+  for (let i = startIndex; i < lines.length; i++) {
+    const line = lines[i];
 
-      // Detect question line ending with '?' or starting with Q:
-      const isQuestion = line.endsWith('?') || /^Q[:\.]/i.test(line);
+    // Detect question line ending with '?' or starting with Q:
+    const isQuestion = line.endsWith('?') || /^Q[:\.]/i.test(line);
 
-      if (isQuestion) {
-        // Save previous FAQ pair if existing
-        if (currentQuestion) {
-          parsedItems.push({
-            id: `faq-${Date.now()}-${parsedItems.length + 1}`,
-            question: currentQuestion,
-            answerHtml: currentAnswerLines.join('\n\n'),
-          });
-        }
-        currentQuestion = line.replace(/^Q[:\.]\s*/i, '');
-        currentAnswerLines = [];
-      } else {
-        if (currentQuestion) {
-          currentAnswerLines.push(line);
-        }
+    if (isQuestion) {
+      // Save previous FAQ pair if existing
+      if (currentQuestion) {
+        parsedItems.push({
+          id: `faq-${Date.now()}-${parsedItems.length + 1}`,
+          question: currentQuestion,
+          answerHtml: currentAnswerLines.join('\n\n'),
+        });
+      }
+      currentQuestion = line.replace(/^Q[:\.]\s*/i, '');
+      currentAnswerLines = [];
+    } else {
+      if (currentQuestion) {
+        currentAnswerLines.push(line);
       }
     }
+  }
 
-    // Push trailing FAQ item
-    if (currentQuestion) {
-      parsedItems.push({
-        id: `faq-${Date.now()}-${parsedItems.length + 1}`,
-        question: currentQuestion,
-        answerHtml: currentAnswerLines.join('\n\n'),
-      });
-    }
+  // Push trailing FAQ item
+  if (currentQuestion) {
+    parsedItems.push({
+      id: `faq-${Date.now()}-${parsedItems.length + 1}`,
+      question: currentQuestion,
+      answerHtml: currentAnswerLines.join('\n\n'),
+    });
+  }
 
-    if (parsedItems.length > 0) {
-      replace(parsedItems as never[]);
-    }
-  };
+  if (parsedItems.length > 0) {
+    replace(parsedItems as never[]);
+  }
+};
 
-  // Inline Auto-Paste Detection
-  const handleInlinePaste = (e: React.ClipboardEvent) => {
-    const pasteText = e.clipboardData.getData('text');
-    if (pasteText.includes('?') && pasteText.split('\n').length > 3) {
-      e.preventDefault();
-      parseAndPopulateFaqs(pasteText);
-    }
-  };
+// Inline Auto-Paste Detection
+const handleInlinePaste = (e: React.ClipboardEvent) => {
+  const htmlData = e.clipboardData.getData('text/html');
+  const plainText = e.clipboardData.getData('text');
+  const pasteText = htmlData ? htmlToTextWithLinks(htmlData) : plainText;
+
+  if (pasteText.includes('?') && pasteText.split('\n').length > 3) {
+    e.preventDefault();
+    parseAndPopulateFaqs(pasteText);
+  }
+};
+  // // PARSER FOR RAW FAQ TEXT BLOCKS
+  // const parseAndPopulateFaqs = (rawText: string) => {
+  //   const lines = rawText
+  //     .split('\n')
+  //     .map((l) => l.trim())
+  //     .filter((l) => l.length > 0);
+
+  //   if (lines.length === 0) return;
+
+  //   const parsedItems: ParsedFaq[] = [];
+  //   let currentQuestion = '';
+  //   let currentAnswerLines: string[] = [];
+
+  //   // Filter out common header line
+  //   let startIndex = 0;
+  //   if (lines[0].toLowerCase().includes('frequently asked questions')) {
+  //     startIndex = 1;
+  //   }
+
+  //   for (let i = startIndex; i < lines.length; i++) {
+  //     const line = lines[i];
+
+  //     // Detect question line ending with '?' or starting with Q:
+  //     const isQuestion = line.endsWith('?') || /^Q[:\.]/i.test(line);
+
+  //     if (isQuestion) {
+  //       // Save previous FAQ pair if existing
+  //       if (currentQuestion) {
+  //         parsedItems.push({
+  //           id: `faq-${Date.now()}-${parsedItems.length + 1}`,
+  //           question: currentQuestion,
+  //           answerHtml: currentAnswerLines.join('\n\n'),
+  //         });
+  //       }
+  //       currentQuestion = line.replace(/^Q[:\.]\s*/i, '');
+  //       currentAnswerLines = [];
+  //     } else {
+  //       if (currentQuestion) {
+  //         currentAnswerLines.push(line);
+  //       }
+  //     }
+  //   }
+
+  //   // Push trailing FAQ item
+  //   if (currentQuestion) {
+  //     parsedItems.push({
+  //       id: `faq-${Date.now()}-${parsedItems.length + 1}`,
+  //       question: currentQuestion,
+  //       answerHtml: currentAnswerLines.join('\n\n'),
+  //     });
+  //   }
+
+  //   if (parsedItems.length > 0) {
+  //     replace(parsedItems as never[]);
+  //   }
+  // };
+
+  // // Inline Auto-Paste Detection
+  // const handleInlinePaste = (e: React.ClipboardEvent) => {
+  //   const pasteText = e.clipboardData.getData('text');
+  //   if (pasteText.includes('?') && pasteText.split('\n').length > 3) {
+  //     e.preventDefault();
+  //     parseAndPopulateFaqs(pasteText);
+  //   }
+  // };
 
   return (
     <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">

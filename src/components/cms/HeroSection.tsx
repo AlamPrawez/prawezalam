@@ -7,6 +7,7 @@ import { Sparkles, Plus, Trash2, Image as ImageIcon, Upload, Loader2, Zap, Clipb
 import { FullPagePayload } from '@/@types/cms';
 import { uploadWebpToSupabase } from '@/lib/uploadWebpToSupabase';
 import 'react-quill-new/dist/quill.snow.css';
+import { htmlToTextWithLinks } from '@/utils/renderText';
 
 const ReactQuill = dynamic(() => import('react-quill-new'), {
   ssr: false,
@@ -200,13 +201,29 @@ export default function HeroSection({ bucketName }: HeroSectionProps) {
   };
 
   // Auto-fill when pasting multi-line text into input fields
+  // const handleAutoPaste = (e: React.ClipboardEvent) => {
+  //   const pasteText = e.clipboardData.getData('text');
+  //   if (pasteText.split('\n').filter((l) => l.trim()).length > 1) {
+  //     e.preventDefault();
+  //     parseAndPopulateHero(pasteText);
+  //   }
+  // };
+
   const handleAutoPaste = (e: React.ClipboardEvent) => {
-    const pasteText = e.clipboardData.getData('text');
-    if (pasteText.split('\n').filter((l) => l.trim()).length > 1) {
-      e.preventDefault();
-      parseAndPopulateHero(pasteText);
-    }
-  };
+  const htmlData = e.clipboardData.getData('text/html');
+  const plainText = e.clipboardData.getData('text');
+
+  // Prefer the HTML version so we can preserve links (e.g. from Google Docs)
+  const sourceText = htmlData ? htmlToTextWithLinks(htmlData) : plainText;
+
+  if (sourceText.split('\n').filter((l) => l.trim()).length > 1) {
+    e.preventDefault();
+    parseAndPopulateHero(sourceText);
+  }
+};
+
+
+
 
   // Upload image logic
   const handleHeroImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {

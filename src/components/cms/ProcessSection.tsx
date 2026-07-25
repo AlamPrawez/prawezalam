@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useFormContext, useFieldArray, ArrayPath } from 'react-hook-form';
 import { GitCommit, Plus, Trash2, ArrowUpDown, Zap, ClipboardCheck, Sparkles, ListPlus } from 'lucide-react';
 import { FullPagePayload } from '@/@types/cms';
+import { htmlToTextWithLinks } from '@/utils/renderText';
 
 interface ProcessStep {
   id: string;
@@ -373,7 +374,7 @@ export default function ProcessSection() {
   );
 }
 
-{/* INDIVIDUAL PROCESS STEP COMPONENT */}
+{/* INDIVIDUAL PROCESS STEP COMPONENT */ }
 function ProcessStepItem({
   index,
   totalSteps,
@@ -399,7 +400,10 @@ function ProcessStepItem({
 
   // Single step paste handler
   const handleStepPaste = (e: React.ClipboardEvent) => {
-    const pasteText = e.clipboardData.getData('text');
+    const htmlData = e.clipboardData.getData('text/html');
+    const plainText = e.clipboardData.getData('text');
+    const pasteText = htmlData ? htmlToTextWithLinks(htmlData) : plainText;
+
     const lines = pasteText
       .split('\n')
       .map((l) => l.trim())
@@ -471,6 +475,80 @@ function ProcessStepItem({
       }
     }
   };
+  // // Single step paste handler
+  // const handleStepPaste = (e: React.ClipboardEvent) => {
+  //   const pasteText = e.clipboardData.getData('text');
+  //   const lines = pasteText
+  //     .split('\n')
+  //     .map((l) => l.trim())
+  //     .filter((l) => l.length > 0);
+
+  //   if (lines.length >= 2) {
+  //     e.preventDefault();
+
+  //     const titleLine = lines[0]
+  //       .replace(/^(step\s*\d+[\:\.\-]?|\d{1,2}[\.\:\-\)]|\#\d+)\s*/i, '')
+  //       .trim();
+  //     const description = lines[1];
+  //     const restLines = lines.slice(2);
+
+  //     const bullets: string[] = [];
+  //     let subText = '';
+  //     let secondParagraph = '';
+  //     let inBullets = false;
+
+  //     restLines.forEach((l) => {
+  //       const isTrigger =
+  //         l.endsWith(':') ||
+  //         l.match(/^(we discuss|this includes|key points|features|deliverables|common technologies|before launch)/i);
+
+  //       if (isTrigger && !subText) {
+  //         subText = l;
+  //         inBullets = true;
+  //         return;
+  //       }
+
+  //       if (inBullets) {
+  //         if (l.length > 80 && !l.startsWith('•') && !l.startsWith('-')) {
+  //           inBullets = false;
+  //           secondParagraph = l;
+  //         } else {
+  //           const clean = l.replace(/^[\textbullet\-\*\d\.\)\s]+/, '').trim();
+  //           if (clean) bullets.push(clean);
+  //         }
+  //       } else if (!subText) {
+  //         subText = l;
+  //       } else {
+  //         secondParagraph += (secondParagraph ? ' ' : '') + l;
+  //       }
+  //     });
+
+  //     // FIXED: Updated registrations to target `process.steps`
+  //     setValue(`process.steps.${index}.title` as never, titleLine as never, {
+  //       shouldValidate: true,
+  //       shouldDirty: true,
+  //     });
+  //     setValue(`process.steps.${index}.description` as never, description as never, {
+  //       shouldValidate: true,
+  //       shouldDirty: true,
+  //     });
+  //     if (subText) {
+  //       setValue(`process.steps.${index}.subText` as never, subText as never, {
+  //         shouldValidate: true,
+  //         shouldDirty: true,
+  //       });
+  //     }
+  //     if (bullets.length > 0) {
+  //       replaceBullets(bullets as never[]);
+  //     }
+  //     if (secondParagraph) {
+  //       setValue(`process.steps.${index}.secondParagraph` as never, secondParagraph as never, {
+  //         shouldValidate: true,
+  //         shouldDirty: true,
+  //       });
+  //     }
+  //   }
+  // };
 
   return (
     <div className="relative flex gap-5 items-start pl-2">

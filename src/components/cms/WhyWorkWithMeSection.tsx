@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useFormContext, useFieldArray, ArrayPath } from 'react-hook-form';
 import { UserCheck, Check, Plus, Trash2, Sparkles, Zap, ClipboardCheck } from 'lucide-react';
 import { FullPagePayload } from '@/@types/cms';
+import { htmlToTextWithLinks } from '@/utils/renderText';
 
 interface BulletItem {
   id: string;
@@ -37,105 +38,207 @@ export default function WhyWorkWithMeSection() {
   }, [bulletFields.length, appendBullet]);
 
   // SMART PARSER FOR SECTION TEXT
-  const parseAndPopulateSection = (rawText: string) => {
-    const lines = rawText
-      .split('\n')
-      .map((l) => l.trim())
-      .filter((l) => l.length > 0);
+  // SMART PARSER FOR SECTION TEXT
+const parseAndPopulateSection = (rawText: string) => {
+  const lines = rawText
+    .split('\n')
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
 
-    if (lines.length < 1) return;
+  if (lines.length < 1) return;
 
-    let title = '';
-    let subtitle = '';
-    let footerText = '';
-    const parsedBullets: BulletItem[] = [];
+  let title = '';
+  let subtitle = '';
+  let footerText = '';
+  const parsedBullets: BulletItem[] = [];
 
-    let lineIndex = 0;
+  let lineIndex = 0;
 
-    // 1. Title Line Detection
-    if (lines[lineIndex].toLowerCase().includes('why work with me')) {
-      title = lines[lineIndex];
-      lineIndex++;
-    }
+  // 1. Title Line Detection
+  if (lines[lineIndex].toLowerCase().includes('why work with me')) {
+    title = lines[lineIndex];
+    lineIndex++;
+  }
 
-    // 2. Subtitle / Intro Paragraph Detection
-    if (lineIndex < lines.length && !lines[lineIndex].endsWith(':') && !lines[lineIndex].startsWith('•') && !lines[lineIndex].startsWith('-')) {
+  // 2. Subtitle / Intro Paragraph Detection
+  if (lineIndex < lines.length && !lines[lineIndex].endsWith(':') && !lines[lineIndex].startsWith('•') && !lines[lineIndex].startsWith('-')) {
+    subtitle = lines[lineIndex];
+    lineIndex++;
+  }
+
+  // Check for trigger phrase line (e.g. "That means I can:")
+  if (lineIndex < lines.length && lines[lineIndex].endsWith(':')) {
+    if (!subtitle) {
       subtitle = lines[lineIndex];
-      lineIndex++;
+    } else {
+      subtitle += ' ' + lines[lineIndex];
+    }
+    lineIndex++;
+  }
+
+  let inBullets = true;
+
+  // 3. Process Bullets & Footer
+  for (let i = lineIndex; i < lines.length; i++) {
+    const line = lines[i];
+    const isBullet = line.startsWith('•') || line.startsWith('-') || line.startsWith('*');
+
+    // If line is long and does not start with bullet indicators, treat as trailing footer
+    if (inBullets && !isBullet && line.length > 60 && parsedBullets.length > 0) {
+      inBullets = false;
+      footerText = line;
+      continue;
     }
 
-    // Check for trigger phrase line (e.g. "That means I can:")
-    if (lineIndex < lines.length && lines[lineIndex].endsWith(':')) {
-      if (!subtitle) {
-        subtitle = lines[lineIndex];
-      } else {
-        subtitle += ' ' + lines[lineIndex];
+    if (inBullets) {
+      const cleanBullet = line.replace(/^[\textbullet\-\*\d\.\)\s]+/, '').trim();
+      if (cleanBullet) {
+        parsedBullets.push({
+          id: `bullet-${Date.now()}-${parsedBullets.length + 1}`,
+          text: cleanBullet,
+        });
       }
-      lineIndex++;
+    } else {
+      footerText += ' ' + line;
     }
+  }
 
-    let inBullets = true;
+  // Apply values to Form State
+  if (title) {
+    setValue('whyWorkWithMe.title' as never, title as never, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  }
 
-    // 3. Process Bullets & Footer
-    for (let i = lineIndex; i < lines.length; i++) {
-      const line = lines[i];
-      const isBullet = line.startsWith('•') || line.startsWith('-') || line.startsWith('*');
+  if (subtitle) {
+    setValue('whyWorkWithMe.subtitle' as never, subtitle as never, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  }
 
-      // If line is long and does not start with bullet indicators, treat as trailing footer
-      if (inBullets && !isBullet && line.length > 60 && parsedBullets.length > 0) {
-        inBullets = false;
-        footerText = line;
-        continue;
-      }
+  if (footerText) {
+    setValue('whyWorkWithMe.footerText' as never, footerText as never, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  }
 
-      if (inBullets) {
-        const cleanBullet = line.replace(/^[\textbullet\-\*\d\.\)\s]+/, '').trim();
-        if (cleanBullet) {
-          parsedBullets.push({
-            id: `bullet-${Date.now()}-${parsedBullets.length + 1}`,
-            text: cleanBullet,
-          });
-        }
-      } else {
-        footerText += ' ' + line;
-      }
-    }
+  if (parsedBullets.length > 0) {
+    replaceBullets(parsedBullets as never[]);
+  }
+};
+  // const parseAndPopulateSection = (rawText: string) => {
+  //   const lines = rawText
+  //     .split('\n')
+  //     .map((l) => l.trim())
+  //     .filter((l) => l.length > 0);
 
-    // Apply values to Form State
-    if (title) {
-      setValue('whyWorkWithMe.title' as never, title as never, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-    }
+  //   if (lines.length < 1) return;
 
-    if (subtitle) {
-      setValue('whyWorkWithMe.subtitle' as never, subtitle as never, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-    }
+  //   let title = '';
+  //   let subtitle = '';
+  //   let footerText = '';
+  //   const parsedBullets: BulletItem[] = [];
 
-    if (footerText) {
-      setValue('whyWorkWithMe.footerText' as never, footerText as never, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-    }
+  //   let lineIndex = 0;
 
-    if (parsedBullets.length > 0) {
-      replaceBullets(parsedBullets as never[]);
-    }
-  };
+  //   // 1. Title Line Detection
+  //   if (lines[lineIndex].toLowerCase().includes('why work with me')) {
+  //     title = lines[lineIndex];
+  //     lineIndex++;
+  //   }
 
-  // Single Input Paste Event Listener
+  //   // 2. Subtitle / Intro Paragraph Detection
+  //   if (lineIndex < lines.length && !lines[lineIndex].endsWith(':') && !lines[lineIndex].startsWith('•') && !lines[lineIndex].startsWith('-')) {
+  //     subtitle = lines[lineIndex];
+  //     lineIndex++;
+  //   }
+
+  //   // Check for trigger phrase line (e.g. "That means I can:")
+  //   if (lineIndex < lines.length && lines[lineIndex].endsWith(':')) {
+  //     if (!subtitle) {
+  //       subtitle = lines[lineIndex];
+  //     } else {
+  //       subtitle += ' ' + lines[lineIndex];
+  //     }
+  //     lineIndex++;
+  //   }
+
+  //   let inBullets = true;
+
+  //   // 3. Process Bullets & Footer
+  //   for (let i = lineIndex; i < lines.length; i++) {
+  //     const line = lines[i];
+  //     const isBullet = line.startsWith('•') || line.startsWith('-') || line.startsWith('*');
+
+  //     // If line is long and does not start with bullet indicators, treat as trailing footer
+  //     if (inBullets && !isBullet && line.length > 60 && parsedBullets.length > 0) {
+  //       inBullets = false;
+  //       footerText = line;
+  //       continue;
+  //     }
+
+  //     if (inBullets) {
+  //       const cleanBullet = line.replace(/^[\textbullet\-\*\d\.\)\s]+/, '').trim();
+  //       if (cleanBullet) {
+  //         parsedBullets.push({
+  //           id: `bullet-${Date.now()}-${parsedBullets.length + 1}`,
+  //           text: cleanBullet,
+  //         });
+  //       }
+  //     } else {
+  //       footerText += ' ' + line;
+  //     }
+  //   }
+
+  //   // Apply values to Form State
+  //   if (title) {
+  //     setValue('whyWorkWithMe.title' as never, title as never, {
+  //       shouldValidate: true,
+  //       shouldDirty: true,
+  //     });
+  //   }
+
+  //   if (subtitle) {
+  //     setValue('whyWorkWithMe.subtitle' as never, subtitle as never, {
+  //       shouldValidate: true,
+  //       shouldDirty: true,
+  //     });
+  //   }
+
+  //   if (footerText) {
+  //     setValue('whyWorkWithMe.footerText' as never, footerText as never, {
+  //       shouldValidate: true,
+  //       shouldDirty: true,
+  //     });
+  //   }
+
+  //   if (parsedBullets.length > 0) {
+  //     replaceBullets(parsedBullets as never[]);
+  //   }
+  // };
+
+
   const handlePaste = (e: React.ClipboardEvent) => {
-    const pasteText = e.clipboardData.getData('text');
-    if (pasteText.split('\n').filter((l) => l.trim()).length > 2) {
-      e.preventDefault();
-      parseAndPopulateSection(pasteText);
-    }
-  };
+  const htmlData = e.clipboardData.getData('text/html');
+  const plainText = e.clipboardData.getData('text');
+  const pasteText = htmlData ? htmlToTextWithLinks(htmlData) : plainText;
+
+  if (pasteText.split('\n').filter((l) => l.trim()).length > 2) {
+    e.preventDefault();
+    parseAndPopulateSection(pasteText);
+  }
+};
+  // Single Input Paste Event Listener
+  // const handlePaste = (e: React.ClipboardEvent) => {
+  //   const pasteText = e.clipboardData.getData('text');
+  //   if (pasteText.split('\n').filter((l) => l.trim()).length > 2) {
+  //     e.preventDefault();
+  //     parseAndPopulateSection(pasteText);
+  //   }
+  // };
 
   return (
     <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">

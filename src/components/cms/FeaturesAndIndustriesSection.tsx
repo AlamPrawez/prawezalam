@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useFormContext, useFieldArray, ArrayPath } from 'react-hook-form';
 import { Tags, Building2, Plus, Trash2, Zap, Sparkles, ClipboardCheck } from 'lucide-react';
 import { FullPagePayload } from '@/@types/cms';
+import { htmlToTextWithLinks } from '@/utils/renderText';
 
 interface FeatureItem {
   id: string;
@@ -54,120 +55,236 @@ export default function FeaturesAndIndustriesSection() {
 
   // SMART PARSER FOR BOTH SECTIONS
   const parseAndPopulateSections = (rawText: string) => {
-    const lines = rawText
-      .split('\n')
-      .map((l) => l.trim())
-      .filter((l) => l.length > 0);
+  const lines = rawText
+    .split('\n')
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
 
-    if (lines.length < 1) return;
+  if (lines.length < 1) return;
 
-    let currentMode: 'INDUSTRIES' | 'FEATURES' | 'NONE' = 'NONE';
+  let currentMode: 'INDUSTRIES' | 'FEATURES' | 'NONE' = 'NONE';
 
-    const parsedIndustries: IndustryItem[] = [];
-    const parsedFeatures: FeatureItem[] = [];
+  const parsedIndustries: IndustryItem[] = [];
+  const parsedFeatures: FeatureItem[] = [];
 
-    let indTitle = '';
-    let indSub = '';
-    let featTitle = '';
-    let featSub = '';
+  let indTitle = '';
+  let indSub = '';
+  let featTitle = '';
+  let featSub = '';
 
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
 
-      // Detect Industries Header Block
-      if (line.match(/^(industries|industries i work with|domains|verticals)/i)) {
+    // Detect Industries Header Block
+    if (line.match(/^(industries|industries i work with|domains|verticals)/i)) {
+      currentMode = 'INDUSTRIES';
+      indTitle = line;
+      continue;
+    }
+
+    // Detect Features Header Block
+    if (line.match(/^(frequently built features|features|solutions|key features|built features)/i)) {
+      currentMode = 'FEATURES';
+      featTitle = line;
+      continue;
+    }
+
+    const cleanLine = line.replace(/^[\textbullet\-\*\d\.\)\s]+/, '').trim();
+
+    if (!cleanLine) continue;
+
+    if (currentMode === 'INDUSTRIES') {
+      // Subtitle detection (if line ends with ':' or contains descriptive text)
+      if (!indSub && (line.endsWith(':') || line.toLowerCase().includes('including'))) {
+        indSub = line;
+        continue;
+      }
+
+      parsedIndustries.push({
+        id: `ind-${Date.now()}-${parsedIndustries.length + 1}`,
+        name: cleanLine,
+      });
+    } else if (currentMode === 'FEATURES') {
+      // Subtitle detection
+      if (!featSub && (line.endsWith(':') || line.toLowerCase().includes('include'))) {
+        featSub = line;
+        continue;
+      }
+
+      parsedFeatures.push({
+        id: `feat-${Date.now()}-${parsedFeatures.length + 1}`,
+        label: cleanLine,
+      });
+    } else {
+      // Fallback detection if no header is found first
+      if (line.toLowerCase().includes('industr')) {
         currentMode = 'INDUSTRIES';
         indTitle = line;
-        continue;
-      }
-
-      // Detect Features Header Block
-      if (line.match(/^(frequently built features|features|solutions|key features|built features)/i)) {
+      } else if (line.toLowerCase().includes('feature') || line.toLowerCase().includes('solution')) {
         currentMode = 'FEATURES';
         featTitle = line;
-        continue;
-      }
-
-      const cleanLine = line.replace(/^[\textbullet\-\*\d\.\)\s]+/, '').trim();
-
-      if (!cleanLine) continue;
-
-      if (currentMode === 'INDUSTRIES') {
-        // Subtitle detection (if line ends with ':' or contains descriptive text)
-        if (!indSub && (line.endsWith(':') || line.toLowerCase().includes('including'))) {
-          indSub = line;
-          continue;
-        }
-
-        parsedIndustries.push({
-          id: `ind-${Date.now()}-${parsedIndustries.length + 1}`,
-          name: cleanLine,
-        });
-      } else if (currentMode === 'FEATURES') {
-        // Subtitle detection
-        if (!featSub && (line.endsWith(':') || line.toLowerCase().includes('include'))) {
-          featSub = line;
-          continue;
-        }
-
-        parsedFeatures.push({
-          id: `feat-${Date.now()}-${parsedFeatures.length + 1}`,
-          label: cleanLine,
-        });
-      } else {
-        // Fallback detection if no header is found first
-        if (line.toLowerCase().includes('industr')) {
-          currentMode = 'INDUSTRIES';
-          indTitle = line;
-        } else if (line.toLowerCase().includes('feature') || line.toLowerCase().includes('solution')) {
-          currentMode = 'FEATURES';
-          featTitle = line;
-        }
       }
     }
+  }
 
-    // Populate Fields & Update Form
-    if (indTitle) {
-      setValue('features_industries.industriesSection.title' as never, indTitle as never, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-    }
-    if (indSub) {
-      setValue('features_industries.industriesSection.subtitle' as never, indSub as never, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-    }
-    if (parsedIndustries.length > 0) {
-      replaceIndustries(parsedIndustries as never[]);
-    }
+  // Populate Fields & Update Form
+  if (indTitle) {
+    setValue('features_industries.industriesSection.title' as never, indTitle as never, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  }
+  if (indSub) {
+    setValue('features_industries.industriesSection.subtitle' as never, indSub as never, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  }
+  if (parsedIndustries.length > 0) {
+    replaceIndustries(parsedIndustries as never[]);
+  }
 
-    if (featTitle) {
-      setValue('features_industries.featuresSection.title' as never, featTitle as never, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-    }
-    if (featSub) {
-      setValue('features_industries.featuresSection.subtitle' as never, featSub as never, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-    }
-    if (parsedFeatures.length > 0) {
-      replaceFeatures(parsedFeatures as never[]);
-    }
-  };
+  if (featTitle) {
+    setValue('features_industries.featuresSection.title' as never, featTitle as never, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  }
+  if (featSub) {
+    setValue('features_industries.featuresSection.subtitle' as never, featSub as never, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  }
+  if (parsedFeatures.length > 0) {
+    replaceFeatures(parsedFeatures as never[]);
+  }
+}
+  // const parseAndPopulateSections = (rawText: string) => {
+  //   const lines = rawText
+  //     .split('\n')
+  //     .map((l) => l.trim())
+  //     .filter((l) => l.length > 0);
+
+  //   if (lines.length < 1) return;
+
+  //   let currentMode: 'INDUSTRIES' | 'FEATURES' | 'NONE' = 'NONE';
+
+  //   const parsedIndustries: IndustryItem[] = [];
+  //   const parsedFeatures: FeatureItem[] = [];
+
+  //   let indTitle = '';
+  //   let indSub = '';
+  //   let featTitle = '';
+  //   let featSub = '';
+
+  //   for (let i = 0; i < lines.length; i++) {
+  //     const line = lines[i];
+
+  //     // Detect Industries Header Block
+  //     if (line.match(/^(industries|industries i work with|domains|verticals)/i)) {
+  //       currentMode = 'INDUSTRIES';
+  //       indTitle = line;
+  //       continue;
+  //     }
+
+  //     // Detect Features Header Block
+  //     if (line.match(/^(frequently built features|features|solutions|key features|built features)/i)) {
+  //       currentMode = 'FEATURES';
+  //       featTitle = line;
+  //       continue;
+  //     }
+
+  //     const cleanLine = line.replace(/^[\textbullet\-\*\d\.\)\s]+/, '').trim();
+
+  //     if (!cleanLine) continue;
+
+  //     if (currentMode === 'INDUSTRIES') {
+  //       // Subtitle detection (if line ends with ':' or contains descriptive text)
+  //       if (!indSub && (line.endsWith(':') || line.toLowerCase().includes('including'))) {
+  //         indSub = line;
+  //         continue;
+  //       }
+
+  //       parsedIndustries.push({
+  //         id: `ind-${Date.now()}-${parsedIndustries.length + 1}`,
+  //         name: cleanLine,
+  //       });
+  //     } else if (currentMode === 'FEATURES') {
+  //       // Subtitle detection
+  //       if (!featSub && (line.endsWith(':') || line.toLowerCase().includes('include'))) {
+  //         featSub = line;
+  //         continue;
+  //       }
+
+  //       parsedFeatures.push({
+  //         id: `feat-${Date.now()}-${parsedFeatures.length + 1}`,
+  //         label: cleanLine,
+  //       });
+  //     } else {
+  //       // Fallback detection if no header is found first
+  //       if (line.toLowerCase().includes('industr')) {
+  //         currentMode = 'INDUSTRIES';
+  //         indTitle = line;
+  //       } else if (line.toLowerCase().includes('feature') || line.toLowerCase().includes('solution')) {
+  //         currentMode = 'FEATURES';
+  //         featTitle = line;
+  //       }
+  //     }
+  //   }
+
+  //   // Populate Fields & Update Form
+  //   if (indTitle) {
+  //     setValue('features_industries.industriesSection.title' as never, indTitle as never, {
+  //       shouldValidate: true,
+  //       shouldDirty: true,
+  //     });
+  //   }
+  //   if (indSub) {
+  //     setValue('features_industries.industriesSection.subtitle' as never, indSub as never, {
+  //       shouldValidate: true,
+  //       shouldDirty: true,
+  //     });
+  //   }
+  //   if (parsedIndustries.length > 0) {
+  //     replaceIndustries(parsedIndustries as never[]);
+  //   }
+
+  //   if (featTitle) {
+  //     setValue('features_industries.featuresSection.title' as never, featTitle as never, {
+  //       shouldValidate: true,
+  //       shouldDirty: true,
+  //     });
+  //   }
+  //   if (featSub) {
+  //     setValue('features_industries.featuresSection.subtitle' as never, featSub as never, {
+  //       shouldValidate: true,
+  //       shouldDirty: true,
+  //     });
+  //   }
+  //   if (parsedFeatures.length > 0) {
+  //     replaceFeatures(parsedFeatures as never[]);
+  //   }
+  // };
 
   // Single Field Paste Event Trigger
   const handlePaste = (e: React.ClipboardEvent) => {
-    const pasteText = e.clipboardData.getData('text');
+    const htmlData = e.clipboardData.getData('text/html');
+    const plainText = e.clipboardData.getData('text');
+    const pasteText = htmlData ? htmlToTextWithLinks(htmlData) : plainText;
+
     if (pasteText.split('\n').filter((l) => l.trim()).length > 3) {
       e.preventDefault();
       parseAndPopulateSections(pasteText);
     }
-  };
+  }
+  // const handlePaste = (e: React.ClipboardEvent) => {
+  //   const pasteText = e.clipboardData.getData('text');
+  //   if (pasteText.split('\n').filter((l) => l.trim()).length > 3) {
+  //     e.preventDefault();
+  //     parseAndPopulateSections(pasteText);
+  //   }
+  // };
 
   return (
     <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
@@ -222,7 +339,7 @@ export default function FeaturesAndIndustriesSection() {
                 type="text"
                 {...register('features_industries.featuresSection.title' as never)}
                 onPaste={handlePaste}
-                defaultValue="Frequently Built Features"
+                // defaultValue=""
                 placeholder="e.g. Frequently Built Features"
                 className="w-full px-3 py-2 text-xs font-semibold text-slate-800 border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
@@ -235,7 +352,7 @@ export default function FeaturesAndIndustriesSection() {
               <input
                 type="text"
                 {...register('features_industries.featuresSection.subtitle' as never)}
-                defaultValue="Some of the solutions I regularly engineer into custom web applications:"
+                // defaultValue=""
                 placeholder="e.g. Some of the solutions I regularly engineer..."
                 className="w-full px-3 py-2 text-xs text-slate-600 border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
@@ -309,7 +426,7 @@ export default function FeaturesAndIndustriesSection() {
                 type="text"
                 {...register('features_industries.industriesSection.title' as never)}
                 onPaste={handlePaste}
-                defaultValue="Industries I Work With"
+                // defaultValue="Industries I Work With"
                 placeholder="e.g. Industries I Work With"
                 className="w-full px-3 py-2 text-xs font-semibold text-slate-800 border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
@@ -322,7 +439,7 @@ export default function FeaturesAndIndustriesSection() {
               <input
                 type="text"
                 {...register('features_industries.industriesSection.subtitle' as never)}
-                defaultValue="React structures fit seamlessly into many domain configurations, including:"
+                // defaultValue="React structures fit seamlessly into many domain configurations, including:"
                 placeholder="e.g. React structures fit seamlessly into..."
                 className="w-full px-3 py-2 text-xs text-slate-600 border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />

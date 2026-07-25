@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useFormContext, useFieldArray, ArrayPath } from 'react-hook-form';
 import { Layers, Plus, Trash2, ListPlus, Sparkles, ClipboardCheck, Zap } from 'lucide-react';
 import { FullPagePayload } from '@/@types/cms';
+import { htmlToTextWithLinks } from '@/utils/renderText';
 
 export default function ServicesSection() {
   const { register, control, setValue } = useFormContext<FullPagePayload>();
@@ -363,90 +364,180 @@ function ServiceCardItem({
   }, [pointFields.length, appendPoint]);
 
   // SMART PER-CARD AUTO-PASTE HANDLER
-  const handleSmartCardPaste = (e: React.ClipboardEvent) => {
-    const pasteText = e.clipboardData.getData('text');
+const handleSmartCardPaste = (e: React.ClipboardEvent) => {
+  const htmlData = e.clipboardData.getData('text/html');
+  const plainText = e.clipboardData.getData('text');
+  const pasteText = htmlData ? htmlToTextWithLinks(htmlData) : plainText;
 
-    const lines = pasteText
-      .split('\n')
-      .map((line) => line.trim())
-      .filter((line) => line.length > 0);
+  const lines = pasteText
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
 
-    if (lines.length >= 2) {
-      e.preventDefault();
+  if (lines.length >= 2) {
+    e.preventDefault();
 
-      let title = lines[0];
-      let description = '';
-      let focusTitle = 'FOCUS & DEPLOYMENTS:';
-      const bulletPoints: string[] = [];
+    let title = lines[0];
+    let description = '';
+    let focusTitle = 'FOCUS & DEPLOYMENTS:';
+    const bulletPoints: string[] = [];
 
-      let isCollectingBullets = false;
+    let isCollectingBullets = false;
 
-      for (let i = 1; i < lines.length; i++) {
-        const line = lines[i];
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i];
 
-        const isHeaderLine =
-          line.endsWith(':') ||
-          line.toLowerCase().startsWith('perfect for') ||
-          line.toLowerCase().startsWith('benefits include') ||
-          line.toLowerCase().startsWith('already have') ||
-          line.toLowerCase().startsWith('if your existing') ||
-          line.toLowerCase().startsWith('still using') ||
-          line.toLowerCase().startsWith('software continues');
+      const isHeaderLine =
+        line.endsWith(':') ||
+        line.toLowerCase().startsWith('perfect for') ||
+        line.toLowerCase().startsWith('benefits include') ||
+        line.toLowerCase().startsWith('already have') ||
+        line.toLowerCase().startsWith('if your existing') ||
+        line.toLowerCase().startsWith('still using') ||
+        line.toLowerCase().startsWith('software continues');
 
-        if (isHeaderLine) {
-          focusTitle = line;
-          isCollectingBullets = true;
-          continue;
-        }
-
-        if (isCollectingBullets) {
-          const cleanBullet = line.replace(/^[\textbullet\-\*\d\.\)\s]+/, '').trim();
-          if (cleanBullet) bulletPoints.push(cleanBullet);
-        } else {
-          description += (description ? ' ' : '') + line;
-        }
+      if (isHeaderLine) {
+        focusTitle = line;
+        isCollectingBullets = true;
+        continue;
       }
 
-      setValue(`services.cards.${cardIndex}.title`, title, { shouldValidate: true, shouldDirty: true });
-      setValue(`services.cards.${cardIndex}.description`, description, { shouldValidate: true, shouldDirty: true });
-      setValue(`services.cards.${cardIndex}.focusTitle`, focusTitle, { shouldValidate: true, shouldDirty: true });
-
-      if (bulletPoints.length > 0) {
-        replacePoints(bulletPoints as never[]);
+      if (isCollectingBullets) {
+        const cleanBullet = line.replace(/^[\textbullet\-\*\d\.\)\s]+/, '').trim();
+        if (cleanBullet) bulletPoints.push(cleanBullet);
       } else {
-        replacePoints([''] as never[]);
+        description += (description ? ' ' : '') + line;
       }
     }
-  };
 
-  // Handles pasting comma-separated values into individual bullet inputs
-  const handlePointPaste = (
-    e: React.ClipboardEvent<HTMLInputElement>,
-    pointIndex: number
-  ) => {
-    const pasteData = e.clipboardData.getData('text');
+    setValue(`services.cards.${cardIndex}.title`, title, { shouldValidate: true, shouldDirty: true });
+    setValue(`services.cards.${cardIndex}.description`, description, { shouldValidate: true, shouldDirty: true });
+    setValue(`services.cards.${cardIndex}.focusTitle`, focusTitle, { shouldValidate: true, shouldDirty: true });
 
-    if (pasteData.includes(',')) {
-      e.preventDefault();
-
-      const points = pasteData
-        .split(',')
-        .map((item) => item.trim())
-        .filter((item) => item.length > 0);
-
-      if (points.length === 0) return;
-
-      setValue(
-        `services.cards.${cardIndex}.focusPoints.${pointIndex}` as any,
-        points[0],
-        { shouldValidate: true, shouldDirty: true }
-      );
-
-      for (let i = 1; i < points.length; i++) {
-        appendPoint(points[i] as never);
-      }
+    if (bulletPoints.length > 0) {
+      replacePoints(bulletPoints as never[]);
+    } else {
+      replacePoints([''] as never[]);
     }
-  };
+  }
+};
+
+// Handles pasting comma-separated values into individual bullet inputs
+const handlePointPaste = (
+  e: React.ClipboardEvent<HTMLInputElement>,
+  pointIndex: number
+) => {
+  const htmlData = e.clipboardData.getData('text/html');
+  const plainText = e.clipboardData.getData('text');
+  const pasteData = htmlData ? htmlToTextWithLinks(htmlData) : plainText;
+
+  if (pasteData.includes(',')) {
+    e.preventDefault();
+
+    const points = pasteData
+      .split(',')
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0);
+
+    if (points.length === 0) return;
+
+    setValue(
+      `services.cards.${cardIndex}.focusPoints.${pointIndex}` as any,
+      points[0],
+      { shouldValidate: true, shouldDirty: true }
+    );
+
+    for (let i = 1; i < points.length; i++) {
+      appendPoint(points[i] as never);
+    }
+  }
+};
+
+  // // SMART PER-CARD AUTO-PASTE HANDLER
+  // const handleSmartCardPaste = (e: React.ClipboardEvent) => {
+  //   const pasteText = e.clipboardData.getData('text');
+
+  //   const lines = pasteText
+  //     .split('\n')
+  //     .map((line) => line.trim())
+  //     .filter((line) => line.length > 0);
+
+  //   if (lines.length >= 2) {
+  //     e.preventDefault();
+
+  //     let title = lines[0];
+  //     let description = '';
+  //     let focusTitle = 'FOCUS & DEPLOYMENTS:';
+  //     const bulletPoints: string[] = [];
+
+  //     let isCollectingBullets = false;
+
+  //     for (let i = 1; i < lines.length; i++) {
+  //       const line = lines[i];
+
+  //       const isHeaderLine =
+  //         line.endsWith(':') ||
+  //         line.toLowerCase().startsWith('perfect for') ||
+  //         line.toLowerCase().startsWith('benefits include') ||
+  //         line.toLowerCase().startsWith('already have') ||
+  //         line.toLowerCase().startsWith('if your existing') ||
+  //         line.toLowerCase().startsWith('still using') ||
+  //         line.toLowerCase().startsWith('software continues');
+
+  //       if (isHeaderLine) {
+  //         focusTitle = line;
+  //         isCollectingBullets = true;
+  //         continue;
+  //       }
+
+  //       if (isCollectingBullets) {
+  //         const cleanBullet = line.replace(/^[\textbullet\-\*\d\.\)\s]+/, '').trim();
+  //         if (cleanBullet) bulletPoints.push(cleanBullet);
+  //       } else {
+  //         description += (description ? ' ' : '') + line;
+  //       }
+  //     }
+
+  //     setValue(`services.cards.${cardIndex}.title`, title, { shouldValidate: true, shouldDirty: true });
+  //     setValue(`services.cards.${cardIndex}.description`, description, { shouldValidate: true, shouldDirty: true });
+  //     setValue(`services.cards.${cardIndex}.focusTitle`, focusTitle, { shouldValidate: true, shouldDirty: true });
+
+  //     if (bulletPoints.length > 0) {
+  //       replacePoints(bulletPoints as never[]);
+  //     } else {
+  //       replacePoints([''] as never[]);
+  //     }
+  //   }
+  // };
+
+  // // Handles pasting comma-separated values into individual bullet inputs
+  // const handlePointPaste = (
+  //   e: React.ClipboardEvent<HTMLInputElement>,
+  //   pointIndex: number
+  // ) => {
+  //   const pasteData = e.clipboardData.getData('text');
+
+  //   if (pasteData.includes(',')) {
+  //     e.preventDefault();
+
+  //     const points = pasteData
+  //       .split(',')
+  //       .map((item) => item.trim())
+  //       .filter((item) => item.length > 0);
+
+  //     if (points.length === 0) return;
+
+  //     setValue(
+  //       `services.cards.${cardIndex}.focusPoints.${pointIndex}` as any,
+  //       points[0],
+  //       { shouldValidate: true, shouldDirty: true }
+  //     );
+
+  //     for (let i = 1; i < points.length; i++) {
+  //       appendPoint(points[i] as never);
+  //     }
+  //   }
+  // };
 
   return (
     <div className="flex flex-col bg-slate-50/80 border border-slate-200 rounded-2xl p-5 shadow-sm hover:border-indigo-200 transition space-y-4">

@@ -4,12 +4,27 @@ import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Megaphone, ExternalLink, Sparkles, Zap, ClipboardCheck } from 'lucide-react';
 import { FullPagePayload } from '@/@types/cms';
+import { htmlToTextWithLinks } from '@/utils/renderText';
 
 export default function CtaSection() {
   const { register, setValue } = useFormContext<FullPagePayload>();
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [bulkText, setBulkText] = useState('');
 
+
+
+  const handleHeadlinePaste = (e: React.ClipboardEvent) => {
+    const htmlData = e.clipboardData.getData('text/html');
+    const plainText = e.clipboardData.getData('text');
+    const pasteText = htmlData ? htmlToTextWithLinks(htmlData) : plainText;
+
+    if (pasteText.split('\n').filter((l) => l.trim()).length > 1) {
+      e.preventDefault();
+      parseAndPopulateCta(pasteText);
+    }
+  };
+
+  // SMART PARSER FOR CTA TEXT CONTENT
   // SMART PARSER FOR CTA TEXT CONTENT
   const parseAndPopulateCta = (rawText: string) => {
     const lines = rawText
@@ -52,9 +67,21 @@ export default function CtaSection() {
         continue;
       }
 
-      // 2. Button Link / URL Auto-Detection
+      // 2. Button Link / URL Auto-Detection (raw URL on its own line)
       if (line.startsWith('/') || line.startsWith('http://') || line.startsWith('https://') || line.startsWith('#')) {
         buttonUrl = line;
+        continue;
+      }
+
+      // 2b. Markdown-style link auto-detection
+      // Handles lines converted from HTML pastes (e.g. Google Docs), like: [Get in touch](https://prawez.com/contact)
+      const mdLinkMatch = line.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+      if (mdLinkMatch) {
+        const [, label, url] = mdLinkMatch;
+        buttonUrl = url.trim();
+        if (!buttonText) {
+          buttonText = label.trim();
+        }
         continue;
       }
 
@@ -117,15 +144,121 @@ export default function CtaSection() {
       });
     }
   };
+  // const parseAndPopulateCta = (rawText: string) => {
+  //   const lines = rawText
+  //     .split('\n')
+  //     .map((l) => l.trim())
+  //     .filter((l) => l.length > 0);
+
+  //   if (lines.length === 0) return;
+
+  //   let title = '';
+  //   let description = '';
+  //   let subText = '';
+  //   let buttonText = '';
+  //   let buttonUrl = '';
+
+  //   const remainingBody: string[] = [];
+
+  //   for (let i = 0; i < lines.length; i++) {
+  //     const line = lines[i];
+
+  //     // 1. Explicit Key-Value Parsing (e.g. Title: ..., Button: ..., Link: ...)
+  //     if (line.match(/^(headline|title|cta title|cta headline)[\:\=]/i)) {
+  //       title = line.replace(/^(headline|title|cta title|cta headline)[\:\=]/i, '').trim();
+  //       continue;
+  //     }
+  //     if (line.match(/^(desc|description|body)[\:\=]/i)) {
+  //       description = line.replace(/^(desc|description|body)[\:\=]/i, '').trim();
+  //       continue;
+  //     }
+  //     if (line.match(/^(subtext|pitch|secondary)[\:\=]/i)) {
+  //       subText = line.replace(/^(subtext|pitch|secondary)[\:\=]/i, '').trim();
+  //       continue;
+  //     }
+  //     if (line.match(/^(button|btn|button text|action)[\:\=]/i)) {
+  //       buttonText = line.replace(/^(button|btn|button text|action)[\:\=]/i, '').trim();
+  //       continue;
+  //     }
+  //     if (line.match(/^(link|url|target|button url)[\:\=]/i)) {
+  //       buttonUrl = line.replace(/^(link|url|target|button url)[\:\=]/i, '').trim();
+  //       continue;
+  //     }
+
+  //     // 2. Button Link / URL Auto-Detection
+  //     if (line.startsWith('/') || line.startsWith('http://') || line.startsWith('https://') || line.startsWith('#')) {
+  //       buttonUrl = line;
+  //       continue;
+  //     }
+
+  //     // 3. Fallback sequential block processing
+  //     if (!title && i === 0) {
+  //       title = line;
+  //     } else {
+  //       remainingBody.push(line);
+  //     }
+  //   }
+
+  //   // Process remaining sequential paragraphs if explicit key-values weren't present
+  //   if (remainingBody.length > 0) {
+  //     if (!description) {
+  //       description = remainingBody.shift() || '';
+  //     }
+  //     if (remainingBody.length > 0 && !subText) {
+  //       // If next line looks like button CTA text
+  //       const nextLine = remainingBody[0];
+  //       if (nextLine.toLowerCase().includes('contact') || nextLine.toLowerCase().includes('discuss') || nextLine.length < 50) {
+  //         if (!buttonText) buttonText = remainingBody.shift() || '';
+  //       } else {
+  //         subText = remainingBody.shift() || '';
+  //       }
+  //     }
+  //     if (remainingBody.length > 0 && !buttonText) {
+  //       buttonText = remainingBody.join(' ');
+  //     }
+  //   }
+
+  //   // Update Form State
+  //   if (title) {
+  //     setValue('cta.title' as never, title as never, {
+  //       shouldValidate: true,
+  //       shouldDirty: true,
+  //     });
+  //   }
+  //   if (description) {
+  //     setValue('cta.description' as never, description as never, {
+  //       shouldValidate: true,
+  //       shouldDirty: true,
+  //     });
+  //   }
+  //   if (subText) {
+  //     setValue('cta.subText' as never, subText as never, {
+  //       shouldValidate: true,
+  //       shouldDirty: true,
+  //     });
+  //   }
+  //   if (buttonText) {
+  //     setValue('cta.buttonText' as never, buttonText as never, {
+  //       shouldValidate: true,
+  //       shouldDirty: true,
+  //     });
+  //   }
+  //   if (buttonUrl) {
+  //     setValue('cta.buttonUrl' as never, buttonUrl as never, {
+  //       shouldValidate: true,
+  //       shouldDirty: true,
+  //     });
+  //   }
+  // };
 
   // Handle single-input paste event
-  const handleHeadlinePaste = (e: React.ClipboardEvent) => {
-    const pasteText = e.clipboardData.getData('text');
-    if (pasteText.split('\n').filter((l) => l.trim()).length > 1) {
-      e.preventDefault();
-      parseAndPopulateCta(pasteText);
-    }
-  };
+  // const handleHeadlinePaste = (e: React.ClipboardEvent) => {
+  //   const pasteText = e.clipboardData.getData('text');
+  //   if (pasteText.split('\n').filter((l) => l.trim()).length > 1) {
+  //     e.preventDefault();
+  //     parseAndPopulateCta(pasteText);
+  //   }
+  // };
 
   return (
     <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">

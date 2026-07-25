@@ -60,19 +60,19 @@ export default function PageBuilderForm() {
     },
     
     services: { sectionTitle: 'React Development Services', sectionSubtitle: '', cards: [] },
-features_industries: {
-    featuresSection: {
-      title: 'Frequently Built Features',
-      subtitle: 'Some of the solutions I regularly engineer into custom web applications:',
-      items: [{ id: 'feat-1', label: '' }],
-    },
-    industriesSection: {
-      title: 'Industries I Work With',
-      subtitle: 'React structures fit seamlessly into many domain configurations, including:',
-      items: [{ id: 'ind-1', name: '' }],
-    },
-  },
-  
+    features_industries: {
+        featuresSection: {
+          title: '',
+          subtitle: '',
+          items: [{ id: 'feat-1', label: '' }],
+        },
+        industriesSection: {
+          title: '',
+          subtitle: '',
+          items: [{ id: 'ind-1', name: '' }],
+        },
+      },
+      
     process: {
     badge: 'EXECUTION STRATEGY',
     title: 'My Development Process',
