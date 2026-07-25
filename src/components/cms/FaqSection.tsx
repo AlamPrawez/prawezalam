@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { FullPagePayload } from '@/@types/cms';
 import 'react-quill-new/dist/quill.snow.css';
+import { htmlToTextWithLinks } from '@/utils/renderText';
 
 const ReactQuill = dynamic(() => import('react-quill-new'), {
   ssr: false,
