@@ -3,6 +3,7 @@ export interface SeoMeta {
   slug: string;
   description: string;
   canonicalUrl: string;
+  ldjson?:string;
   ogImage: string;
   ogImageAlt?: string;
   keywords?: string; // Add keywords here
@@ -99,6 +100,14 @@ export interface FeaturesIndustriesPayload {
   industriesSection: IndustriesSectionData;
 }
 
+export interface CtaSectionData {
+  title: string;
+  description: string;
+  subText: string;
+  buttonText: string;
+  buttonUrl: string;
+}
+
 export interface FullPagePayload {
   seo: SeoMeta;
   hero: HeroSectionData;
@@ -107,4 +116,5 @@ export interface FullPagePayload {
   contentSections: ContentSection[];
   faqs: FaqItem[];
   features_industries: FeaturesIndustriesPayload;
+  cta?: CtaSectionData;
 }

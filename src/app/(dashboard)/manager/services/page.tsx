@@ -89,6 +89,13 @@ features_industries: {
   
     contentSections: [{ id: 'sec-1', heading: '', contentHtml: '', imageUrl: '', imageAlt: '' }],
     faqs: [{ id: 'faq-1', question: '', answerHtml: '' }],
+    cta: {
+    title: "Let's Build Your React Application",
+    description: "Whether you're starting from a raw product idea, improving an existing codebase ecosystem, or looking to scale a rapidly growing platform, I'd be happy to map out your project solutions.",
+    subText: "If you are looking for a reliable software engineer who values pristine formatting logic, robust framework scalability, and long-term codebase maintainability—let's talk.",
+    buttonText: "Contact Me Today to Discuss Your Project",
+    buttonUrl: "/contact",
+  },
   };
 
   const methods = useForm<FullPagePayload>({

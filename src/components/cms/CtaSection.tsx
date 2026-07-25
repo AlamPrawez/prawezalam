@@ -87,31 +87,31 @@ export default function CtaSection() {
 
     // Update Form State
     if (title) {
-      setValue('ctaSection.title' as never, title as never, {
+      setValue('cta.title' as never, title as never, {
         shouldValidate: true,
         shouldDirty: true,
       });
     }
     if (description) {
-      setValue('ctaSection.description' as never, description as never, {
+      setValue('cta.description' as never, description as never, {
         shouldValidate: true,
         shouldDirty: true,
       });
     }
     if (subText) {
-      setValue('ctaSection.subText' as never, subText as never, {
+      setValue('cta.subText' as never, subText as never, {
         shouldValidate: true,
         shouldDirty: true,
       });
     }
     if (buttonText) {
-      setValue('ctaSection.buttonText' as never, buttonText as never, {
+      setValue('cta.buttonText' as never, buttonText as never, {
         shouldValidate: true,
         shouldDirty: true,
       });
     }
     if (buttonUrl) {
-      setValue('ctaSection.buttonUrl' as never, buttonUrl as never, {
+      setValue('cta.buttonUrl' as never, buttonUrl as never, {
         shouldValidate: true,
         shouldDirty: true,
       });
@@ -167,7 +167,7 @@ export default function CtaSection() {
           </div>
           <input
             type="text"
-            {...register('ctaSection.title' as never)}
+            {...register('cta.title' as never)}
             onPaste={handleHeadlinePaste}
             defaultValue="Let's Build Your React Application"
             placeholder="e.g. Let's Build Your React Application"
@@ -182,7 +182,7 @@ export default function CtaSection() {
           </label>
           <textarea
             rows={2}
-            {...register('ctaSection.description' as never)}
+            {...register('cta.description' as never)}
             defaultValue="Whether you're starting from a raw product idea, improving an existing codebase ecosystem, or looking to scale a rapidly growing platform, I'd be happy to map out your project solutions."
             placeholder="Whether you're starting from a raw product idea..."
             className="w-full px-3.5 py-2 text-xs text-slate-700 border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -196,7 +196,7 @@ export default function CtaSection() {
           </label>
           <textarea
             rows={2}
-            {...register('ctaSection.subText' as never)}
+            {...register('cta.subText' as never)}
             defaultValue="If you are looking for a reliable software engineer who values pristine formatting logic, robust framework scalability, and long-term codebase maintainability—let's talk."
             placeholder="If you are looking for a reliable software engineer..."
             className="w-full px-3.5 py-2 text-xs text-slate-500 border border-slate-200 rounded-lg bg-slate-50 focus:outline-none focus:ring-1 focus:ring-indigo-500"
@@ -216,7 +216,7 @@ export default function CtaSection() {
               </label>
               <input
                 type="text"
-                {...register('ctaSection.buttonText' as never)}
+                {...register('cta.buttonText' as never)}
                 defaultValue="Contact Me Today to Discuss Your Project"
                 placeholder="e.g. Contact Me Today..."
                 className="w-full px-3 py-1.5 text-xs font-semibold text-slate-800 border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -230,7 +230,7 @@ export default function CtaSection() {
               <div className="relative">
                 <input
                   type="text"
-                  {...register('ctaSection.buttonUrl' as never)}
+                  {...register('cta.buttonUrl' as never)}
                   defaultValue="/contact"
                   placeholder="e.g. /contact or #contact"
                   className="w-full pl-3 pr-8 py-1.5 text-xs text-slate-700 border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"

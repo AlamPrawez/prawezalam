@@ -340,6 +340,25 @@ export class CmsServiceRepository {
         }
     }
 
+
+    /**
+     * Fetch all services
+     */
+    public async servicesSitemapGenerator() {
+        let query = supabase
+            .from('cms_services')
+            .select('id, slug, status, updated_at')
+            .order('updated_at', { ascending: false });
+
+        query = query.eq('status', 'Published');
+
+
+        const { data, error } = await query;
+        if (error) throw error;
+        return data;
+    }
+
+
     /**
      * Fetch all services
      */
@@ -385,6 +404,8 @@ export class CmsServiceRepository {
     ) {
         await this.verifyManagementAccess();
 
+
+        console.log(payload.cta)
         const title = payload.seo?.title || payload.hero?.headline || 'Untitled Service';
         const slug = payload.seo?.slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 

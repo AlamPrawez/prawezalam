@@ -1,15 +1,29 @@
 import { MetadataRoute } from 'next'
 import fs from 'fs'
 import path from 'path'
+import { cmsService } from '@/services/api/endpoints';
 
 // --- CONFIGURATION ---
 const BLACKLIST = ['/success', '/thank-you', '/404', '/error', '/(admin)/dashboard', '/(auth)/*', '/api', '/private'];
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL 
-  ? process.env.NEXT_PUBLIC_BASE_URL 
-  : process.env.VERCEL_URL 
-    ? `https://${process.env.VERCEL_URL}` 
-    : 'http://localhost:3000';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
+    ? process.env.NEXT_PUBLIC_BASE_URL
+    : process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : 'http://localhost:3000';
 
+
+
+// 1. Force Next.js to run this dynamically on first request after app restart
+export const dynamic = 'force-dynamic';
+
+// 2. Set 24-hour cache revalidation (86,400 seconds)
+export const revalidate = 86400;
+
+// Define the interface for items returned from your database
+interface ItemPayload {
+    slug: string;
+    updatedAt?: Date | string;
+}
 /**
  * Automatically crawls the (client) directory to find all static pages.
  */
@@ -48,6 +62,37 @@ function getClientRoutes(dir: string, baseRoute = ''): string[] {
     return routes;
 }
 
+
+
+// Map each entity type to its direct database query function
+const resourceDataFetchers: Record<string, () => Promise<ItemPayload[]>> = {
+
+    services: async () => {
+        try {
+            // Fetch published services directly from Supabase via cmsService
+            const data = await cmsService.servicesSitemapGenerator();
+
+            if (!data || data.length === 0) return [];
+
+            // Map Supabase rows to sitemap payload format
+            return data.map((item: any) => ({
+                slug: item.slug,
+                updatedAt: item.updated_at,
+            }));
+        } catch (error) {
+            console.error('Sitemap fetch error (services):', error);
+            return [];
+        }
+    },
+
+};
+
+// Control active dynamic entities here
+const ACTIVE_RESOURCES: (keyof typeof resourceDataFetchers)[] = [
+    'services',
+    // 'blogs',
+];
+
 /**
  * Main Sitemap Function
  */
@@ -71,28 +116,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 1.0,
     });
 
-    // --- 2. GET DYNAMIC PRODUCTS ---
-    let dynamicEntries: MetadataRoute.Sitemap = [];
 
-    // try {
-    //     // Replace this URL with your actual API endpoint or database fetch logic
-    //     const res = await fetch(`${BASE_URL}/api/products`, {
-    //         next: { revalidate: 3600 } // Cache for 1 hour
-    //     });
 
-    //     if (res.ok) {
-    //         const products = await res.json();
-    //         dynamicEntries = products.map((product: any) => ({
-    //             url: `${BASE_URL}/products/${product.slug}`,
-    //             lastModified: new Date(product.updatedAt || new Date()),
-    //             changeFrequency: 'daily',
-    //             priority: 0.8,
-    //         }));
-    //     }
-    // } catch (error) {
-    //     console.error("Sitemap dynamic fetch error:", error);
-    //     // If fetch fails, we still return the static pages we found
-    // }
+    // --- 2. GET DYNAMIC ENTRIES FROM CMS SERVICES ---
+    const dynamicResults = await Promise.allSettled(
+        ACTIVE_RESOURCES.map(async (resourceKey) => {
+            const fetcher = resourceDataFetchers[resourceKey];
+            if (!fetcher) return [];
+
+            const items = await fetcher();
+
+            return items.map((item) => ({
+                url: `${BASE_URL}/${resourceKey}/${item.slug}`,
+                lastModified: new Date(item.updatedAt || new Date()),
+                changeFrequency: 'daily' as const, // 24-hour cycle standard
+                priority: 0.8,
+            }));
+        })
+    );
+
+    const dynamicEntries: MetadataRoute.Sitemap = dynamicResults.flatMap((result) =>
+        result.status === 'fulfilled' ? result.value : []
+    );
 
     return [...staticEntries, ...dynamicEntries];
 }

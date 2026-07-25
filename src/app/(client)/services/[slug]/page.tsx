@@ -18,6 +18,8 @@ import {
 import { cmsService } from '@/services/api/endpoints';
 import OrderServiceButton from '@/components/OrderServiceButton';
 import { FeatureItem, FeaturesIndustriesPayload, IndustryItem } from '@/@types/cms';
+// import { buildPageJsonLd } from '@/lib/seo/schema-builder';
+import { JsonLd } from '@/components/seo/JsonLd';
 
 interface PageProps {
     params: Promise<{
@@ -142,48 +144,62 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
     const features_industries = (details?.features_industries || {}) as FeaturesIndustriesPayload;
 
 
-    const jsonGraph = {
-        "@context": "https://schema.org",
-        "@graph": [
-            {
-                "@type": "Service",
-                "@id": "https://prawez.com/services/react-js-development/#core-services",
-                "serviceType": "Custom React.js Development & Single Page Application Engineering",
-                "provider": {
-                    "@type": "Person",
-                    "@id": "https://prawez.com/#person",
-                    "name": "Er. Prawez Alam",
-                    "url": "https://prawez.com"
-                },
-                "description": "Premium front-end development of custom React.js web platforms, dashboards, and custom business tools focused on modular maintainability and fluid states.",
-                "offers": {
-                    "@type": "Offer",
-                    "availability": "https://schema.org/InStock"
-                }
-            },
-            {
-                "@type": "FAQPage",
-                "@id": "https://prawez.com/services/react-js-development/#faq",
-                "provider": {
-                    "@id": "https://prawez.com/#person"
-                },
-                "mainEntity": faqs.map((faq: any) => ({
-                    "@type": "Question",
-                    "name": faq.question,
-                    "acceptedAnswer": {
-                        "@type": "Answer",
-                        "text": getText(faq.answerHtml),
-                    },
-                })),
-            }
-        ]
-    };
+    // const jsonGraph = {
+    //     "@context": "https://schema.org",
+    //     "@graph": [
+    //         {
+    //             "@type": "Service",
+    //             "@id": "https://prawez.com/services/react-js-development/#core-services",
+    //             "serviceType": "Custom React.js Development & Single Page Application Engineering",
+    //             "provider": {
+    //                 "@type": "Person",
+    //                 "@id": "https://prawez.com/#person",
+    //                 "name": "Er. Prawez Alam",
+    //                 "url": "https://prawez.com"
+    //             },
+    //             "description": "Premium front-end development of custom React.js web platforms, dashboards, and custom business tools focused on modular maintainability and fluid states.",
+    //             "offers": {
+    //                 "@type": "Offer",
+    //                 "availability": "https://schema.org/InStock"
+    //             }
+    //         },
+    //         {
+    //             "@type": "FAQPage",
+    //             "@id": "https://prawez.com/services/react-js-development/#faq",
+    //             "provider": {
+    //                 "@id": "https://prawez.com/#person"
+    //             },
+    //             "mainEntity": faqs.map((faq: any) => ({
+    //                 "@type": "Question",
+    //                 "name": faq.question,
+    //                 "acceptedAnswer": {
+    //                     "@type": "Answer",
+    //                     "text": getText(faq.answerHtml),
+    //                 },
+    //             })),
+    //         }
+    //     ]
+    // };
+
+
+    // const jsonLdData = buildPageJsonLd({
+    //     seo: details?.seo,
+    //     faqs: details?.faqs || [], // Passes database array FAQs
+    //     serviceTitle: serviceData?.title,
+    // });
+
+  
+
     return (
         <>
-            <script
+        <JsonLd seo={details?.seo} faqs={details?.faqs} />
+            {/* <script
                 type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonGraph) }}
-            />
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify(jsonLdData).replace(/</g, '\\u003c'),
+                }}
+            /> */}
+
             <div className="bg-white text-slate-900 selection:bg-indigo-500 selection:text-white min-h-screen font-sans overflow-x-hidden antialiased">
 
                 {/* 1. HERO SECTION — kept as a darker bookend band for image contrast and text legibility */}
@@ -482,7 +498,7 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                                 </div>}
 
                                 {/* Column B: Industries Served */}
-                                {features_industries.industriesSection && <div>
+                                {features_industries.industriesSection && features_industries.industriesSection?.items.length > 0 && <div>
                                     <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-2">
                                         {features_industries.industriesSection?.title || "Industries I Work With"}
                                     </h3>
@@ -618,15 +634,43 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-indigo-600/10 blur-[120px] rounded-full pointer-events-none" />
                     <div className="max-w-4xl mx-auto px-4 text-center sm:px-6 lg:px-8 relative z-10">
                         <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-                            {cta.headline || `Ready to Engineer Your ${serviceData.title}?`}
+                            {cta.title || `Ready to Engineer Your ${serviceData.title}?`}
                         </h2>
                         <p className="text-slate-300 mt-4 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
-                            {getText(cta.subheadline) ||
+                            {getText(cta.description) ||
                                 "Let's map out your architecture requirements, deployment strategy, and technical scope."}
                         </p>
-                        <div className="mt-8 flex justify-center">
-                            <OrderServiceButton title={serviceData.title} />
-                        </div>
+
+                        {cta.subText && <p className="text-gray-500 mt-2 text-sm max-w-xl mx-auto">
+                            {getText(cta.subText)}
+                        </p>}
+
+                        {/* Link / Button Action */}
+                        {cta?.buttonUrl ? (
+                            <div className="pt-4 flex justify-center">
+                                {(cta.buttonText || "").length > 10 ? (
+                                    /* Text Link View - Matched Indigo/Blue Color without underline/bottom-bar */
+                                    <Link
+                                        href={cta.buttonUrl}
+                                        className="text-indigo-400 hover:text-indigo-300 text-sm md:text-base font-medium tracking-wide transition-colors duration-200 no-underline"
+                                    >
+                                        {cta.buttonText}
+                                    </Link>
+                                ) : (
+                                    /* Solid Button View */
+                                    <Link
+                                        href={cta.buttonUrl}
+                                        className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl shadow-lg transition-all duration-200"
+                                    >
+                                        {cta.buttonText || "Click Me"}
+                                    </Link>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="pt-4 flex justify-center">
+                                <OrderServiceButton title={serviceData.title} />
+                            </div>
+                        )}
                     </div>
                 </section>
 
