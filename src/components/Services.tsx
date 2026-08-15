@@ -64,12 +64,13 @@ const services = [
         title: "Project Deployment",
         desc: "Execute complete continuous delivery (CI/CD) pipelines from local code commits to stable, live production web architectures with highly optimized runtime configurations.",
         link: null
-    },
-    {
-        title: "React.js Development Services",
-        desc: "Need a modern web application that is fast, responsive, and easy to scale? I build high-quality React.js applications for startups, businesses, and agencies looking for a reliable development partner.",
-        link: "/services/react-js-development"
     }
+    // ,
+    // {
+    //     title: "React.js Development Services",
+    //     desc: "Need a modern web application that is fast, responsive, and easy to scale? I build high-quality React.js applications for startups, businesses, and agencies looking for a reliable development partner.",
+    //     link: "/services/react-js-development"
+    // }
 ];
 
 export default function ServicesSection() {
