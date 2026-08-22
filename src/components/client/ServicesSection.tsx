@@ -22,11 +22,10 @@ export default function ServicesSectionNew() {
                 setLoading(true);
                 // Fetch published CMS services from Supabase repository
                 const data = await cmsService.fetchServicesList();
-
                 if (data && data.length > 0) {
                     const cmsItems: ServiceItem[] = data.map((item: any) => ({
                         id: item.id,
-                        title: item.cms_service_details?.hero?.badge || item.title,
+                        title: item.cms_service_details?.hero?.headline || item.title || item.cms_service_details?.hero?.badge,
                         desc:
                             item.cms_service_details.seo.description ||
                             item.meta_description ||
