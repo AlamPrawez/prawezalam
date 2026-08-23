@@ -643,6 +643,28 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                                             {renderText(sec.body)}
                                         </div>
                                     )}
+
+
+                                    {sec.contentHtml ? (
+                                        typeof sec.contentHtml === 'string' ? (
+                                            <div
+                                                className="max-w-full w-full overflow-hidden break-words text-base sm:text-lg leading-relaxed [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:mb-1 [&_p]:mb-3"
+                                                dangerouslySetInnerHTML={{
+                                                    __html: DOMPurify.sanitize(sec.contentHtml), // Preserves all original inline colors and font styles
+                                                }}
+                                            />
+                                        ) : (
+                                            <div className="text-slate-200 text-base sm:text-lg leading-relaxed break-words">
+                                                {renderText(sec.contentHtml, 'text-slate-200')}
+                                            </div>
+                                        )
+                                    ) : (
+                                        <p className="text-slate-200 text-base sm:text-lg leading-relaxed break-words">
+                                            {renderText(details.seo?.description, 'text-slate-200') || serviceData.title}
+                                        </p>
+                                    )}
+
+
                                 </div>
                             ))}
                         </div>
