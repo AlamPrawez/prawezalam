@@ -42,7 +42,7 @@ export  async function proxy(request: NextRequest) {
             .eq('id', user.id)
             .single();
 
-        console.log(`here why null: ${profile}`)    
+        // console.log(`here why null: ${profile}`)    
 
         // Convert db response carefully (stripping spaces if enum returns weirdly)
         const userRole = (profile?.role || 'user').toString().trim();

@@ -252,7 +252,7 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                     {/* Outer Container with generous left and outer padding */}
                     <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-20 relative z-10">
                         {/* Increased text block width (max-w-2xl sm:max-w-3xl) and added top spacing */}
-                        <div className="max-w-2xl sm:max-w-3xl space-y-7 pt-6 sm:pt-10">
+                        <div className="max-w-4xl sm:max-w-5xl space-y-7 pt-6 sm:pt-10">
                             {hero.badge && (
                                 <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-indigo-500/15 border border-indigo-400/30 text-indigo-200 text-xs font-bold uppercase tracking-widest shadow-lg backdrop-blur-md ring-1 ring-inset ring-white/5">
                                     <Sparkles className="w-4 h-4 text-indigo-300 animate-pulse" />
@@ -265,20 +265,25 @@ export default async function ServiceDetailsPage({ params }: PageProps) {
                             </h1>
 
                             {/* Safe HTML or paragraph string */}
+
                             {hero.paragraphHtml ? (
-                                <div
-                                    className="prose prose-invert max-w-full w-full overflow-hidden break-words text-slate-200 text-base sm:text-lg leading-relaxed font-normal [&>p]:mb-3"
-                                    dangerouslySetInnerHTML={{
-                                        __html: DOMPurify.sanitize(
-                                            typeof hero.paragraphHtml === 'string'
-                                                ? hero.paragraphHtml
-                                                : renderText(hero.paragraphHtml)
-                                        )
-                                    }}
-                                />
+                                typeof hero.paragraphHtml === 'string' ? (
+                                    <div
+                                        className="prose prose-invert max-w-full w-full overflow-hidden break-words text-slate-200 text-base sm:text-lg leading-relaxed font-normal [&>p]:mb-3"
+                                        dangerouslySetInnerHTML={{
+                                            __html: DOMPurify.sanitize(hero.paragraphHtml, {
+                                                FORBID_ATTR: ['style'], // Strips style attributes so Tailwind classes apply
+                                            }),
+                                        }}
+                                    />
+                                ) : (
+                                    <div className="text-slate-200 text-base sm:text-lg leading-relaxed break-words">
+                                        {renderText(hero.paragraphHtml, 'text-slate-200')}
+                                    </div>
+                                )
                             ) : (
                                 <p className="text-slate-200 text-base sm:text-lg leading-relaxed break-words">
-                                    {renderText(details.seo?.description) || serviceData.title}
+                                    {renderText(details.seo?.description, 'text-slate-200') || serviceData.title}
                                 </p>
                             )}
 

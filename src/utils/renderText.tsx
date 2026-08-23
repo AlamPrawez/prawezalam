@@ -1,6 +1,67 @@
 import React from 'react';
 
-export function renderText(value: any): React.ReactNode {
+// export function renderText(value: any): React.ReactNode {
+//   if (value === null || value === undefined) return '';
+
+//   let rawText = '';
+
+//   if (typeof value === 'string' || typeof value === 'number') {
+//     rawText = String(value);
+//   } else if (typeof value === 'object') {
+//     rawText =
+//       value.text ||
+//       value.title ||
+//       value.label ||
+//       value.heading ||
+//       value.name ||
+//       value.desc ||
+//       value.description ||
+//       '';
+//   }
+
+//   if (!rawText) return '';
+
+//   // Capturing groups: [1] = Link Label, [2] = Link URL
+//   const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+//   const parts = rawText.split(markdownLinkRegex);
+
+//   // If no markdown links are found, return plain text
+//   if (parts.length === 1) return rawText;
+
+//   const result: React.ReactNode[] = [];
+
+//   // String.split with 2 groups yields chunks in steps of 3:
+//   // [plainText, linkText, linkUrl, plainText, linkText, linkUrl, ...]
+//   for (let i = 0; i < parts.length; i += 3) {
+//     // 1. Add plain text before link
+//     if (parts[i]) {
+//       result.push(parts[i]);
+//     }
+
+//     // 2. Add the formatted <a> tag if link text & URL exist
+//     if (i + 1 < parts.length && i + 2 < parts.length) {
+//       const linkText = parts[i + 1];
+//       const linkUrl = parts[i + 2];
+
+//       result.push(
+//         <a
+//           key={i}
+//           href={linkUrl}
+//           target="_blank"
+//           rel="noopener noreferrer"
+//           className="text-indigo-600 hover:underline font-medium"
+//         >
+//           {linkText}
+//         </a>
+//       );
+//     }
+//   }
+
+//   return result;
+// }
+
+
+export function renderText(value: any, textColor?: string): React.ReactNode {
   if (value === null || value === undefined) return '';
 
   let rawText = '';
@@ -25,8 +86,10 @@ export function renderText(value: any): React.ReactNode {
   const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
   const parts = rawText.split(markdownLinkRegex);
 
-  // If no markdown links are found, return plain text
-  if (parts.length === 1) return rawText;
+  // If no markdown links are found, return wrapped or plain text
+  if (parts.length === 1) {
+    return textColor ? <span className={textColor}>{rawText}</span> : rawText;
+  }
 
   const result: React.ReactNode[] = [];
 
@@ -35,7 +98,15 @@ export function renderText(value: any): React.ReactNode {
   for (let i = 0; i < parts.length; i += 3) {
     // 1. Add plain text before link
     if (parts[i]) {
-      result.push(parts[i]);
+      result.push(
+        textColor ? (
+          <span key={`text-${i}`} className={textColor}>
+            {parts[i]}
+          </span>
+        ) : (
+          parts[i]
+        )
+      );
     }
 
     // 2. Add the formatted <a> tag if link text & URL exist
@@ -45,11 +116,11 @@ export function renderText(value: any): React.ReactNode {
 
       result.push(
         <a
-          key={i}
+          key={`link-${i}`}
           href={linkUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-indigo-600 hover:underline font-medium"
+          className={`hover:underline font-medium ${textColor || 'text-indigo-600'}`}
         >
           {linkText}
         </a>
@@ -59,7 +130,6 @@ export function renderText(value: any): React.ReactNode {
 
   return result;
 }
-
 
 
 export const htmlToTextWithLinks = (html: string): string => {
