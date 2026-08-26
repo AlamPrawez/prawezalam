@@ -2,14 +2,13 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Calendar, Clock, User, Link as LinkIcon, Unlink, Settings2, ExternalLink, X, Upload, Loader2, Image as ImageIcon } from 'lucide-react';
-import type { PageSectionItem } from '../types';
+import type { BlogLayoutStyle, PageSectionItem } from '../types';
 import { RichEditableText } from '../editor/RichEditableText';
 import { EditableBlogImage } from '../editor/EditableBlogImage';
 // import { uploadWebpToSupabase } from '@/lib/supabase'; // Adjust path if needed
 
 type OnChange = (patch: Partial<PageSectionItem>) => void;
 
-type BlogLayoutStyle = 'editorial' | 'minimal-split' | 'card-magazine';
 
 export const BLOG_VARIANTS: { value: BlogLayoutStyle; label: string; description: string }[] = [
   {
@@ -214,7 +213,7 @@ export const BlogView: React.FC<{
       : 'bg-slate-950 text-white';
 
   return (
-    <article className={`my-8 max-w-4xl mx-auto rounded-3xl ${paddingClass} ${themeClass}`}>
+    <article className={`mx-auto ${paddingClass} ${themeClass}`}>
       {sec.layoutStyle === 'minimal-split' && (
         <MinimalSplitBlogView sec={sec} onUpdate={handleUpdate} />
       )}

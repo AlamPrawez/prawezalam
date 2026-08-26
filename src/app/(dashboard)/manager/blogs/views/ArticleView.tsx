@@ -2,17 +2,17 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { BookOpen, Quote, Link as LinkIcon, Unlink, X } from 'lucide-react';
-import type { PageSectionItem } from '../types';
+import type { ArticleLayoutStyle, PageSectionItem } from '../types';
 import { RichEditableText } from '../editor/RichEditableText';
 
 type OnChange = (patch: Partial<PageSectionItem>) => void;
 
-export type ArticleLayoutStyle =
-  | 'single-col'
-  | 'editorial-2col'
-  | 'bordered-callout'
-  | 'hero-header'
-  | 'quote-box';
+// export type ArticleLayoutStyle =
+//   | 'single-col'
+//   | 'editorial-2col'
+//   | 'bordered-callout'
+//   | 'hero-header'
+//   | 'quote-box';
 
 export const ARTICLE_VARIANTS: { value: ArticleLayoutStyle; label: string; description: string }[] = [
   {
@@ -87,13 +87,48 @@ const SingleColView: React.FC<{
 );
 
 // VARIANT 2: 2-Column Editorial
+// const Editorial2ColView: React.FC<{
+//   title: string;
+//   content: string;
+//   proseThemeClass: string;
+//   onUpdate: (patch: Partial<PageSectionItem>) => void;
+// }> = ({ title, content, proseThemeClass, onUpdate }) => (
+//   <div className="space-y-6">
+//     <div className="border-b border-slate-800/80 pb-4">
+//       <RichEditableText
+//         value={title}
+//         onCommit={(v) => onUpdate({ title: v })}
+//         placeholder="Article Title..."
+//         className="block text-3xl sm:text-4xl font-black tracking-tight"
+//       />
+//     </div>
+
+//     <div className={`prose max-w-none text-sm sm:text-base leading-relaxed opacity-90 columns-1 md:columns-2 gap-8 ${proseThemeClass}`}>
+//       <RichEditableText
+//         value={content}
+//         onCommit={(v) => onUpdate({ subtitle: v })}
+//         placeholder="Select any text to apply links..."
+//         className="block whitespace-pre-line min-h-[100px]"
+//       />
+//     </div>
+//   </div>
+// );
+
 const Editorial2ColView: React.FC<{
   title: string;
   content: string;
+  secondContent?: string;
   proseThemeClass: string;
   onUpdate: (patch: Partial<PageSectionItem>) => void;
-}> = ({ title, content, proseThemeClass, onUpdate }) => (
+}> = ({
+  title,
+  content,
+  secondContent = '',
+  proseThemeClass,
+  onUpdate,
+}) => (
   <div className="space-y-6">
+    {/* Title Header */}
     <div className="border-b border-slate-800/80 pb-4">
       <RichEditableText
         value={title}
@@ -103,16 +138,31 @@ const Editorial2ColView: React.FC<{
       />
     </div>
 
-    <div className={`prose max-w-none text-sm sm:text-base leading-relaxed opacity-90 columns-1 md:columns-2 gap-8 ${proseThemeClass}`}>
-      <RichEditableText
-        value={content}
-        onCommit={(v) => onUpdate({ subtitle: v })}
-        placeholder="Select any text to apply links..."
-        className="block whitespace-pre-line min-h-[100px]"
-      />
+    {/* Clean Two-Column Grid */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {/* Column 1 - Editable */}
+      <div className={`prose max-w-none text-sm sm:text-base leading-relaxed opacity-90 ${proseThemeClass}`}>
+        <RichEditableText
+          value={content}
+          onCommit={(v) => onUpdate({ subtitle: v })}
+          placeholder="First column content..."
+          className="block whitespace-pre-line min-h-[100px]"
+        />
+      </div>
+
+      {/* Column 2 - Editable */}
+      <div className={`prose max-w-none text-sm sm:text-base leading-relaxed opacity-90 ${proseThemeClass}`}>
+        <RichEditableText
+          value={secondContent}
+          onCommit={(v) => onUpdate({ contentHtml: v })}
+          placeholder="Second column content..."
+          className="block whitespace-pre-line min-h-[100px]"
+        />
+      </div>
     </div>
   </div>
 );
+
 
 // VARIANT 3: Bordered Callout Box
 const BorderedCalloutView: React.FC<{
@@ -218,10 +268,10 @@ export const ArticleView: React.FC<{
 
   const themeClass =
     sec.bgTheme === 'indigo'
-      ? 'bg-indigo-950 text-white border border-indigo-800/50'
+      ? 'bg-indigo-950 text-white'
       : sec.bgTheme === 'light'
-      ? 'bg-slate-100 text-slate-900 border border-slate-200'
-      : 'bg-slate-950 text-white border border-slate-800';
+      ? 'bg-slate-100 text-slate-900'
+      : 'bg-slate-950 text-white';
 
   const cardThemeClass =
     sec.bgTheme === 'light'
@@ -234,7 +284,7 @@ export const ArticleView: React.FC<{
   const content = sec.subtitle || '';
 
   return (
-    <div className={`my-8 max-w-4xl mx-auto rounded-3xl ${paddingClass} ${themeClass}`}>
+    <div className={`mx-auto ${paddingClass} ${themeClass}`}>
       {sec.layoutStyle === 'editorial-2col' && (
         <Editorial2ColView
           title={title}

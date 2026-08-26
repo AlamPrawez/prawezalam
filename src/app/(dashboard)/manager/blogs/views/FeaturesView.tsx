@@ -2,11 +2,11 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Layers, ArrowRight, Plus, Trash2, Check, ExternalLink } from 'lucide-react';
-import type { FeatureCard, PageSectionItem, PageButton } from '../types';
+import type { FeatureCard, PageSectionItem, PageButton, FeaturesLayoutStyle } from '../types';
 
 type OnChange = (patch: Partial<PageSectionItem>) => void;
 
-export type FeaturesLayoutStyle = 'grid-3col' | 'list-vertical' | 'bento';
+
 
 export const FEATURES_VARIANTS: { value: FeaturesLayoutStyle; label: string; description: string }[] = [
   {
@@ -390,10 +390,10 @@ export const FeaturesView: React.FC<{
 
   const themeClass =
     sec.bgTheme === 'indigo'
-      ? 'bg-indigo-950 text-white border border-indigo-800/50'
+      ? 'bg-indigo-950 text-white'
       : sec.bgTheme === 'light'
-      ? 'bg-slate-100 text-slate-900 border border-slate-200'
-      : 'bg-slate-950 text-white border border-slate-800';
+      ? 'bg-slate-100 text-slate-900'
+      : 'bg-slate-950 text-white';
 
   const cardThemeClass =
     sec.bgTheme === 'light'
@@ -401,7 +401,7 @@ export const FeaturesView: React.FC<{
       : 'bg-slate-900/80 border-slate-800 hover:border-indigo-500/40';
 
   return (
-    <div className={`my-8 max-w-6xl mx-auto rounded-3xl space-y-8 ${paddingClass} ${themeClass}`}>
+    <div className={`mx-auto space-y-8 ${paddingClass} ${themeClass}`}>
       <div className="text-center space-y-3 max-w-2xl mx-auto">
         <EditableText
           as="h2"

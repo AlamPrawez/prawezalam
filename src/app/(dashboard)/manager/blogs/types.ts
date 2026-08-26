@@ -1,5 +1,3 @@
-import { ContentLayoutStyle } from "./views/ContentViews";
-
 // types.ts
 export type SectionType = 'hero' | 'cta' | 'faq' | 'features'| 'process' | 'article'| 'blog' | 'content';
 
@@ -17,9 +15,33 @@ export type HeroLayoutStyle =
     | 'split-left'
     | 'centered';
 
+    
+
+export type ContentLayoutStyle =
+  | 'standard-block'
+  | 'split-image'
+  | 'card-grid'
+  | 'bordered-callout'
+  | 'simple-quill';
+
 export type BlogLayoutStyle = 'editorial' | 'minimal-split' | 'card-magazine';   
 export type CTALayoutStyle = 'centered' | 'split-screen' | 'card-floating'; 
 export type FAQLayoutStyle = 'stack' | 'grid-2col' | 'accordion';
+export type FeaturesLayoutStyle = 'grid-3col' | 'list-vertical' | 'bento';
+export type ProcessLayoutStyle =
+  | 'grid-2col'
+  | 'stepper-horizontal'
+  | 'timeline-vertical'
+  | 'numbered-cards'
+  | 'zigzag';
+
+export type ArticleLayoutStyle =
+  | 'single-col'
+  | 'editorial-2col'
+  | 'bordered-callout'
+  | 'hero-header'
+  | 'quote-box';
+
 
 export interface FAQItem {
     question: string;
@@ -41,12 +63,26 @@ export interface FeatureCard {
   desc: string;
 }
 
+// 1. Dedicated SEO Data Interface
+export interface SeoData {
+  title?: string;
+  slug?: string;
+  description?: string;
+  keywords?: string;
+  canonicalUrl?: string;
+  ogImage?: string;
+  ogImageAlt?: string;
+  ldjson?: string;
+}
+
+
+// 2. Updated PageSectionItem Interface with SEO support
 export interface PageSectionItem {
   id: string;
-  type: SectionType; // Ensure 'content' is included in your SectionType union
+  type: SectionType; // Ensure your union type includes all section variants
   title: string;
   subtitle: string;
-  layoutStyle?: HeroLayoutStyle | BlogLayoutStyle | ContentLayoutStyle | string;
+  layoutStyle?: HeroLayoutStyle | FAQLayoutStyle | BlogLayoutStyle | ContentLayoutStyle | ProcessLayoutStyle | FeaturesLayoutStyle | ArticleLayoutStyle | CTALayoutStyle | string;
   bgTheme?: 'dark' | 'indigo' | 'slate' | 'light';
   paddingSize?: 'sm' | 'md' | 'lg' | string;
   imageUrl?: string;
@@ -54,6 +90,11 @@ export interface PageSectionItem {
   imageLinkUrl?: string;
   badgeText?: string;
   
+  // SEO & Metadata properties
+  seo?: SeoData;
+  description?: string;
+  keywords?: string;
+
   // Content block properties
   heading?: string;
   contentHtml?: string;
@@ -69,32 +110,13 @@ export interface PageSectionItem {
   readTime?: string;
 }
 
-// export interface PageSectionItem {
-//     id: string;
-//     type: SectionType; // add more section types here as you build their views
-//     title: string;
-//     subtitle: string;
-//     layoutStyle?: HeroLayoutStyle | BlogLayoutStyle | string;
-//     bgTheme?: 'dark' | 'indigo' | 'slate' | 'light';
-//     paddingSize?: 'sm' | 'md' | 'lg' | string;
-//     imageUrl?: string;
-//     buttons?: PageButton[];
-//     bulletPoints?: string[];
-//     faqList?: FAQItem[];
-//     cardsList?:FeatureCard[] | ProcessCard[] | FeatureCard[];
-//     authorName?: string;
-//     authorRole?: string;
-//     publishDate?: string;
-//     readTime?: string;
-//     imageAlt?: string;
-//     imageLinkUrl?: string;
-//     badgeText?:string;
-// }
-
 
 export interface PageBuilderValues {
+    seo:SeoData;
     title: string;
-    slug: string;
+    status: 'draft' | 'published';
+    slug?: string;
+    bgTheme?:string;
     sections: PageSectionItem[];
 }
 

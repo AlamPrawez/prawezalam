@@ -4,6 +4,18 @@
 
 @import "tailwindcss";
 
+/* Force-include classes generated dynamically as runtime strings in
+   ContentSection.tsx (renderContentSectionHtml, buildHeadingHtml,
+   buildBodyHtml, sanitizeQuillHtml) that may end up stored in the DB
+   and injected via dangerouslySetInnerHTML in RenderStoredPage.tsx —
+   Tailwind's scanner can miss these if they're ever round-tripped
+   through storage rather than staying as literal source text. */
+@source inline("{w-full,max-w-4xl,mx-auto,space-y-6}");
+@source inline("{py-6,py-10,py-16,px-6}");
+@source inline("{bg-indigo-950,bg-slate-100,bg-slate-950,text-white,text-slate-900}");
+@source inline("{grid,grid-cols-1,lg:grid-cols-12,lg:col-span-5,lg:col-span-7,gap-8,items-start,mt-5}");
+@source inline("{prose,prose-invert,prose-slate,max-w-none,leading-relaxed}");
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -30,7 +42,6 @@ body {
 }
 
 
-.w-max-content{
-    width: max-content;
-  }
-
+.w-max-content {
+  width: max-content;
+}

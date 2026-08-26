@@ -1,5 +1,6 @@
 import { MessagePayload } from "@/@types/ message";
 import { FullPagePayload } from "@/@types/cms";
+import { PageBuilderValues } from "@/app/(dashboard)/manager/blogs/types";
 import { supabase } from "@/lib/supabase";
 import { Message } from "react-hook-form";
 
@@ -297,6 +298,7 @@ export const contacts = new Contact()
 
 
 
+
 export class CmsServiceRepository {
 
     public async getServiceBySlug(slug: string) {
@@ -404,8 +406,6 @@ export class CmsServiceRepository {
     ) {
         await this.verifyManagementAccess();
 
-
-        console.log(payload.cta)
         const title = payload.seo?.title || payload.hero?.headline || 'Untitled Service';
         const slug = payload.seo?.slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
@@ -471,3 +471,230 @@ export class CmsServiceRepository {
 }
 
 export const cmsService = new CmsServiceRepository()
+
+
+
+
+export class CmsBlogRepository {
+    /**
+     * Helper: Get current authenticated user's role
+     */
+    public async getCurrentUserRole(): Promise<UserRole | null> {
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
+
+        if (!user) return null;
+
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single();
+
+        if (error || !data) return null;
+        return data.role as UserRole;
+    }
+
+    /**
+     * Helper: Guard check for Admin or Manager permissions
+     */
+    public async verifyManagementAccess(): Promise<void> {
+        const role = await this.getCurrentUserRole();
+        if (role !== 'admin' && role !== 'manager') {
+            throw new Error('Unauthorized: Only Admins and Managers can perform this action.');
+        }
+    }
+
+    /**
+     * Fetch blog by slug with details
+     */
+    public async getBlogBySlug(slug: string) {
+        const { data, error } = await supabase
+            .from('cms_blogs')
+            .select('*, cms_blogs_details(*)')
+            .eq('slug', slug)
+            .single();
+
+        if (error) return null;
+        return data;
+    }
+
+    /**
+     * Fetch all blogs for sitemap generator
+     */
+    public async blogsSitemapGenerator() {
+        const { data, error } = await supabase
+            .from('cms_blogs')
+            .select('id, slug, status, updated_at')
+            .eq('status', 'Published')
+            .order('updated_at', { ascending: false });
+
+        if (error) throw error;
+        return data;
+    }
+
+    /**
+     * Fetch blogs list with details snippet based on access level
+     */
+    public async fetchBlogsList() {
+        const role = await this.getCurrentUserRole();
+        const canViewDrafts = role === 'admin' || role === 'manager';
+
+        let query = supabase
+            .from('cms_blogs')
+            .select('id, title, slug, status, views_count, seo, created_at, updated_at, cms_blogs_details(sections)')
+            .order('updated_at', { ascending: false });
+
+        if (!canViewDrafts) {
+            query = query.eq('status', 'published');
+        }
+
+        const { data, error } = await query;
+        if (error) throw error;
+        return data;
+    }
+
+    /**
+     * Fetch single blog with full details for editing
+     */
+    public async getBlogWithDetails(blogId: string) {
+        const { data, error } = await supabase
+            .from('cms_blogs')
+            .select('*, cms_blogs_details(*)')
+            .eq('id', blogId)
+            .single();
+
+        if (error) throw error;
+        return data;
+    }
+
+    /**
+     * Save / Upsert Blog
+     */
+    // Inside CmsBlogRepository
+    public async saveBlog(
+        payload: PageBuilderValues,
+        storedSections: any[],
+        status: 'Draft' | 'Published' = 'Published',
+        existingBlogId?: string
+    ) {
+        await this.verifyManagementAccess();
+
+        const title = payload.title || 'Untitled Blog';
+        const slug = payload.seo.slug || title.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
+        const seo = payload.seo;
+        const formattedStatus = status.toLowerCase();
+
+        // 1. Build the update/insert payload dynamically
+        const blogPayload: Record<string, any> = {
+            title,
+            slug,
+            seo,
+            status: formattedStatus,
+            updated_at: new Date().toISOString(),
+        };
+
+        // Only attach `id` if editing an existing record with a valid ID
+        if (existingBlogId && existingBlogId.trim() !== '') {
+            blogPayload.id = existingBlogId;
+        }
+
+        // 2. Upsert List Entry (cms_blogs) using 'id' when editing, or 'slug' when creating/updating by slug
+        const { data: blog, error: blogError } = await supabase
+            .from('cms_blogs')
+            .upsert(
+                blogPayload,
+                { onConflict: existingBlogId ? 'id' : 'slug' }
+            )
+            .select('id')
+            .single();
+
+        if (blogError) throw blogError;
+
+        // 3. Upsert Details Entry (cms_blogs_details)
+        const { error: detailsError } = await supabase
+            .from('cms_blogs_details')
+            .upsert(
+                {
+                    cms_blogs_id: blog.id,
+                    sections: storedSections,
+                    bg_theme: payload.bgTheme || 'light', // Ensures bg_theme is preserved
+                    updated_at: new Date().toISOString(),
+                },
+                { onConflict: 'cms_blogs_id' }
+            );
+
+        if (detailsError) throw detailsError;
+
+        return { success: true, blogId: blog.id };
+    }
+    // public async saveBlog(
+    //   payload: PageBuilderValues,
+    //   storedSections: any[],
+    //   status: 'Draft' | 'Published' = 'Published',
+    //   existingBlogId?: string
+    // ) {
+    //   await this.verifyManagementAccess();
+
+    //   const title = payload.title || 'Untitled Blog';
+    //   const slug = payload.seo.slug || title.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
+    //   const seo = payload.seo;
+
+    //   // Standardize case to lowercase (or UPPERCASE/Capitalized depending on your DB constraint)
+    //   const formattedStatus = status.toLowerCase(); // e.g., 'draft' or 'published'
+
+    //   // 1. Upsert List Entry (cms_blogs)
+    //   const { data: blog, error: blogError } = await supabase
+    //     .from('cms_blogs')
+    //     .upsert(
+    //       {
+    //         id: existingBlogId,
+    //         title,
+    //         slug,
+    //         seo,
+    //         status: formattedStatus, // Send formatted string
+    //         updated_at: new Date().toISOString(),
+    //       },
+    //       { onConflict: 'slug' }
+    //     )
+    //     .select('id')
+    //     .single();
+
+    //   if (blogError) throw blogError;
+
+    //   // 2. Upsert Details Entry (cms_blogs_details)
+    //   const { error: detailsError } = await supabase
+    //     .from('cms_blogs_details')
+    //     .upsert(
+    //       {
+    //         cms_blogs_id: blog.id,
+    //         sections: storedSections,
+    //         updated_at: new Date().toISOString(),
+    //       },
+    //       { onConflict: 'cms_blogs_id' }
+    //     );
+
+    //   if (detailsError) throw detailsError;
+
+    //   return { success: true, blogId: blog.id };
+    // }
+
+    /**
+     * DELETE Blog
+     */
+    public async deleteBlog(blogId: string) {
+        await this.verifyManagementAccess();
+
+        const { error } = await supabase
+            .from('cms_blogs')
+            .delete()
+            .eq('id', blogId);
+
+        if (error) throw error;
+
+        return { success: true };
+    }
+}
+
+export const cmsBlog = new CmsBlogRepository();
