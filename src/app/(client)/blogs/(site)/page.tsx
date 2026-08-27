@@ -104,6 +104,7 @@ export default async function BlogsPage() {
       </section>
       </div>
 
+      
       {/* FAQ SECTION */}
       <div className='bg-slate-100 pb-15 pt-5'>
         <div className="mx-5 sm:mx-7 my-10 pt-10">
