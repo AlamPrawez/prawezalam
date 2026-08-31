@@ -6,11 +6,12 @@ import { useState } from "react";
 const navItems = [
     { label: "Post Jobs or Hire", href: "/hire-for-tasks" },
     { label: "Services", href: "/services" },
-    // { label: "Home", href: "/#home" },
+    { label: "Blogs", href: "/blogs" },
     { label: "Skills", href: "/skills" },
     { label: "Experience", href: "/experience" },
     { label: "About", href: "/about" },
     { label: "Contact", href: "/contact" },
+
 ];
 
 const Navbar = () => {

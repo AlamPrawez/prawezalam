@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const Footer = () => {
   return (
     <footer className="bg-white border-t border-gray-200">
@@ -16,11 +18,11 @@ const Footer = () => {
           {/* Navigation */}
           <nav>
             <ul className="flex flex-wrap gap-4 text-sm text-gray-600">
-              <li><a href="/" className="hover:text-gray-900">Home</a></li>
-              <li><a href="/about" className="hover:text-gray-900">About</a></li>
-              <li><a href="/skills" className="hover:text-gray-900">Skills</a></li>
-              <li><a href="/experience" className="hover:text-gray-900">Experience</a></li>
-              <li><a href="/blogs" className="hover:text-gray-900">Blogs</a></li>
+              <li><Link href="/" className="hover:text-gray-900">Home</Link></li>
+              <li><Link href="/about" className="hover:text-gray-900">About</Link></li>
+              <li><Link href="/skills" className="hover:text-gray-900">Skills</Link></li>
+              <li><Link href="/experience" className="hover:text-gray-900">Experience</Link></li>
+              <li><Link href="/blogs" className="hover:text-gray-900">Blogs</Link></li>
             </ul>
           </nav>
 
