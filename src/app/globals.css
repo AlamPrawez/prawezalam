@@ -79,3 +79,7 @@ body {
 .w-max-content {
   width: max-content;
 }
+
+article p{
+  margin: 15px 0!important;
+}

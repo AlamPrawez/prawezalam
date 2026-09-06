@@ -5,6 +5,7 @@ import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { ContentLayoutStyle, PageSectionItem } from '../types';
 import { EditableBlogImage } from '../editor/EditableBlogImage';
+import { uploadWebpToSupabase } from '@/lib/uploadWebpToSupabase';
 import 'react-quill-new/dist/quill.snow.css';
 
 import hljs from 'highlight.js';
@@ -14,6 +15,7 @@ if (typeof window !== 'undefined') {
   (window as unknown as { hljs?: typeof hljs }).hljs = hljs;
 }
 
+
 const ReactQuill = dynamic(() => import('react-quill-new'), {
   ssr: false,
   loading: () => (
@@ -21,20 +23,27 @@ const ReactQuill = dynamic(() => import('react-quill-new'), {
       Loading Rich Text Editor...
     </div>
   ),
-});
+}) as any;
 
-const editorModules = {
-  toolbar: [
-    [{ header: [1, 2, 3, false] }],
-    ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-    [{ color: [] }, { background: [] }],
-    [{ list: 'ordered' }, { list: 'bullet' }],
-    ['link', 'image', 'code-block', 'table'],
-    ['clean'],
-  ],
-  table: true,
-  syntax: true,
-};
+function getEditorModules(imageHandler: () => void) {
+  return {
+    toolbar: {
+      container: [
+        [{ header: [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+        [{ color: [] }, { background: [] }],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        ['link', 'image', 'code-block', 'table'],
+        ['clean'],
+      ],
+      handlers: {
+        image: imageHandler,
+      },
+    },
+    table: true,
+    syntax: true,
+  };
+}
 
 export interface ContentSectionItem extends PageSectionItem {
   type: 'content';
@@ -527,6 +536,7 @@ export function ContentViews({
 }: ContentViewsProps) {
   const activeSections = sec ? [sec] : sections || [];
   const staticContentRef = useRef<HTMLDivElement>(null);
+  const quillRefs = useRef<Record<string, any>>({});
 
   const isEditable = Boolean(onChange) && !isThumbnail;
 
@@ -593,6 +603,52 @@ export function ContentViews({
           );
         };
 
+        // Custom Quill image handler: uploads the selected file to Supabase
+        // (converted to WebP, stored under /blogs/content) and inserts the
+        // returned public URL into the editor at the current cursor
+        // position, instead of Quill's default base64 embed behavior.
+        // Also prompts for alt text and applies it directly to the inserted
+        // <img> DOM node, then manually propagates the updated HTML through
+        // onChange since a raw DOM mutation doesn't fire Quill's own
+        // text-change event.
+        const handleImageUpload = () => {
+          const input = document.createElement('input');
+          input.setAttribute('type', 'file');
+          input.setAttribute('accept', 'image/*');
+          input.click();
+
+          input.onchange = async () => {
+            const file = input.files?.[0];
+            if (!file) return;
+
+            const quillInstance = quillRefs.current[key]?.getEditor?.();
+            const range = quillInstance?.getSelection(true);
+            const insertIndex = range ? range.index : quillInstance?.getLength() || 0;
+
+            const altText =
+              window.prompt('Enter alt text for this image (for accessibility & SEO):', '') || '';
+
+            try {
+              const url = await uploadWebpToSupabase(file, undefined, '/blogs/content');
+              if (quillInstance) {
+                quillInstance.insertEmbed(insertIndex, 'image', url, 'user');
+                quillInstance.setSelection(insertIndex + 1, 0);
+
+                const [leaf] = quillInstance.getLeaf(insertIndex);
+                const domNode = leaf?.domNode as HTMLImageElement | undefined;
+                if (domNode && domNode.tagName === 'IMG') {
+                  domNode.setAttribute('alt', altText);
+                }
+
+                onChange?.({ contentHtml: quillInstance.root.innerHTML });
+              }
+            } catch (err) {
+              console.error('Image upload failed:', err);
+              alert('Image upload failed. Please try again.');
+            }
+          };
+        };
+
         const renderBodyContent = () => {
           if (isEditable && onChange) {
             return (
@@ -601,10 +657,13 @@ export function ContentViews({
                 className="quill-editor-scope bg-white rounded-lg"
               >
                 <ReactQuill
+                  ref={(el: any) => {
+                    quillRefs.current[key] = el;
+                  }}
                   theme="snow"
                   value={section.contentHtml || ''}
                   onChange={(html: string) => onChange({ contentHtml: html })}
-                  modules={editorModules}
+                  modules={getEditorModules(handleImageUpload)}
                   placeholder="Write your structured section content here..."
                 />
               </div>
@@ -747,6 +806,1619 @@ export function ContentLayoutThumbnail({
     </div>
   );
 }
+
+
+// 'use client';
+
+// import React, { useEffect, useRef } from 'react';
+// import Image from 'next/image';
+// import dynamic from 'next/dynamic';
+// import { ContentLayoutStyle, PageSectionItem } from '../types';
+// import { EditableBlogImage } from '../editor/EditableBlogImage';
+// import { uploadWebpToSupabase } from '@/lib/uploadWebpToSupabase';
+// import 'react-quill-new/dist/quill.snow.css';
+
+// import hljs from 'highlight.js';
+// import 'highlight.js/styles/vs2015.css';
+
+// if (typeof window !== 'undefined') {
+//   (window as unknown as { hljs?: typeof hljs }).hljs = hljs;
+// }
+
+// const ReactQuill = dynamic(() => import('react-quill-new'), {
+//   ssr: false,
+//   loading: () => (
+//     <div className="h-40 w-full bg-slate-100 animate-pulse rounded-md flex items-center justify-center text-slate-400 text-sm">
+//       Loading Rich Text Editor...
+//     </div>
+//   ),
+// });
+
+// function getEditorModules(imageHandler: () => void) {
+//   return {
+//     toolbar: {
+//       container: [
+//         [{ header: [1, 2, 3, false] }],
+//         ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+//         [{ color: [] }, { background: [] }],
+//         [{ list: 'ordered' }, { list: 'bullet' }],
+//         ['link', 'image', 'code-block', 'table'],
+//         ['clean'],
+//       ],
+//       handlers: {
+//         image: imageHandler,
+//       },
+//     },
+//     table: true,
+//     syntax: true,
+//   };
+// }
+
+// export interface ContentSectionItem extends PageSectionItem {
+//   type: 'content';
+//   layoutStyle?: ContentLayoutStyle;
+// }
+
+// export interface ContentViewsProps {
+//   sections?: ContentSectionItem[];
+//   sec?: ContentSectionItem;
+//   onChange?: (patch: Partial<ContentSectionItem>) => void;
+//   isThumbnail?: boolean;
+// }
+
+// export const CONTENT_VARIANTS: {
+//   value: ContentLayoutStyle;
+//   label: string;
+//   description: string;
+// }[] = [
+//   {
+//     value: 'standard-block',
+//     label: 'Standard Body Block',
+//     description: 'Full-width rich text section with clean document flow.',
+//   },
+//   {
+//     value: 'split-image',
+//     label: 'Split Media & Text',
+//     description: 'Two-column layout balancing rich body copy with an image container.',
+//   },
+//   {
+//     value: 'card-grid',
+//     label: 'Card Enclosed Block',
+//     description: 'Enclosed card styling suited for highlighted or featured content.',
+//   },
+//   {
+//     value: 'bordered-callout',
+//     label: 'Bordered Accent Block',
+//     description: 'Left border accent highlight line for key body takeaways.',
+//   },
+//   {
+//     value: 'simple-quill',
+//     label: 'Simple Text Block',
+//     description: 'Minimalistic section rendering only rich text content.',
+//   },
+// ];
+
+// export function makeBlankContent(
+//   layoutStyle: ContentLayoutStyle = 'standard-block'
+// ): ContentSectionItem {
+//   return {
+//     id: `sec-${Date.now()}`,
+//     type: 'content',
+//     title: 'Engineering Best Practices',
+//     subtitle: 'Building scalable frontend and backend solutions.',
+//     heading: 'Engineering Best Practices',
+//     contentHtml:
+//       '<p>Building scalable frontend and backend solutions requires modularity, strict typing, and comprehensive test coverage.</p>',
+//     imageUrl: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=800',
+//     imageAlt: 'React architecture diagram',
+//     layoutStyle,
+//     bgTheme: 'dark',
+//     paddingSize: 'md',
+//   };
+// }
+
+// type ListStackEntry = {
+//   level: number;
+//   type: 'bullet' | 'ordered';
+//   el: HTMLElement;
+// };
+
+// function listClasses(type: 'bullet' | 'ordered'): string {
+//   return type === 'ordered'
+//     ? 'list-decimal list-outside pl-6 space-y-1 my-3'
+//     : 'list-disc list-outside pl-6 space-y-1 my-3';
+// }
+
+// function convertQuillLists(root: HTMLElement, doc: Document) {
+//   const hasLegacyMarkers = Boolean(root.querySelector('li[data-list]'));
+
+//   if (!hasLegacyMarkers) {
+//     root.querySelectorAll('ol, ul').forEach((list) => {
+//       const isOrdered = list.tagName === 'OL';
+//       list.setAttribute('class', listClasses(isOrdered ? 'ordered' : 'bullet'));
+//     });
+//     root.querySelectorAll('.ql-ui').forEach((el) => el.remove());
+//     root.querySelectorAll('li[class]').forEach((li) => li.removeAttribute('class'));
+//     return;
+//   }
+
+//   const legacyLists = Array.from(root.querySelectorAll('ol, ul'));
+
+//   legacyLists.forEach((oldList) => {
+//     const items = Array.from(oldList.children).filter(
+//       (el): el is HTMLLIElement => el.tagName === 'LI'
+//     );
+//     if (!items.length) return;
+
+//     const wrapper = doc.createElement('div');
+//     const stack: ListStackEntry[] = [];
+
+//     items.forEach((li) => {
+//       const explicitType = li.getAttribute('data-list');
+//       const type: 'bullet' | 'ordered' = explicitType === 'ordered' ? 'ordered' : 'bullet';
+//       const indentMatch = (li.getAttribute('class') || '').match(/ql-indent-(\d+)/);
+//       const level = indentMatch ? parseInt(indentMatch[1], 10) : 0;
+
+//       const uiSpan = li.querySelector('.ql-ui');
+//       if (uiSpan) uiSpan.remove();
+//       li.removeAttribute('data-list');
+//       li.removeAttribute('class');
+
+//       while (stack.length && stack[stack.length - 1].level > level) stack.pop();
+
+//       let top = stack[stack.length - 1];
+//       const needsNewList =
+//         !top || top.level < level || (top.level === level && top.type !== type);
+
+//       if (needsNewList) {
+//         if (top && top.level === level) stack.pop();
+//         const parent = stack[stack.length - 1];
+
+//         const newList = doc.createElement(type === 'ordered' ? 'ol' : 'ul');
+//         newList.setAttribute('class', listClasses(type));
+
+//         if (parent) {
+//           const lastLi = parent.el.lastElementChild;
+//           (lastLi || parent.el).appendChild(newList);
+//         } else {
+//           wrapper.appendChild(newList);
+//         }
+
+//         stack.push({ level, type, el: newList });
+//         top = stack[stack.length - 1];
+//       }
+
+//       top.el.appendChild(li);
+//     });
+
+//     oldList.replaceWith(...Array.from(wrapper.childNodes));
+//   });
+// }
+
+// function normalizeQuillImages(root: HTMLElement) {
+//   root.querySelectorAll('img').forEach((img) => {
+//     img.removeAttribute('style');
+//     const existing = img.getAttribute('class') || '';
+//     const merged = `${existing} rounded-lg max-w-full h-auto my-4 block`
+//       .split(/\s+/)
+//       .filter(Boolean)
+//       .filter((cls, idx, arr) => arr.indexOf(cls) === idx)
+//       .join(' ');
+//     img.setAttribute('class', merged);
+//     if (!img.hasAttribute('loading')) img.setAttribute('loading', 'lazy');
+//     if (!img.hasAttribute('alt')) img.setAttribute('alt', '');
+//   });
+// }
+
+// function preserveBlankLines(root: HTMLElement) {
+//   root.querySelectorAll('p').forEach((p) => {
+//     const isBlank =
+//       !p.querySelector('img, a, strong, em, u, s, code, span[class]') &&
+//       (p.innerHTML.trim() === '' ||
+//         p.innerHTML.trim() === '<br>' ||
+//         /^(<br\s*\/?>)+$/i.test(p.innerHTML.trim()));
+
+//     if (isBlank) {
+//       p.innerHTML = '&nbsp;';
+//       p.setAttribute('class', 'block !my-0 !mt-0 !mb-0 leading-relaxed');
+//     }
+//   });
+// }
+
+// function highlightCodeBlocks(root: HTMLElement) {
+//   root.querySelectorAll('pre.ql-syntax, pre code').forEach((el) => {
+//     try {
+//       hljs.highlightElement(el as HTMLElement);
+//     } catch {
+//       // ignore non-tokenizable blocks
+//     }
+//   });
+// }
+
+// export function sanitizeQuillHtml(html: string): string {
+//   const raw = (html || '').trim();
+//   if (!raw) return '';
+
+//   if (typeof window === 'undefined' || typeof DOMParser === 'undefined') {
+//     return raw;
+//   }
+
+//   const doc = new DOMParser().parseFromString(`<div id="quill-root">${raw}</div>`, 'text/html');
+//   const root = doc.getElementById('quill-root');
+//   if (!root) return raw;
+
+//   root.querySelectorAll('.ql-align-center').forEach((el) => el.classList.add('text-center'));
+//   root.querySelectorAll('.ql-align-right').forEach((el) => el.classList.add('text-right'));
+//   root.querySelectorAll('.ql-align-justify').forEach((el) => el.classList.add('text-justify'));
+
+//   convertQuillLists(root, doc);
+//   normalizeQuillImages(root);
+//   preserveBlankLines(root);
+
+//   root.querySelectorAll('table').forEach((table) => {
+//     table.setAttribute('class', 'w-full border-collapse my-4 text-left overflow-x-auto block sm:table');
+//   });
+//   root.querySelectorAll('tr').forEach((tr) => {
+//     tr.setAttribute('class', 'border-b border-slate-700');
+//   });
+//   root.querySelectorAll('th').forEach((th) => {
+//     th.setAttribute('class', 'border border-slate-700 px-4 py-2 bg-slate-900 font-bold text-left');
+//   });
+//   root.querySelectorAll('td').forEach((td) => {
+//     td.setAttribute('class', 'border border-slate-700 px-4 py-2');
+//   });
+
+//   root.querySelectorAll('pre').forEach((pre) => {
+//     pre.setAttribute(
+//       'class',
+//       'bg-slate-900 text-slate-100 rounded-lg p-4 overflow-x-auto text-sm my-4 claude-word-wrap'
+//     );
+//   });
+
+//   root.querySelectorAll('blockquote').forEach((bq) => {
+//     bq.setAttribute('class', 'border-l-4 border-indigo-500 pl-4 italic text-slate-400 my-4 claude-word-wrap');
+//   });
+
+//   root.querySelectorAll('a').forEach((a) => {
+//     a.setAttribute('target', '_blank');
+//     a.setAttribute('rel', 'noopener noreferrer');
+//     const existing = a.getAttribute('class') || '';
+//     a.setAttribute('class', `${existing} text-indigo-400 underline underline-offset-2`.trim());
+//   });
+
+//   root.querySelectorAll('.ql-ui').forEach((el) => el.remove());
+//   root.querySelectorAll('[contenteditable]').forEach((el) => el.removeAttribute('contenteditable'));
+//   root.querySelectorAll('[data-list]').forEach((el) => el.removeAttribute('data-list'));
+//   root.querySelectorAll('[class]').forEach((el) => {
+//     const cleaned = (el.getAttribute('class') || '')
+//       .split(/\s+/)
+//       .filter((cls) => cls && !cls.startsWith('ql-'))
+//       .join(' ');
+//     if (cleaned) el.setAttribute('class', cleaned);
+//     else el.removeAttribute('class');
+//   });
+
+//   highlightCodeBlocks(root);
+
+//   return root.innerHTML;
+// }
+
+// function escapeHtml(input: string): string {
+//   return input
+//     .replace(/&/g, '&amp;')
+//     .replace(/</g, '&lt;')
+//     .replace(/>/g, '&gt;')
+//     .replace(/"/g, '&quot;')
+//     .replace(/'/g, '&#39;');
+// }
+
+// function buildHeadingHtml(section: ContentSectionItem, extraClass = ''): string {
+//   const heading = section.heading || section.title || '';
+//   if (!heading) return '';
+//   return `<h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight break-words claude-word-wrap${
+//     extraClass ? ` ${extraClass}` : ''
+//   }">${escapeHtml(heading)}</h2>`;
+// }
+
+// function buildBodyHtml(section: ContentSectionItem, isLight: boolean): string {
+//   const body = sanitizeQuillHtml(section.contentHtml || '');
+//   const proseVariant = isLight ? 'prose-slate' : 'prose-invert';
+//   return `<div class="prose ${proseVariant} prose-sm sm:prose-base max-w-none leading-relaxed break-words claude-word-wrap">${body}</div>`;
+// }
+
+// function buildImageHtml(section: ContentSectionItem): string {
+//   const src = section.imageUrl?.trim();
+//   if (!src) return '';
+
+//   const alt = escapeHtml(section.imageAlt || section.heading || section.title || 'Section image');
+//   const img = `<img src="${escapeHtml(src)}" alt="${alt}" class="w-full h-56 sm:h-64 lg:h-72 object-cover" loading="lazy" />`;
+//   const linked = section.imageLinkUrl
+//     ? `<a href="${escapeHtml(section.imageLinkUrl)}" target="_blank" rel="noopener noreferrer">${img}</a>`
+//     : img;
+//   const caption = section.imageAlt
+//     ? `<p class="p-2 text-xs text-center text-slate-400 italic bg-slate-900 border-t border-slate-800">${escapeHtml(
+//         section.imageAlt
+//       )}</p>`
+//     : '';
+
+//   return `<div class="relative overflow-hidden rounded-xl border border-slate-800 bg-slate-900">${linked}${caption}</div>`;
+// }
+
+// export function renderContentSectionHtml(section: ContentSectionItem): string {
+//   const layout = section.layoutStyle || 'standard-block';
+//   const hasImage = Boolean(section.imageUrl?.trim());
+
+//   const isLight = section.bgTheme === 'light';
+//   const themeClass =
+//     section.bgTheme === 'indigo'
+//       ? 'bg-indigo-950 text-white'
+//       : section.bgTheme === 'light'
+//       ? 'bg-slate-100 text-slate-900'
+//       : 'bg-slate-950 text-white';
+//   const headingThemeClass = isLight ? 'text-slate-900' : 'text-white';
+//   const borderColor = isLight ? 'border-slate-300' : 'border-slate-800';
+
+//   const paddingClass =
+//     section.paddingSize === 'sm'
+//       ? 'py-6 px-4 sm:px-6'
+//       : section.paddingSize === 'lg'
+//       ? 'py-10 px-4 sm:px-6 lg:py-16'
+//       : 'py-8 px-4 sm:px-6 lg:py-10';
+
+//   let inner = '';
+
+//   if (layout === 'simple-quill') {
+//     inner = `<article class="w-full">${buildBodyHtml(section, isLight)}</article>`;
+//   } else if (layout === 'bordered-callout') {
+//     const cardBg = isLight
+//       ? 'bg-white/70 border-slate-300'
+//       : 'bg-slate-900/60 border-slate-800';
+//     inner = `<article class="p-5 sm:p-8 rounded-2xl ${cardBg} border-l-4 border-indigo-500 border-y border-r shadow-sm space-y-5 sm:space-y-6">${buildHeadingHtml(
+//       section,
+//       headingThemeClass
+//     )}${buildBodyHtml(section, isLight)}</article>`;
+//   } else if (layout === 'card-grid') {
+//     const cardBg = isLight
+//       ? 'bg-white text-slate-900 border-slate-200'
+//       : 'bg-slate-900 text-white border-slate-800';
+//     inner = `<article class="p-5 sm:p-8 rounded-3xl ${cardBg} border shadow-xl space-y-5 sm:space-y-6">${buildHeadingHtml(
+//       section,
+//       headingThemeClass
+//     )}${buildBodyHtml(section, isLight)}</article>`;
+//   } else {
+//     const showTwoCol = hasImage || layout === 'split-image';
+//     const bodyCol = showTwoCol
+//       ? `<div class="lg:col-span-7">${buildBodyHtml(section, isLight)}</div>`
+//       : `<div class="w-full">${buildBodyHtml(section, isLight)}</div>`;
+//     const imageCol = hasImage
+//       ? `<div class="lg:col-span-5">${buildImageHtml(section)}</div>`
+//       : '';
+
+//     inner = `<article class="space-y-5 sm:space-y-6">${buildHeadingHtml(
+//       section,
+//       `border-b ${borderColor} pb-3 ${headingThemeClass}`
+//     )}<div class="grid grid-cols-1 ${
+//       showTwoCol ? 'lg:grid-cols-12' : ''
+//     } gap-6 sm:gap-8 items-start mt-5">${bodyCol}${imageCol}</div></article>`;
+//   }
+
+//   return `<div class="w-full overflow-x-hidden ${themeClass}"><div class="max-w-4xl mx-auto space-y-6 ${paddingClass}">${inner}</div></div>`;
+// }
+
+// export function renderContentSectionsHtml(sections: ContentSectionItem[]): string {
+//   if (!sections.length) return '';
+//   const inner = sections.map((s) => renderContentSectionHtml(s)).join('');
+//   return `<section class="space-y-6">${inner}</section>`;
+// }
+
+// function QuillEditorColorFix() {
+//   return (
+//     <style jsx global>{`
+//       .quill-editor-scope .ql-editor {
+//         color: #1e293b;
+//         font-size: 0.925rem;
+//         line-height: 1.6;
+//       }
+//       .quill-editor-scope .ql-editor.ql-blank::before {
+//         color: #94a3b8;
+//         font-style: normal;
+//       }
+//       .quill-editor-scope .ql-editor a {
+//         color: #4f46e5;
+//         text-decoration: underline;
+//       }
+//       .quill-editor-scope .ql-editor h1,
+//       .quill-editor-scope .ql-editor h2,
+//       .quill-editor-scope .ql-editor h3 {
+//         color: #0f172a;
+//       }
+//       .quill-editor-scope .ql-editor blockquote {
+//         color: #475569;
+//       }
+//       .quill-editor-scope .ql-editor,
+//       .quill-editor-scope .ql-editor p,
+//       .quill-editor-scope .ql-editor li,
+//       .quill-editor-scope .ql-editor h1,
+//       .quill-editor-scope .ql-editor h2,
+//       .quill-editor-scope .ql-editor h3,
+//       .quill-editor-scope .ql-editor blockquote {
+//         word-break: normal !important;
+//         overflow-wrap: break-word !important;
+//         word-wrap: break-word !important;
+//         -webkit-hyphens: none !important;
+//         hyphens: none !important;
+//       }
+//       .quill-editor-scope .ql-editor pre.ql-syntax {
+//         background: #1e1e1e;
+//         color: #dcdcdc;
+//         border-radius: 0.5rem;
+//         overflow-x: auto;
+//       }
+//       .quill-editor-scope .ql-editor pre.ql-syntax::selection,
+//       .quill-editor-scope .ql-editor pre.ql-syntax *::selection {
+//         background-color: #ffffff !important;
+//         color: #000000 !important;
+//       }
+//       .quill-editor-scope .ql-editor table {
+//         width: 100%;
+//         border-collapse: collapse;
+//         margin: 1rem 0;
+//         border: none;
+//       }
+//       .quill-editor-scope .ql-editor th,
+//       .quill-editor-scope .ql-editor td {
+//         border: 1px solid #cbd5e1;
+//         padding: 0.5rem 0.75rem;
+//       }
+//       .quill-editor-scope .ql-editor th {
+//         background-color: #f1f5f9;
+//         font-weight: bold;
+//       }
+//       .quill-editor-scope .ql-toolbar.ql-snow {
+//         position: sticky;
+//         top: 0;
+//         z-index: 30;
+//         background: #ffffff;
+//         border: 1px solid #cbd5e1;
+//         border-top-left-radius: 0.5rem;
+//         border-top-right-radius: 0.5rem;
+//         box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+//       }
+//       .quill-editor-scope .ql-container.ql-snow {
+//         border-bottom-left-radius: 0.5rem;
+//         border-bottom-right-radius: 0.5rem;
+//         border: 1px solid #cbd5e1;
+//         border-top: none;
+//         overflow: hidden;
+//       }
+
+//       .claude-word-wrap,
+//       .claude-word-wrap * {
+//         word-break: normal !important;
+//         overflow-wrap: break-word !important;
+//         word-wrap: break-word !important;
+//         -webkit-hyphens: none !important;
+//         hyphens: none !important;
+//       }
+//     `}</style>
+//   );
+// }
+
+// function GlobalContentStyles() {
+//   return (
+//     <style jsx global>{`
+//       pre.ql-syntax::selection,
+//       pre.ql-syntax *::selection,
+//       pre.hljs::selection,
+//       pre.hljs *::selection {
+//         background-color: #ffffff !important;
+//         color: #000000 !important;
+//       }
+//     `}</style>
+//   );
+// }
+
+// function EditingIndicator() {
+//   return (
+//     <div
+//       className="pointer-events-none absolute top-3 right-3 z-20 flex items-center gap-1.5 rounded-full bg-indigo-600/90 px-3 py-1 text-xs font-medium text-white shadow-lg backdrop-blur-sm"
+//       aria-hidden="true"
+//     >
+//       <svg
+//         xmlns="http://www.w3.org/2000/svg"
+//         viewBox="0 0 20 20"
+//         fill="currentColor"
+//         className="h-3.5 w-3.5"
+//       >
+//         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793 3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+//       </svg>
+//       Editing
+//     </div>
+//   );
+// }
+
+// export function ContentViews({
+//   sections,
+//   sec,
+//   onChange,
+//   isThumbnail = false,
+// }: ContentViewsProps) {
+//   const activeSections = sec ? [sec] : sections || [];
+//   const staticContentRef = useRef<HTMLDivElement>(null);
+//   const quillRefs = useRef<Record<string, any>>({});
+
+//   const isEditable = Boolean(onChange) && !isThumbnail;
+
+//   useEffect(() => {
+//     if (isEditable || !staticContentRef.current) return;
+//     staticContentRef.current.querySelectorAll('pre.ql-syntax, pre code').forEach((el) => {
+//       try {
+//         hljs.highlightElement(el as HTMLElement);
+//       } catch {
+//         // ignore blocks hljs can't tokenize
+//       }
+//     });
+//   }, [isEditable, activeSections]);
+
+//   if (!activeSections.length) return null;
+
+//   return (
+//     <div className="w-full space-y-6" ref={staticContentRef}>
+//       <GlobalContentStyles />
+//       {isEditable && <QuillEditorColorFix />}
+//       {activeSections.map((section, idx) => {
+//         const key = section.id || `content-view-${idx}`;
+//         const hasImage = Boolean(section.imageUrl?.trim());
+//         const layout = section.layoutStyle || 'standard-block';
+
+//         const paddingClass =
+//           section.paddingSize === 'sm'
+//             ? 'py-6 px-4 sm:px-6'
+//             : section.paddingSize === 'lg'
+//             ? 'py-10 px-4 sm:px-6 lg:py-16'
+//             : 'py-8 px-4 sm:px-6 lg:py-10';
+
+//         const themeClass =
+//           section.bgTheme === 'indigo'
+//             ? 'bg-indigo-950 text-white'
+//             : section.bgTheme === 'light'
+//             ? 'bg-slate-100 text-slate-900'
+//             : 'bg-slate-950 text-white';
+
+//         const headingThemeClass =
+//           section.bgTheme === 'light' ? 'text-slate-900' : 'text-white';
+
+//         const renderHeading = (extraClasses = '') => {
+//           const displayHeading = section.heading || section.title || '';
+//           if (isEditable && onChange) {
+//             return (
+//               <input
+//                 type="text"
+//                 value={displayHeading}
+//                 onChange={(e) =>
+//                   onChange({ heading: e.target.value, title: e.target.value })
+//                 }
+//                 placeholder="Enter section heading..."
+//                 className={`w-full text-2xl sm:text-3xl font-extrabold bg-transparent border-b border-transparent hover:border-slate-700 focus:border-indigo-500 focus:outline-none transition break-words claude-word-wrap ${headingThemeClass} ${extraClasses}`}
+//               />
+//             );
+//           }
+//           return (
+//             <h2
+//               className={`text-2xl sm:text-3xl font-extrabold tracking-tight break-words claude-word-wrap ${headingThemeClass} ${extraClasses}`}
+//             >
+//               {displayHeading}
+//             </h2>
+//           );
+//         };
+
+//         // Custom Quill image handler: uploads the selected file to Supabase
+//         // (converted to WebP) and inserts the returned public URL into the
+//         // editor at the current cursor position, instead of Quill's default
+//         // base64 embed behavior.
+//         const handleImageUpload = () => {
+//           const input = document.createElement('input');
+//           input.setAttribute('type', 'file');
+//           input.setAttribute('accept', 'image/*');
+//           input.click();
+
+//           input.onchange = async () => {
+//             const file = input.files?.[0];
+//             if (!file) return;
+
+//             const quillInstance = quillRefs.current[key]?.getEditor?.();
+//             const range = quillInstance?.getSelection(true);
+//             const insertIndex = range ? range.index : quillInstance?.getLength() || 0;
+
+//             try {
+//               const url = await uploadWebpToSupabase(file, undefined ,"/blogs/content");
+//               if (quillInstance) {
+//                 quillInstance.insertEmbed(insertIndex, 'image', url, 'user');
+//                 quillInstance.setSelection(insertIndex + 1, 0);
+//               }
+//             } catch (err) {
+//               console.error('Image upload failed:', err);
+//               alert('Image upload failed. Please try again.');
+//             }
+//           };
+//         };
+
+//         const renderBodyContent = () => {
+//           if (isEditable && onChange) {
+//             return (
+//               <div
+//                 data-editor-only="true"
+//                 className="quill-editor-scope bg-white rounded-lg"
+//               >
+//                 <ReactQuill
+//                   ref={(el: any) => {
+//                     quillRefs.current[key] = el;
+//                   }}
+//                   theme="snow"
+//                   value={section.contentHtml || ''}
+//                   onChange={(html: string) => onChange({ contentHtml: html })}
+//                   modules={getEditorModules(handleImageUpload)}
+//                   placeholder="Write your structured section content here..."
+//                 />
+//               </div>
+//             );
+//           }
+//           return (
+//             <div
+//               className={`prose ${
+//                 section.bgTheme === 'light' ? 'prose-slate' : 'prose-invert'
+//               } prose-sm sm:prose-base max-w-none leading-relaxed break-words claude-word-wrap`}
+//               dangerouslySetInnerHTML={{ __html: sanitizeQuillHtml(section.contentHtml || '') }}
+//             />
+//           );
+//         };
+
+//         const renderImage = () => {
+//           if (isEditable && onChange) {
+//             return (
+//               <EditableBlogImage
+//                 src={section.imageUrl || ''}
+//                 alt={section.imageAlt || section.heading || 'Blog image'}
+//                 imageLinkUrl={section.imageLinkUrl}
+//                 onUpdate={(patch: {
+//                   imageUrl?: string;
+//                   imageAlt?: string;
+//                   imageLinkUrl?: string;
+//                 }) => onChange(patch)}
+//               />
+//             );
+//           }
+
+//           if (!hasImage) return null;
+
+//           return (
+//             <div className="lg:col-span-5 relative group overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
+//               <div className="relative w-full h-56 sm:h-64 lg:h-72">
+//                 <Image
+//                   src={section.imageUrl!}
+//                   alt={
+//                     section.imageAlt ||
+//                     section.heading ||
+//                     section.title ||
+//                     'Section image'
+//                   }
+//                   fill
+//                   className="object-cover group-hover:scale-105 transition-transform duration-300"
+//                   sizes="(max-width: 768px) 100vw, 40vw"
+//                 />
+//               </div>
+//               {section.imageAlt && (
+//                 <p className="p-2 text-xs text-center text-slate-400 italic bg-slate-900 border-t border-slate-800">
+//                   {section.imageAlt}
+//                 </p>
+//               )}
+//             </div>
+//           );
+//         };
+
+//         return (
+//           <div
+//             key={key}
+//             className={`relative w-full ${
+//               isEditable ? '' : 'overflow-x-hidden'
+//             } ${themeClass}`}
+//           >
+//             {isEditable && <EditingIndicator />}
+//             <div className={`max-w-4xl mx-auto space-y-6 ${paddingClass}`}>
+//               {layout === 'simple-quill' && (
+//                 <article className="w-full">{renderBodyContent()}</article>
+//               )}
+
+//               {layout === 'bordered-callout' && (
+//                 <article className="p-5 sm:p-8 rounded-2xl bg-slate-900/60 border-l-4 border-indigo-500 border-y border-r border-slate-800 shadow-sm space-y-5 sm:space-y-6">
+//                   {renderHeading()}
+//                   {renderBodyContent()}
+//                 </article>
+//               )}
+
+//               {layout === 'card-grid' && (
+//                 <article className="p-5 sm:p-8 rounded-3xl bg-slate-900 text-white border border-slate-800 shadow-xl space-y-5 sm:space-y-6">
+//                   {renderHeading('text-white')}
+//                   {renderBodyContent()}
+//                 </article>
+//               )}
+
+//               {(layout === 'standard-block' || layout === 'split-image') && (
+//                 <article className="space-y-5 sm:space-y-6">
+//                   {renderHeading('border-b border-slate-800/50 pb-3')}
+
+//                   <div
+//                     className={`grid grid-cols-1 ${
+//                       hasImage || isEditable || layout === 'split-image'
+//                         ? 'lg:grid-cols-12'
+//                         : ''
+//                     } gap-6 sm:gap-8 items-start`}
+//                   >
+//                     <div
+//                       className={
+//                         hasImage || isEditable || layout === 'split-image'
+//                           ? 'lg:col-span-7'
+//                           : 'w-full'
+//                       }
+//                     >
+//                       {renderBodyContent()}
+//                     </div>
+
+//                     {(hasImage || isEditable) && (
+//                       <div className="lg:col-span-5">{renderImage()}</div>
+//                     )}
+//                   </div>
+//                 </article>
+//               )}
+//             </div>
+//           </div>
+//         );
+//       })}
+//     </div>
+//   );
+// }
+
+// export function ContentLayoutThumbnail({
+//   layoutStyle = 'standard-block',
+// }: {
+//   layoutStyle?: ContentLayoutStyle;
+// }) {
+//   const sampleSection = makeBlankContent(layoutStyle);
+
+//   return (
+//     <div className="relative w-full h-40 overflow-hidden rounded-xl bg-slate-950 border border-slate-800">
+//       <div
+//         className="absolute top-0 left-0 pointer-events-none select-none"
+//         style={{
+//           width: '1280px',
+//           transform: 'scale(0.235)',
+//           transformOrigin: 'top left',
+//         }}
+//       >
+//         <ContentViews sec={sampleSection} isThumbnail={true} />
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+// 'use client';
+
+// import React, { useEffect, useRef } from 'react';
+// import Image from 'next/image';
+// import dynamic from 'next/dynamic';
+// import { ContentLayoutStyle, PageSectionItem } from '../types';
+// import { EditableBlogImage } from '../editor/EditableBlogImage';
+// import 'react-quill-new/dist/quill.snow.css';
+
+// import hljs from 'highlight.js';
+// import 'highlight.js/styles/vs2015.css';
+
+// if (typeof window !== 'undefined') {
+//   (window as unknown as { hljs?: typeof hljs }).hljs = hljs;
+// }
+
+// const ReactQuill = dynamic(() => import('react-quill-new'), {
+//   ssr: false,
+//   loading: () => (
+//     <div className="h-40 w-full bg-slate-100 animate-pulse rounded-md flex items-center justify-center text-slate-400 text-sm">
+//       Loading Rich Text Editor...
+//     </div>
+//   ),
+// });
+
+// const editorModules = {
+//   toolbar: [
+//     [{ header: [1, 2, 3, false] }],
+//     ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+//     [{ color: [] }, { background: [] }],
+//     [{ list: 'ordered' }, { list: 'bullet' }],
+//     ['link', 'image', 'code-block', 'table'],
+//     ['clean'],
+//   ],
+//   table: true,
+//   syntax: true,
+// };
+
+// export interface ContentSectionItem extends PageSectionItem {
+//   type: 'content';
+//   layoutStyle?: ContentLayoutStyle;
+// }
+
+// export interface ContentViewsProps {
+//   sections?: ContentSectionItem[];
+//   sec?: ContentSectionItem;
+//   onChange?: (patch: Partial<ContentSectionItem>) => void;
+//   isThumbnail?: boolean;
+// }
+
+// export const CONTENT_VARIANTS: {
+//   value: ContentLayoutStyle;
+//   label: string;
+//   description: string;
+// }[] = [
+//   {
+//     value: 'standard-block',
+//     label: 'Standard Body Block',
+//     description: 'Full-width rich text section with clean document flow.',
+//   },
+//   {
+//     value: 'split-image',
+//     label: 'Split Media & Text',
+//     description: 'Two-column layout balancing rich body copy with an image container.',
+//   },
+//   {
+//     value: 'card-grid',
+//     label: 'Card Enclosed Block',
+//     description: 'Enclosed card styling suited for highlighted or featured content.',
+//   },
+//   {
+//     value: 'bordered-callout',
+//     label: 'Bordered Accent Block',
+//     description: 'Left border accent highlight line for key body takeaways.',
+//   },
+//   {
+//     value: 'simple-quill',
+//     label: 'Simple Text Block',
+//     description: 'Minimalistic section rendering only rich text content.',
+//   },
+// ];
+
+// export function makeBlankContent(
+//   layoutStyle: ContentLayoutStyle = 'standard-block'
+// ): ContentSectionItem {
+//   return {
+//     id: `sec-${Date.now()}`,
+//     type: 'content',
+//     title: 'Engineering Best Practices',
+//     subtitle: 'Building scalable frontend and backend solutions.',
+//     heading: 'Engineering Best Practices',
+//     contentHtml:
+//       '<p>Building scalable frontend and backend solutions requires modularity, strict typing, and comprehensive test coverage.</p>',
+//     imageUrl: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=800',
+//     imageAlt: 'React architecture diagram',
+//     layoutStyle,
+//     bgTheme: 'dark',
+//     paddingSize: 'md',
+//   };
+// }
+
+// type ListStackEntry = {
+//   level: number;
+//   type: 'bullet' | 'ordered';
+//   el: HTMLElement;
+// };
+
+// function listClasses(type: 'bullet' | 'ordered'): string {
+//   return type === 'ordered'
+//     ? 'list-decimal list-outside pl-6 space-y-1 my-3'
+//     : 'list-disc list-outside pl-6 space-y-1 my-3';
+// }
+
+// function convertQuillLists(root: HTMLElement, doc: Document) {
+//   const hasLegacyMarkers = Boolean(root.querySelector('li[data-list]'));
+
+//   if (!hasLegacyMarkers) {
+//     root.querySelectorAll('ol, ul').forEach((list) => {
+//       const isOrdered = list.tagName === 'OL';
+//       list.setAttribute('class', listClasses(isOrdered ? 'ordered' : 'bullet'));
+//     });
+//     root.querySelectorAll('.ql-ui').forEach((el) => el.remove());
+//     root.querySelectorAll('li[class]').forEach((li) => li.removeAttribute('class'));
+//     return;
+//   }
+
+//   const legacyLists = Array.from(root.querySelectorAll('ol, ul'));
+
+//   legacyLists.forEach((oldList) => {
+//     const items = Array.from(oldList.children).filter(
+//       (el): el is HTMLLIElement => el.tagName === 'LI'
+//     );
+//     if (!items.length) return;
+
+//     const wrapper = doc.createElement('div');
+//     const stack: ListStackEntry[] = [];
+
+//     items.forEach((li) => {
+//       const explicitType = li.getAttribute('data-list');
+//       const type: 'bullet' | 'ordered' = explicitType === 'ordered' ? 'ordered' : 'bullet';
+//       const indentMatch = (li.getAttribute('class') || '').match(/ql-indent-(\d+)/);
+//       const level = indentMatch ? parseInt(indentMatch[1], 10) : 0;
+
+//       const uiSpan = li.querySelector('.ql-ui');
+//       if (uiSpan) uiSpan.remove();
+//       li.removeAttribute('data-list');
+//       li.removeAttribute('class');
+
+//       while (stack.length && stack[stack.length - 1].level > level) stack.pop();
+
+//       let top = stack[stack.length - 1];
+//       const needsNewList =
+//         !top || top.level < level || (top.level === level && top.type !== type);
+
+//       if (needsNewList) {
+//         if (top && top.level === level) stack.pop();
+//         const parent = stack[stack.length - 1];
+
+//         const newList = doc.createElement(type === 'ordered' ? 'ol' : 'ul');
+//         newList.setAttribute('class', listClasses(type));
+
+//         if (parent) {
+//           const lastLi = parent.el.lastElementChild;
+//           (lastLi || parent.el).appendChild(newList);
+//         } else {
+//           wrapper.appendChild(newList);
+//         }
+
+//         stack.push({ level, type, el: newList });
+//         top = stack[stack.length - 1];
+//       }
+
+//       top.el.appendChild(li);
+//     });
+
+//     oldList.replaceWith(...Array.from(wrapper.childNodes));
+//   });
+// }
+
+// function normalizeQuillImages(root: HTMLElement) {
+//   root.querySelectorAll('img').forEach((img) => {
+//     img.removeAttribute('style');
+//     const existing = img.getAttribute('class') || '';
+//     const merged = `${existing} rounded-lg max-w-full h-auto my-4 block`
+//       .split(/\s+/)
+//       .filter(Boolean)
+//       .filter((cls, idx, arr) => arr.indexOf(cls) === idx)
+//       .join(' ');
+//     img.setAttribute('class', merged);
+//     if (!img.hasAttribute('loading')) img.setAttribute('loading', 'lazy');
+//     if (!img.hasAttribute('alt')) img.setAttribute('alt', '');
+//   });
+// }
+
+// function preserveBlankLines(root: HTMLElement) {
+//   root.querySelectorAll('p').forEach((p) => {
+//     const isBlank =
+//       !p.querySelector('img, a, strong, em, u, s, code, span[class]') &&
+//       (p.innerHTML.trim() === '' ||
+//         p.innerHTML.trim() === '<br>' ||
+//         /^(<br\s*\/?>)+$/i.test(p.innerHTML.trim()));
+
+//     if (isBlank) {
+//       p.innerHTML = '&nbsp;';
+//       p.setAttribute('class', 'block !my-0 !mt-0 !mb-0 leading-relaxed');
+//     }
+//   });
+// }
+
+// function highlightCodeBlocks(root: HTMLElement) {
+//   root.querySelectorAll('pre.ql-syntax, pre code').forEach((el) => {
+//     try {
+//       hljs.highlightElement(el as HTMLElement);
+//     } catch {
+//       // ignore non-tokenizable blocks
+//     }
+//   });
+// }
+
+// export function sanitizeQuillHtml(html: string): string {
+//   const raw = (html || '').trim();
+//   if (!raw) return '';
+
+//   if (typeof window === 'undefined' || typeof DOMParser === 'undefined') {
+//     return raw;
+//   }
+
+//   const doc = new DOMParser().parseFromString(`<div id="quill-root">${raw}</div>`, 'text/html');
+//   const root = doc.getElementById('quill-root');
+//   if (!root) return raw;
+
+//   root.querySelectorAll('.ql-align-center').forEach((el) => el.classList.add('text-center'));
+//   root.querySelectorAll('.ql-align-right').forEach((el) => el.classList.add('text-right'));
+//   root.querySelectorAll('.ql-align-justify').forEach((el) => el.classList.add('text-justify'));
+
+//   convertQuillLists(root, doc);
+//   normalizeQuillImages(root);
+//   preserveBlankLines(root);
+
+//   root.querySelectorAll('table').forEach((table) => {
+//     table.setAttribute('class', 'w-full border-collapse my-4 text-left overflow-x-auto block sm:table');
+//   });
+//   root.querySelectorAll('tr').forEach((tr) => {
+//     tr.setAttribute('class', 'border-b border-slate-700');
+//   });
+//   root.querySelectorAll('th').forEach((th) => {
+//     th.setAttribute('class', 'border border-slate-700 px-4 py-2 bg-slate-900 font-bold text-left');
+//   });
+//   root.querySelectorAll('td').forEach((td) => {
+//     td.setAttribute('class', 'border border-slate-700 px-4 py-2');
+//   });
+
+//   root.querySelectorAll('pre').forEach((pre) => {
+//     pre.setAttribute(
+//       'class',
+//       'bg-slate-900 text-slate-100 rounded-lg p-4 overflow-x-auto text-sm my-4 claude-word-wrap'
+//     );
+//   });
+
+//   root.querySelectorAll('blockquote').forEach((bq) => {
+//     bq.setAttribute('class', 'border-l-4 border-indigo-500 pl-4 italic text-slate-400 my-4 claude-word-wrap');
+//   });
+
+//   root.querySelectorAll('a').forEach((a) => {
+//     a.setAttribute('target', '_blank');
+//     a.setAttribute('rel', 'noopener noreferrer');
+//     const existing = a.getAttribute('class') || '';
+//     a.setAttribute('class', `${existing} text-indigo-400 underline underline-offset-2`.trim());
+//   });
+
+//   root.querySelectorAll('.ql-ui').forEach((el) => el.remove());
+//   root.querySelectorAll('[contenteditable]').forEach((el) => el.removeAttribute('contenteditable'));
+//   root.querySelectorAll('[data-list]').forEach((el) => el.removeAttribute('data-list'));
+//   root.querySelectorAll('[class]').forEach((el) => {
+//     const cleaned = (el.getAttribute('class') || '')
+//       .split(/\s+/)
+//       .filter((cls) => cls && !cls.startsWith('ql-'))
+//       .join(' ');
+//     if (cleaned) el.setAttribute('class', cleaned);
+//     else el.removeAttribute('class');
+//   });
+
+//   highlightCodeBlocks(root);
+
+//   return root.innerHTML;
+// }
+
+// function escapeHtml(input: string): string {
+//   return input
+//     .replace(/&/g, '&amp;')
+//     .replace(/</g, '&lt;')
+//     .replace(/>/g, '&gt;')
+//     .replace(/"/g, '&quot;')
+//     .replace(/'/g, '&#39;');
+// }
+
+// function buildHeadingHtml(section: ContentSectionItem, extraClass = ''): string {
+//   const heading = section.heading || section.title || '';
+//   if (!heading) return '';
+//   return `<h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight break-words claude-word-wrap${
+//     extraClass ? ` ${extraClass}` : ''
+//   }">${escapeHtml(heading)}</h2>`;
+// }
+
+// function buildBodyHtml(section: ContentSectionItem, isLight: boolean): string {
+//   const body = sanitizeQuillHtml(section.contentHtml || '');
+//   const proseVariant = isLight ? 'prose-slate' : 'prose-invert';
+//   return `<div class="prose ${proseVariant} prose-sm sm:prose-base max-w-none leading-relaxed break-words claude-word-wrap">${body}</div>`;
+// }
+
+// function buildImageHtml(section: ContentSectionItem): string {
+//   const src = section.imageUrl?.trim();
+//   if (!src) return '';
+
+//   const alt = escapeHtml(section.imageAlt || section.heading || section.title || 'Section image');
+//   const img = `<img src="${escapeHtml(src)}" alt="${alt}" class="w-full h-56 sm:h-64 lg:h-72 object-cover" loading="lazy" />`;
+//   const linked = section.imageLinkUrl
+//     ? `<a href="${escapeHtml(section.imageLinkUrl)}" target="_blank" rel="noopener noreferrer">${img}</a>`
+//     : img;
+//   const caption = section.imageAlt
+//     ? `<p class="p-2 text-xs text-center text-slate-400 italic bg-slate-900 border-t border-slate-800">${escapeHtml(
+//         section.imageAlt
+//       )}</p>`
+//     : '';
+
+//   return `<div class="relative overflow-hidden rounded-xl border border-slate-800 bg-slate-900">${linked}${caption}</div>`;
+// }
+
+// export function renderContentSectionHtml(section: ContentSectionItem): string {
+//   const layout = section.layoutStyle || 'standard-block';
+//   const hasImage = Boolean(section.imageUrl?.trim());
+
+//   const isLight = section.bgTheme === 'light';
+//   const themeClass =
+//     section.bgTheme === 'indigo'
+//       ? 'bg-indigo-950 text-white'
+//       : section.bgTheme === 'light'
+//       ? 'bg-slate-100 text-slate-900'
+//       : 'bg-slate-950 text-white';
+//   const headingThemeClass = isLight ? 'text-slate-900' : 'text-white';
+//   const borderColor = isLight ? 'border-slate-300' : 'border-slate-800';
+
+//   const paddingClass =
+//     section.paddingSize === 'sm'
+//       ? 'py-6 px-4 sm:px-6'
+//       : section.paddingSize === 'lg'
+//       ? 'py-10 px-4 sm:px-6 lg:py-16'
+//       : 'py-8 px-4 sm:px-6 lg:py-10';
+
+//   let inner = '';
+
+//   if (layout === 'simple-quill') {
+//     inner = `<article class="w-full">${buildBodyHtml(section, isLight)}</article>`;
+//   } else if (layout === 'bordered-callout') {
+//     const cardBg = isLight
+//       ? 'bg-white/70 border-slate-300'
+//       : 'bg-slate-900/60 border-slate-800';
+//     inner = `<article class="p-5 sm:p-8 rounded-2xl ${cardBg} border-l-4 border-indigo-500 border-y border-r shadow-sm space-y-5 sm:space-y-6">${buildHeadingHtml(
+//       section,
+//       headingThemeClass
+//     )}${buildBodyHtml(section, isLight)}</article>`;
+//   } else if (layout === 'card-grid') {
+//     const cardBg = isLight
+//       ? 'bg-white text-slate-900 border-slate-200'
+//       : 'bg-slate-900 text-white border-slate-800';
+//     inner = `<article class="p-5 sm:p-8 rounded-3xl ${cardBg} border shadow-xl space-y-5 sm:space-y-6">${buildHeadingHtml(
+//       section,
+//       headingThemeClass
+//     )}${buildBodyHtml(section, isLight)}</article>`;
+//   } else {
+//     const showTwoCol = hasImage || layout === 'split-image';
+//     const bodyCol = showTwoCol
+//       ? `<div class="lg:col-span-7">${buildBodyHtml(section, isLight)}</div>`
+//       : `<div class="w-full">${buildBodyHtml(section, isLight)}</div>`;
+//     const imageCol = hasImage
+//       ? `<div class="lg:col-span-5">${buildImageHtml(section)}</div>`
+//       : '';
+
+//     inner = `<article class="space-y-5 sm:space-y-6">${buildHeadingHtml(
+//       section,
+//       `border-b ${borderColor} pb-3 ${headingThemeClass}`
+//     )}<div class="grid grid-cols-1 ${
+//       showTwoCol ? 'lg:grid-cols-12' : ''
+//     } gap-6 sm:gap-8 items-start mt-5">${bodyCol}${imageCol}</div></article>`;
+//   }
+
+//   return `<div class="w-full overflow-x-hidden ${themeClass}"><div class="max-w-4xl mx-auto space-y-6 ${paddingClass}">${inner}</div></div>`;
+// }
+
+// export function renderContentSectionsHtml(sections: ContentSectionItem[]): string {
+//   if (!sections.length) return '';
+//   const inner = sections.map((s) => renderContentSectionHtml(s)).join('');
+//   return `<section class="space-y-6">${inner}</section>`;
+// }
+
+// function QuillEditorColorFix() {
+//   return (
+//     <style jsx global>{`
+//       .quill-editor-scope .ql-editor {
+//         color: #1e293b;
+//         font-size: 0.925rem;
+//         line-height: 1.6;
+//       }
+//       .quill-editor-scope .ql-editor.ql-blank::before {
+//         color: #94a3b8;
+//         font-style: normal;
+//       }
+//       .quill-editor-scope .ql-editor a {
+//         color: #4f46e5;
+//         text-decoration: underline;
+//       }
+//       .quill-editor-scope .ql-editor h1,
+//       .quill-editor-scope .ql-editor h2,
+//       .quill-editor-scope .ql-editor h3 {
+//         color: #0f172a;
+//       }
+//       .quill-editor-scope .ql-editor blockquote {
+//         color: #475569;
+//       }
+//       .quill-editor-scope .ql-editor,
+//       .quill-editor-scope .ql-editor p,
+//       .quill-editor-scope .ql-editor li,
+//       .quill-editor-scope .ql-editor h1,
+//       .quill-editor-scope .ql-editor h2,
+//       .quill-editor-scope .ql-editor h3,
+//       .quill-editor-scope .ql-editor blockquote {
+//         word-break: normal !important;
+//         overflow-wrap: break-word !important;
+//         word-wrap: break-word !important;
+//         -webkit-hyphens: none !important;
+//         hyphens: none !important;
+//       }
+//       .quill-editor-scope .ql-editor pre.ql-syntax {
+//         background: #1e1e1e;
+//         color: #dcdcdc;
+//         border-radius: 0.5rem;
+//         overflow-x: auto;
+//       }
+//       .quill-editor-scope .ql-editor pre.ql-syntax::selection,
+//       .quill-editor-scope .ql-editor pre.ql-syntax *::selection {
+//         background-color: #ffffff !important;
+//         color: #000000 !important;
+//       }
+//       .quill-editor-scope .ql-editor table {
+//         width: 100%;
+//         border-collapse: collapse;
+//         margin: 1rem 0;
+//         border: none;
+//       }
+//       .quill-editor-scope .ql-editor th,
+//       .quill-editor-scope .ql-editor td {
+//         border: 1px solid #cbd5e1;
+//         padding: 0.5rem 0.75rem;
+//       }
+//       .quill-editor-scope .ql-editor th {
+//         background-color: #f1f5f9;
+//         font-weight: bold;
+//       }
+//       .quill-editor-scope .ql-toolbar.ql-snow {
+//         position: sticky;
+//         top: 0;
+//         z-index: 30;
+//         background: #ffffff;
+//         border: 1px solid #cbd5e1;
+//         border-top-left-radius: 0.5rem;
+//         border-top-right-radius: 0.5rem;
+//         box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+//       }
+//       .quill-editor-scope .ql-container.ql-snow {
+//         border-bottom-left-radius: 0.5rem;
+//         border-bottom-right-radius: 0.5rem;
+//         border: 1px solid #cbd5e1;
+//         border-top: none;
+//         overflow: hidden;
+//       }
+
+//       .claude-word-wrap,
+//       .claude-word-wrap * {
+//         word-break: normal !important;
+//         overflow-wrap: break-word !important;
+//         word-wrap: break-word !important;
+//         -webkit-hyphens: none !important;
+//         hyphens: none !important;
+//       }
+//     `}</style>
+//   );
+// }
+
+// function GlobalContentStyles() {
+//   return (
+//     <style jsx global>{`
+//       pre.ql-syntax::selection,
+//       pre.ql-syntax *::selection,
+//       pre.hljs::selection,
+//       pre.hljs *::selection {
+//         background-color: #ffffff !important;
+//         color: #000000 !important;
+//       }
+//     `}</style>
+//   );
+// }
+
+// function EditingIndicator() {
+//   return (
+//     <div
+//       className="pointer-events-none absolute top-3 right-3 z-20 flex items-center gap-1.5 rounded-full bg-indigo-600/90 px-3 py-1 text-xs font-medium text-white shadow-lg backdrop-blur-sm"
+//       aria-hidden="true"
+//     >
+//       <svg
+//         xmlns="http://www.w3.org/2000/svg"
+//         viewBox="0 0 20 20"
+//         fill="currentColor"
+//         className="h-3.5 w-3.5"
+//       >
+//         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793 3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+//       </svg>
+//       Editing
+//     </div>
+//   );
+// }
+
+// export function ContentViews({
+//   sections,
+//   sec,
+//   onChange,
+//   isThumbnail = false,
+// }: ContentViewsProps) {
+//   const activeSections = sec ? [sec] : sections || [];
+//   const staticContentRef = useRef<HTMLDivElement>(null);
+
+//   const isEditable = Boolean(onChange) && !isThumbnail;
+
+//   useEffect(() => {
+//     if (isEditable || !staticContentRef.current) return;
+//     staticContentRef.current.querySelectorAll('pre.ql-syntax, pre code').forEach((el) => {
+//       try {
+//         hljs.highlightElement(el as HTMLElement);
+//       } catch {
+//         // ignore blocks hljs can't tokenize
+//       }
+//     });
+//   }, [isEditable, activeSections]);
+
+//   if (!activeSections.length) return null;
+
+//   return (
+//     <div className="w-full space-y-6" ref={staticContentRef}>
+//       <GlobalContentStyles />
+//       {isEditable && <QuillEditorColorFix />}
+//       {activeSections.map((section, idx) => {
+//         const key = section.id || `content-view-${idx}`;
+//         const hasImage = Boolean(section.imageUrl?.trim());
+//         const layout = section.layoutStyle || 'standard-block';
+
+//         const paddingClass =
+//           section.paddingSize === 'sm'
+//             ? 'py-6 px-4 sm:px-6'
+//             : section.paddingSize === 'lg'
+//             ? 'py-10 px-4 sm:px-6 lg:py-16'
+//             : 'py-8 px-4 sm:px-6 lg:py-10';
+
+//         const themeClass =
+//           section.bgTheme === 'indigo'
+//             ? 'bg-indigo-950 text-white'
+//             : section.bgTheme === 'light'
+//             ? 'bg-slate-100 text-slate-900'
+//             : 'bg-slate-950 text-white';
+
+//         const headingThemeClass =
+//           section.bgTheme === 'light' ? 'text-slate-900' : 'text-white';
+
+//         const renderHeading = (extraClasses = '') => {
+//           const displayHeading = section.heading || section.title || '';
+//           if (isEditable && onChange) {
+//             return (
+//               <input
+//                 type="text"
+//                 value={displayHeading}
+//                 onChange={(e) =>
+//                   onChange({ heading: e.target.value, title: e.target.value })
+//                 }
+//                 placeholder="Enter section heading..."
+//                 className={`w-full text-2xl sm:text-3xl font-extrabold bg-transparent border-b border-transparent hover:border-slate-700 focus:border-indigo-500 focus:outline-none transition break-words claude-word-wrap ${headingThemeClass} ${extraClasses}`}
+//               />
+//             );
+//           }
+//           return (
+//             <h2
+//               className={`text-2xl sm:text-3xl font-extrabold tracking-tight break-words claude-word-wrap ${headingThemeClass} ${extraClasses}`}
+//             >
+//               {displayHeading}
+//             </h2>
+//           );
+//         };
+
+//         const renderBodyContent = () => {
+//           if (isEditable && onChange) {
+//             return (
+//               <div
+//                 data-editor-only="true"
+//                 className="quill-editor-scope bg-white rounded-lg"
+//               >
+//                 <ReactQuill
+//                   theme="snow"
+//                   value={section.contentHtml || ''}
+//                   onChange={(html: string) => onChange({ contentHtml: html })}
+//                   modules={editorModules}
+//                   placeholder="Write your structured section content here..."
+//                 />
+//               </div>
+//             );
+//           }
+//           return (
+//             <div
+//               className={`prose ${
+//                 section.bgTheme === 'light' ? 'prose-slate' : 'prose-invert'
+//               } prose-sm sm:prose-base max-w-none leading-relaxed break-words claude-word-wrap`}
+//               dangerouslySetInnerHTML={{ __html: sanitizeQuillHtml(section.contentHtml || '') }}
+//             />
+//           );
+//         };
+
+//         const renderImage = () => {
+//           if (isEditable && onChange) {
+//             return (
+//               <EditableBlogImage
+//                 src={section.imageUrl || ''}
+//                 alt={section.imageAlt || section.heading || 'Blog image'}
+//                 imageLinkUrl={section.imageLinkUrl}
+//                 onUpdate={(patch: {
+//                   imageUrl?: string;
+//                   imageAlt?: string;
+//                   imageLinkUrl?: string;
+//                 }) => onChange(patch)}
+//               />
+//             );
+//           }
+
+//           if (!hasImage) return null;
+
+//           return (
+//             <div className="lg:col-span-5 relative group overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
+//               <div className="relative w-full h-56 sm:h-64 lg:h-72">
+//                 <Image
+//                   src={section.imageUrl!}
+//                   alt={
+//                     section.imageAlt ||
+//                     section.heading ||
+//                     section.title ||
+//                     'Section image'
+//                   }
+//                   fill
+//                   className="object-cover group-hover:scale-105 transition-transform duration-300"
+//                   sizes="(max-width: 768px) 100vw, 40vw"
+//                 />
+//               </div>
+//               {section.imageAlt && (
+//                 <p className="p-2 text-xs text-center text-slate-400 italic bg-slate-900 border-t border-slate-800">
+//                   {section.imageAlt}
+//                 </p>
+//               )}
+//             </div>
+//           );
+//         };
+
+//         return (
+//           <div
+//             key={key}
+//             className={`relative w-full ${
+//               isEditable ? '' : 'overflow-x-hidden'
+//             } ${themeClass}`}
+//           >
+//             {isEditable && <EditingIndicator />}
+//             <div className={`max-w-4xl mx-auto space-y-6 ${paddingClass}`}>
+//               {layout === 'simple-quill' && (
+//                 <article className="w-full">{renderBodyContent()}</article>
+//               )}
+
+//               {layout === 'bordered-callout' && (
+//                 <article className="p-5 sm:p-8 rounded-2xl bg-slate-900/60 border-l-4 border-indigo-500 border-y border-r border-slate-800 shadow-sm space-y-5 sm:space-y-6">
+//                   {renderHeading()}
+//                   {renderBodyContent()}
+//                 </article>
+//               )}
+
+//               {layout === 'card-grid' && (
+//                 <article className="p-5 sm:p-8 rounded-3xl bg-slate-900 text-white border border-slate-800 shadow-xl space-y-5 sm:space-y-6">
+//                   {renderHeading('text-white')}
+//                   {renderBodyContent()}
+//                 </article>
+//               )}
+
+//               {(layout === 'standard-block' || layout === 'split-image') && (
+//                 <article className="space-y-5 sm:space-y-6">
+//                   {renderHeading('border-b border-slate-800/50 pb-3')}
+
+//                   <div
+//                     className={`grid grid-cols-1 ${
+//                       hasImage || isEditable || layout === 'split-image'
+//                         ? 'lg:grid-cols-12'
+//                         : ''
+//                     } gap-6 sm:gap-8 items-start`}
+//                   >
+//                     <div
+//                       className={
+//                         hasImage || isEditable || layout === 'split-image'
+//                           ? 'lg:col-span-7'
+//                           : 'w-full'
+//                       }
+//                     >
+//                       {renderBodyContent()}
+//                     </div>
+
+//                     {(hasImage || isEditable) && (
+//                       <div className="lg:col-span-5">{renderImage()}</div>
+//                     )}
+//                   </div>
+//                 </article>
+//               )}
+//             </div>
+//           </div>
+//         );
+//       })}
+//     </div>
+//   );
+// }
+
+// export function ContentLayoutThumbnail({
+//   layoutStyle = 'standard-block',
+// }: {
+//   layoutStyle?: ContentLayoutStyle;
+// }) {
+//   const sampleSection = makeBlankContent(layoutStyle);
+
+//   return (
+//     <div className="relative w-full h-40 overflow-hidden rounded-xl bg-slate-950 border border-slate-800">
+//       <div
+//         className="absolute top-0 left-0 pointer-events-none select-none"
+//         style={{
+//           width: '1280px',
+//           transform: 'scale(0.235)',
+//           transformOrigin: 'top left',
+//         }}
+//       >
+//         <ContentViews sec={sampleSection} isThumbnail={true} />
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
