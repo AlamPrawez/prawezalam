@@ -296,7 +296,37 @@ export default async function BlogDetailsPage({ params }: PageProps) {
           </div>
         </div>
 
-        <main className="">
+<main className="">
+  {sections.length === 0 ? (
+    <div className={`p-12 text-center opacity-60 ${theme.heroBg} rounded-3xl border ${theme.border}`}>
+      <p className="text-sm">No content sections available for this article.</p>
+    </div>
+  ) : (
+    sections.map((section: any, idx: number) => {
+      // 1. Replace non-breaking spaces (&nbsp; and Unicode \u00A0) with standard spaces
+      const normalizedHtml = section.html 
+        ? section.html.replace(/&nbsp;|\u00A0/g, ' ') 
+        : '';
+
+      // 2. Pass sanitized content to rendering
+      const cleanHtml = normalizedHtml ? DOMPurify.sanitize(normalizedHtml) : '';
+
+      return (
+        <section key={section.id || idx} className={`prose ${theme.textProse} max-w-none [overflow-wrap:break-word] [word-break:normal]`}>
+          {cleanHtml ? (
+            <div dangerouslySetInnerHTML={{ __html: cleanHtml }} />
+          ) : (
+            <div className={`p-5 ${theme.heroBg} border ${theme.border} rounded-2xl`}>
+              {JSON.stringify(section.content || section)}
+            </div>
+          )}
+        </section>
+      );
+    })
+  )}
+</main>
+
+        {/* <main className="">
           {sections.length === 0 ? (
             <div className={`p-12 text-center opacity-60 ${theme.heroBg} rounded-3xl border ${theme.border}`}>
               <p className="text-sm">No content sections available for this article.</p>
@@ -318,7 +348,7 @@ export default async function BlogDetailsPage({ params }: PageProps) {
               );
             })
           )}
-        </main>
+        </main> */}
       </article>
     </div>
   );
