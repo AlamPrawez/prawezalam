@@ -83,3 +83,8 @@ body {
 article p{
   margin: 15px 0!important;
 }
+
+article h2{
+    color: #0f1522!important;
+  font-size: xx-large!important;
+}
