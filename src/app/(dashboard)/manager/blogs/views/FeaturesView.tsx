@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Layers, ArrowRight, Plus, Trash2, Check, ExternalLink } from 'lucide-react';
 import type { FeatureCard, PageSectionItem, PageButton, FeaturesLayoutStyle } from '../types';
+import { RichEditableText } from '../editor/RichEditableText';
 
 type OnChange = (patch: Partial<PageSectionItem>) => void;
 
@@ -67,37 +68,37 @@ function useOnClickOutside<T extends HTMLElement>(
 }
 
 // Shared Editable-Text Primitive
-const EditableText: React.FC<{
-  value: string;
-  onCommit: (next: string) => void;
-  as?: React.ElementType;
-  className?: string;
-  placeholder?: string;
-}> = ({ value, onCommit, as: Tag = 'span', className = '', placeholder = 'Click to edit…' }) => {
-  const ref = useRef<HTMLElement>(null);
-  const [focused, setFocused] = useState(false);
+// const RichEditableText: React.FC<{
+//   value: string;
+//   onCommit: (next: string) => void;
+//   as?: React.ElementType;
+//   className?: string;
+//   placeholder?: string;
+// }> = ({ value, onCommit, as: Tag = 'span', className = '', placeholder = 'Click to edit…' }) => {
+//   const ref = useRef<HTMLElement>(null);
+//   const [focused, setFocused] = useState(false);
 
-  useEffect(() => {
-    if (!focused && ref.current && ref.current.innerText !== value) {
-      ref.current.innerText = value;
-    }
-  }, [value, focused]);
+//   useEffect(() => {
+//     if (!focused && ref.current && ref.current.innerText !== value) {
+//       ref.current.innerText = value;
+//     }
+//   }, [value, focused]);
 
-  return (
-    <Tag
-      ref={ref}
-      contentEditable
-      suppressContentEditableWarning
-      onFocus={() => setFocused(true)}
-      onBlur={(e: React.FocusEvent<HTMLElement>) => {
-        setFocused(false);
-        onCommit(e.currentTarget.innerText);
-      }}
-      data-placeholder={placeholder}
-      className={`outline-none rounded-md transition focus:bg-indigo-500/10 focus:ring-2 focus:ring-indigo-500/60 empty:before:content-[attr(data-placeholder)] empty:before:text-slate-600 ${className}`}
-    />
-  );
-};
+//   return (
+//     <Tag
+//       ref={ref}
+//       contentEditable
+//       suppressContentEditableWarning
+//       onFocus={() => setFocused(true)}
+//       onBlur={(e: React.FocusEvent<HTMLElement>) => {
+//         setFocused(false);
+//         onCommit(e.currentTarget.innerText);
+//       }}
+//       data-placeholder={placeholder}
+//       className={`outline-none rounded-md transition focus:bg-indigo-500/10 focus:ring-2 focus:ring-indigo-500/60 empty:before:content-[attr(data-placeholder)] empty:before:text-slate-600 ${className}`}
+//     />
+//   );
+// };
 
 // Configurable Editable Buttons with Link Selector
 const EditableButtons: React.FC<{
@@ -137,7 +138,7 @@ const EditableButtons: React.FC<{
             }}
             className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg transition flex items-center gap-2"
           >
-            <EditableText
+            <RichEditableText
               as="span"
               value={btn.text}
               onCommit={(v) => updateButton(i, { text: v })}
@@ -229,7 +230,7 @@ const Grid3ColView: React.FC<{
           <Layers className="w-5 h-5" />
         </div>
 
-        <EditableText
+        <RichEditableText
           as="h3"
           value={card.title}
           onCommit={(v) => updateCard(idx, { title: v })}
@@ -237,7 +238,7 @@ const Grid3ColView: React.FC<{
           className="block text-base font-bold"
         />
 
-        <EditableText
+        <RichEditableText
           as="p"
           value={card.desc}
           onCommit={(v) => updateCard(idx, { desc: v })}
@@ -276,7 +277,7 @@ const VerticalListView: React.FC<{
         </div>
 
         <div className="space-y-1 pr-6 flex-1">
-          <EditableText
+          <RichEditableText
             as="h3"
             value={card.title}
             onCommit={(v) => updateCard(idx, { title: v })}
@@ -284,7 +285,7 @@ const VerticalListView: React.FC<{
             className="block text-base font-bold"
           />
 
-          <EditableText
+          <RichEditableText
             as="p"
             value={card.desc}
             onCommit={(v) => updateCard(idx, { desc: v })}
@@ -331,7 +332,7 @@ const BentoGridView: React.FC<{
             <Layers className="w-5 h-5" />
           </div>
 
-          <EditableText
+          <RichEditableText
             as="h3"
             value={card.title}
             onCommit={(v) => updateCard(idx, { title: v })}
@@ -339,7 +340,7 @@ const BentoGridView: React.FC<{
             className={`block font-bold ${isLarge ? 'text-xl' : 'text-base'}`}
           />
 
-          <EditableText
+          <RichEditableText
             as="p"
             value={card.desc}
             onCommit={(v) => updateCard(idx, { desc: v })}
@@ -403,14 +404,14 @@ export const FeaturesView: React.FC<{
   return (
     <div className={`mx-auto space-y-8 ${paddingClass} ${themeClass}`}>
       <div className="text-center space-y-3 max-w-2xl mx-auto">
-        <EditableText
+        <RichEditableText
           as="h2"
           value={sec.title || ''}
           onCommit={(v) => handleUpdate({ title: v })}
           placeholder="Features & Stack"
           className="block text-3xl font-extrabold tracking-tight"
         />
-        <EditableText
+        <RichEditableText
           as="p"
           value={sec.subtitle || ''}
           onCommit={(v) => handleUpdate({ subtitle: v })}
@@ -482,448 +483,3 @@ export function FeaturesThumbnail({ layoutStyle = 'grid-3col' }: { layoutStyle?:
   );
 }
 
-// 'use client';
-
-// import React, { useState, useRef, useEffect } from 'react';
-// import { Layers, ArrowRight, Plus, Trash2 } from 'lucide-react';
-// import type { FeatureCard, PageSectionItem } from '../types';
-
-// type OnChange = (patch: Partial<PageSectionItem>) => void;
-
-// // Exported factory function for blank features sections
-// export function makeBlankFeatures(): PageSectionItem {
-//   return {
-//     id: `sec-${Date.now()}`,
-//     type: 'features',
-//     bgTheme: 'dark',
-//     paddingSize: 'md',
-//     title: 'Features & Architecture',
-//     subtitle: 'Modern software patterns built for high speed and scale.',
-//     cardsList: [
-//       { title: 'FastAPI Backend', desc: 'High-performance Python backend with automatic OpenAPI spec validation.' },
-//       { title: 'Next.js Frontend', desc: 'App router-based React architecture engineered for speed and SEO.' },
-//       { title: 'Scalable Database', desc: 'PostgreSQL architecture configured with async ORMs and optimized indexes.' },
-//     ],
-//     buttons: [{ id: `btn-${Date.now()}`, text: 'View System Specs', url: '#', variant: 'primary' }],
-//   };
-// }
-
-// // Shared Editable-Text Primitive
-// const EditableText: React.FC<{
-//   value: string;
-//   onCommit: (next: string) => void;
-//   as?: React.ElementType;
-//   className?: string;
-//   placeholder?: string;
-// }> = ({ value, onCommit, as: Tag = 'span', className = '', placeholder = 'Click to edit…' }) => {
-//   const ref = useRef<HTMLElement>(null);
-//   const [focused, setFocused] = useState(false);
-
-//   useEffect(() => {
-//     if (!focused && ref.current && ref.current.innerText !== value) {
-//       ref.current.innerText = value;
-//     }
-//   }, [value, focused]);
-
-//   return (
-//     <Tag
-//       ref={ref}
-//       contentEditable
-//       suppressContentEditableWarning
-//       onFocus={() => setFocused(true)}
-//       onBlur={(e: React.FocusEvent<HTMLElement>) => {
-//         setFocused(false);
-//         onCommit(e.currentTarget.innerText);
-//       }}
-//       data-placeholder={placeholder}
-//       className={`outline-none rounded-md transition focus:bg-indigo-500/10 focus:ring-2 focus:ring-indigo-500/60 empty:before:content-[attr(data-placeholder)] empty:before:text-slate-600 ${className}`}
-//     />
-//   );
-// };
-
-// // Main FeaturesView Component
-// export const FeaturesView: React.FC<{
-//   sec: PageSectionItem;
-//   onChange?: OnChange;
-// }> = ({ sec, onChange }) => {
-//   const cards = sec.cardsList ?? [
-//     { title: 'FastAPI Backend', desc: 'High-performance Python backend with automatic OpenAPI spec validation.' },
-//     { title: 'Next.js Frontend', desc: 'App router-based React architecture engineered for speed and SEO.' },
-//     { title: 'Scalable Database', desc: 'PostgreSQL architecture configured with async ORMs and optimized indexes.' },
-//   ];
-
-//   const buttons = sec.buttons ?? [];
-
-//   const handleUpdate = (patch: Partial<PageSectionItem>) => {
-//     if (onChange) onChange(patch);
-//   };
-
-//   const updateCard = (index: number, patch: Partial<FeatureCard>) => {
-//     const updated = [...cards];
-//     updated[index] = { ...updated[index], ...patch };
-//     handleUpdate({ cardsList: updated });
-//   };
-
-//   const addCard = () => {
-//     handleUpdate({
-//       cardsList: [...cards, { title: 'New Feature', desc: 'Add description for this feature here.' }],
-//     });
-//   };
-
-//   const removeCard = (index: number) => {
-//     handleUpdate({ cardsList: cards.filter((_, i) => i !== index) });
-//   };
-
-//   const updateButtonText = (btnId: string, newText: string) => {
-//     const updated = buttons.map((b) => (b.id === btnId ? { ...b, text: newText } : b));
-//     handleUpdate({ buttons: updated });
-//   };
-
-//   const addButton = () => {
-//     handleUpdate({
-//       buttons: [...buttons, { id: `btn-${Date.now()}`, text: 'Explore Architecture', url: '#', variant: 'primary' }],
-//     });
-//   };
-
-//   const removeButton = (btnId: string) => {
-//     handleUpdate({ buttons: buttons.filter((b) => b.id !== btnId) });
-//   };
-
-//   const paddingClass =
-//     sec.paddingSize === 'sm' ? 'p-6' : sec.paddingSize === 'lg' ? 'p-16' : 'p-10';
-
-//   const themeClass =
-//     sec.bgTheme === 'indigo'
-//       ? 'bg-indigo-950 text-white border border-indigo-800/50'
-//       : sec.bgTheme === 'light'
-//       ? 'bg-slate-100 text-slate-900 border border-slate-200'
-//       : 'bg-slate-950 text-white border border-slate-800';
-
-//   const cardThemeClass =
-//     sec.bgTheme === 'light'
-//       ? 'bg-white border-slate-200 hover:border-indigo-400'
-//       : 'bg-slate-900/80 border-slate-800 hover:border-indigo-500/40';
-
-//   return (
-//     <div className={`my-8 max-w-6xl mx-auto rounded-3xl space-y-10 ${paddingClass} ${themeClass}`}>
-//       <div className="text-center space-y-3 max-w-2xl mx-auto">
-//         <EditableText
-//           as="h2"
-//           value={sec.title || ''}
-//           onCommit={(v) => handleUpdate({ title: v })}
-//           placeholder="Features & Stack"
-//           className="block text-3xl font-extrabold tracking-tight"
-//         />
-//         <EditableText
-//           as="p"
-//           value={sec.subtitle || ''}
-//           onCommit={(v) => handleUpdate({ subtitle: v })}
-//           placeholder="Production-ready components designed to scale effortlessly."
-//           className="block text-sm opacity-80"
-//         />
-//       </div>
-
-//       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-//         {cards.map((card, idx) => (
-//           <div
-//             key={idx}
-//             className={`group/card relative p-6 rounded-2xl border space-y-3 shadow-xl transition ${cardThemeClass}`}
-//           >
-//             <button
-//               type="button"
-//               onClick={() => removeCard(idx)}
-//               className="absolute top-3 right-3 p-1 rounded-md bg-slate-800 text-slate-400 hover:text-red-400 opacity-0 group-hover/card:opacity-100 transition z-10"
-//               title="Delete feature card"
-//             >
-//               <Trash2 className="w-3.5 h-3.5" />
-//             </button>
-
-//             <div className="w-10 h-10 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center font-bold">
-//               <Layers className="w-5 h-5" />
-//             </div>
-
-//             <EditableText
-//               as="h3"
-//               value={card.title}
-//               onCommit={(v) => updateCard(idx, { title: v })}
-//               placeholder="Feature Title"
-//               className="block text-base font-bold"
-//             />
-
-//             <EditableText
-//               as="p"
-//               value={card.desc}
-//               onCommit={(v) => updateCard(idx, { desc: v })}
-//               placeholder="Feature description…"
-//               className="block text-xs opacity-75 leading-relaxed"
-//             />
-//           </div>
-//         ))}
-//       </div>
-
-//       <div className="text-center">
-//         <button
-//           type="button"
-//           onClick={addCard}
-//           className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border border-dashed border-slate-700 text-slate-400 hover:text-white hover:border-slate-500 transition"
-//         >
-//           <Plus className="w-3.5 h-3.5" /> Add Card
-//         </button>
-//       </div>
-
-//       <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
-//         {buttons.map((btn) => (
-//           <div key={btn.id} className="group/btn relative inline-flex items-center">
-//             <div className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg transition flex items-center gap-2">
-//               <EditableText
-//                 as="span"
-//                 value={btn.text}
-//                 onCommit={(v) => updateButtonText(btn.id, v)}
-//                 placeholder="Button Text"
-//               />
-//               <ArrowRight className="w-4 h-4 inline" />
-//             </div>
-//             <button
-//               type="button"
-//               onClick={() => removeButton(btn.id)}
-//               className="absolute -top-2 -right-2 p-1 rounded-full bg-slate-800 border border-slate-700 text-slate-400 hover:text-red-400 opacity-0 group-hover/btn:opacity-100 transition shadow"
-//               title="Remove button"
-//             >
-//               <Trash2 className="w-3 h-3" />
-//             </button>
-//           </div>
-//         ))}
-
-//         {buttons.length === 0 && (
-//           <button
-//             type="button"
-//             onClick={addButton}
-//             className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition"
-//           >
-//             <Plus className="w-3.5 h-3.5" /> Add CTA Button
-//           </button>
-//         )}
-//       </div>
-//     </div>
-//   );
-// };
-
-
-
-// import React, { useState, useRef, useEffect } from 'react';
-// import { Layers, ArrowRight, Plus, Trash2 } from 'lucide-react';
-// import { FeatureCard, PageSectionItem } from '../types';
-
-
-
-// type OnChange = (patch: Partial<PageSectionItem>) => void;
-
-// function makeBlankFeatures(): PageSectionItem {
-//   return {
-//     id: `sec-${Date.now()}`,
-//     type: 'features',
-//     bgTheme: 'dark',
-//     paddingSize: 'md',
-//     title: 'Features & Architecture',
-//     subtitle: 'Modern software patterns built for high speed and scale.',
-//     cardsList: [
-//       { title: 'FastAPI Backend', desc: 'High-performance Python backend with automatic OpenAPI spec validation.' },
-//       { title: 'Next.js Frontend', desc: 'App router-based React architecture engineered for speed and SEO.' },
-//       { title: 'Scalable Database', desc: 'PostgreSQL architecture configured with async ORMs and optimized indexes.' },
-//     ],
-//     buttons: [{ id: `btn-${Date.now()}`, text: 'View System Specs', url: '#', variant: 'primary' }],
-//   };
-// }
-// // Editable Text Primitive
-// const EditableText: React.FC<{
-//   value: string;
-//   onCommit: (next: string) => void;
-//   as?: React.ElementType;
-//   className?: string;
-//   placeholder?: string;
-// }> = ({ value, onCommit, as: Tag = 'span', className = '', placeholder = 'Click to edit…' }) => {
-//   const ref = useRef<HTMLElement>(null);
-//   const [focused, setFocused] = useState(false);
-
-//   useEffect(() => {
-//     if (!focused && ref.current && ref.current.innerText !== value) {
-//       ref.current.innerText = value;
-//     }
-//   }, [value, focused]);
-
-//   return (
-//     <Tag
-//       ref={ref}
-//       contentEditable
-//       suppressContentEditableWarning
-//       onFocus={() => setFocused(true)}
-//       onBlur={(e: React.FocusEvent<HTMLElement>) => {
-//         setFocused(false);
-//         onCommit(e.currentTarget.innerText);
-//       }}
-//       data-placeholder={placeholder}
-//       className={`outline-none rounded-md transition focus:bg-indigo-500/10 focus:ring-2 focus:ring-indigo-500/60 empty:before:content-[attr(data-placeholder)] empty:before:text-slate-600 ${className}`}
-//     />
-//   );
-// };
-
-// export const FeaturesView: React.FC<{
-//   sec: PageSectionItem;
-//   onChange?: OnChange;
-// }> = ({ sec, onChange }) => {
-//   const cards = sec.cardsList ?? [
-//     { title: 'FastAPI Backend', desc: 'High-performance Python backend with automatic OpenAPI spec validation.' },
-//     { title: 'Next.js Frontend', desc: 'App router-based React architecture engineered for speed and SEO.' },
-//     { title: 'Scalable Database', desc: 'PostgreSQL architecture configured with async ORMs and optimized indexes.' },
-//   ];
-
-//   const buttons = sec.buttons ?? [];
-
-//   const handleUpdate = (patch: Partial<PageSectionItem>) => {
-//     if (onChange) onChange(patch);
-//   };
-
-//   const updateCard = (index: number, patch: Partial<FeatureCard>) => {
-//     const updated = [...cards];
-//     updated[index] = { ...updated[index], ...patch };
-//     handleUpdate({ cardsList: updated });
-//   };
-
-//   const addCard = () => {
-//     handleUpdate({
-//       cardsList: [...cards, { title: 'New Feature', desc: 'Add description for this feature here.' }],
-//     });
-//   };
-
-//   const removeCard = (index: number) => {
-//     handleUpdate({ cardsList: cards.filter((_, i) => i !== index) });
-//   };
-
-//   const updateButtonText = (btnId: string, newText: string) => {
-//     const updated = buttons.map((b) => (b.id === btnId ? { ...b, text: newText } : b));
-//     handleUpdate({ buttons: updated });
-//   };
-
-//   const addButton = () => {
-//     handleUpdate({
-//       buttons: [...buttons, { id: `btn-${Date.now()}`, text: 'Explore Architecture', url: '#', variant: 'primary' }],
-//     });
-//   };
-
-//   const removeButton = (btnId: string) => {
-//     handleUpdate({ buttons: buttons.filter((b) => b.id !== btnId) });
-//   };
-
-//   const paddingClass =
-//     sec.paddingSize === 'sm' ? 'p-6' : sec.paddingSize === 'lg' ? 'p-16' : 'p-10';
-
-//   const themeClass =
-//     sec.bgTheme === 'indigo'
-//       ? 'bg-indigo-950 text-white'
-//       : sec.bgTheme === 'light'
-//       ? 'bg-slate-100 text-slate-900'
-//       : 'bg-slate-950 text-white';
-
-//   return (
-//     <div className={`my-8 max-w-6xl mx-auto rounded-3xl space-y-10 ${paddingClass} ${themeClass}`}>
-//       <div className="text-center space-y-3 max-w-2xl mx-auto">
-//         <EditableText
-//           as="h2"
-//           value={sec.title || ''}
-//           onCommit={(v) => handleUpdate({ title: v })}
-//           placeholder="Features & Stack"
-//           className="block text-3xl font-extrabold tracking-tight"
-//         />
-//         <EditableText
-//           as="p"
-//           value={sec.subtitle || ''}
-//           onCommit={(v) => handleUpdate({ subtitle: v })}
-//           placeholder="Production-ready components designed to scale effortlessly."
-//           className="block text-sm opacity-80"
-//         />
-//       </div>
-
-//       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-//         {cards.map((card, idx) => (
-//           <div
-//             key={idx}
-//             className="group/card relative p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-3 shadow-xl hover:border-indigo-500/40 transition"
-//           >
-//             <button
-//               type="button"
-//               onClick={() => removeCard(idx)}
-//               className="absolute top-3 right-3 p-1 rounded-md bg-slate-800 text-slate-400 hover:text-red-400 opacity-0 group-hover/card:opacity-100 transition"
-//               title="Delete feature card"
-//             >
-//               <Trash2 className="w-3.5 h-3.5" />
-//             </button>
-
-//             <div className="w-10 h-10 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center font-bold">
-//               <Layers className="w-5 h-5" />
-//             </div>
-
-//             <EditableText
-//               as="h3"
-//               value={card.title}
-//               onCommit={(v) => updateCard(idx, { title: v })}
-//               placeholder="Feature Title"
-//               className="block text-base font-bold text-white"
-//             />
-
-//             <EditableText
-//               as="p"
-//               value={card.desc}
-//               onCommit={(v) => updateCard(idx, { desc: v })}
-//               placeholder="Feature description…"
-//               className="block text-xs text-slate-400 leading-relaxed"
-//             />
-//           </div>
-//         ))}
-//       </div>
-
-//       <div className="text-center">
-//         <button
-//           type="button"
-//           onClick={addCard}
-//           className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border border-dashed border-slate-700 text-slate-400 hover:text-white hover:border-slate-500 transition"
-//         >
-//           <Plus className="w-3.5 h-3.5" /> Add Card
-//         </button>
-//       </div>
-
-//       <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
-//         {buttons.map((btn) => (
-//           <div key={btn.id} className="group/btn relative inline-flex items-center">
-//             <div className="px-6 py-3 rounded-xl font-bold text-xs sm:text-sm bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg transition flex items-center gap-2">
-//               <EditableText
-//                 as="span"
-//                 value={btn.text}
-//                 onCommit={(v) => updateButtonText(btn.id, v)}
-//                 placeholder="Button Text"
-//               />
-//               <ArrowRight className="w-4 h-4 inline" />
-//             </div>
-//             <button
-//               type="button"
-//               onClick={() => removeButton(btn.id)}
-//               className="absolute -top-2 -right-2 p-1 rounded-full bg-slate-800 border border-slate-700 text-slate-400 hover:text-red-400 opacity-0 group-hover/btn:opacity-100 transition shadow"
-//               title="Remove button"
-//             >
-//               <Trash2 className="w-3 h-3" />
-//             </button>
-//           </div>
-//         ))}
-
-//         {buttons.length === 0 && (
-//           <button
-//             type="button"
-//             onClick={addButton}
-//             className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition"
-//           >
-//             <Plus className="w-3.5 h-3.5" /> Add CTA Button
-//           </button>
-//         )}
-//       </div>
-//     </div>
-//   );
-// };

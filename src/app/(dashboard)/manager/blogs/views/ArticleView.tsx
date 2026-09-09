@@ -7,12 +7,6 @@ import { RichEditableText } from '../editor/RichEditableText';
 
 type OnChange = (patch: Partial<PageSectionItem>) => void;
 
-// export type ArticleLayoutStyle =
-//   | 'single-col'
-//   | 'editorial-2col'
-//   | 'bordered-callout'
-//   | 'hero-header'
-//   | 'quote-box';
 
 export const ARTICLE_VARIANTS: { value: ArticleLayoutStyle; label: string; description: string }[] = [
   {
