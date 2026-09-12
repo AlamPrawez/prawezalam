@@ -10,7 +10,6 @@ import ProfileCard from "@/components/ProfileCard";
 import {faqs} from "./layout"
 
 
-
 export default function Home() {
   return (
     <>
