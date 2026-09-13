@@ -3,11 +3,12 @@
 // import ExperienceCard from "@/components/ExperienceCard";
 // import Expertise from "@/components/Expertise";
 import ServicesSectionNew from "@/components/client/ServicesSection";
-import Faq , { FAQItem } from "@/components/Faq";
+import Faq, { FAQItem } from "@/components/Faq";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import ProfileCard from "@/components/ProfileCard";
-import {faqs} from "./layout"
+import { faqs } from "./layout"
+import ResentBlogsSection from "@/components/client/resentBlogsSection";
 
 
 export default function Home() {
@@ -22,8 +23,13 @@ export default function Home() {
           {/* <ServicesSection /> */}
           <ServicesSectionNew />
         </section>
-       <div className="px-4 py-8 sm:px-8 sm:py-12 lg:px-20 lg:py-16 xl:px-40 xl:py-20">
-        <Faq faqs={faqs}/>
+
+        <section className="-mt-0">
+          <ResentBlogsSection />
+        </section>
+
+        <div className="px-4 py-8 sm:px-8 sm:py-12 lg:px-20 lg:py-16 xl:px-40 xl:py-20">
+          <Faq faqs={faqs} />
         </div>
       </main>
       <Footer />

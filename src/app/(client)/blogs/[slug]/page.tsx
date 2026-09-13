@@ -15,6 +15,7 @@ import 'highlight.js/styles/vs2015.css';
 
 import { JsonLd } from '@/components/seo/JsonLd';
 import { cmsBlog } from '@/services/api/endpoints';
+import TrackBlogView from '@/components/client/TrackBlogView';
 
 interface PageProps {
   params: Promise<{
@@ -139,6 +140,8 @@ export default async function BlogDetailsPage({ params }: PageProps) {
 
   try {
     blogData = await cmsBlog.getBlogBySlug(slug);
+    // console.log(blogData)
+    // addRecentBlogToStorage(blogData)
   } catch (error) {
     console.error('Error fetching blog page:', error);
   }
@@ -170,6 +173,7 @@ export default async function BlogDetailsPage({ params }: PageProps) {
   return (
     <div className={`min-h-screen transition-colors duration-300 pt-10 ${theme.pageBg}`}>
       <JsonLd seo={seo} faqs={details?.faqs} />
+      <TrackBlogView blogData={blogData} />
 
       <div className={`fixed inset-0 bg-gradient-to-b ${theme.accentGlow} pointer-events-none -z-10`} />
 

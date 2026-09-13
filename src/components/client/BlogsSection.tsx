@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { cmsBlog } from '@/services/api/endpoints';
 import { ArrowRight, Calendar, Eye } from "lucide-react";
+import { syncRecentBlogsToStorage } from "@/services/blog";
 
 
 export default function BlogsSection() {
@@ -16,8 +17,8 @@ export default function BlogsSection() {
             try {
                 setLoading(true);
                 // Fetch published CMS blogs from Supabase repository
-                const data = await cmsBlog.fetchBlogsList();
-                console.log(data)
+                const data = await cmsBlog.fetchBlogsList()
+                syncRecentBlogsToStorage(data)
                 if (data && data.length > 0) {
                     setBlogs(data);
                 } else {
