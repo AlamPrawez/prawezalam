@@ -527,7 +527,7 @@ export class CmsBlogRepository {
         const { data, error } = await supabase
             .from('cms_blogs')
             .select('id, slug, status, updated_at')
-            .eq('status', 'Published')
+            .eq('status', 'published')
             .order('updated_at', { ascending: false });
 
         if (error) throw error;
@@ -629,57 +629,7 @@ export class CmsBlogRepository {
 
         return { success: true, blogId: blog.id };
     }
-    // public async saveBlog(
-    //   payload: PageBuilderValues,
-    //   storedSections: any[],
-    //   status: 'Draft' | 'Published' = 'Published',
-    //   existingBlogId?: string
-    // ) {
-    //   await this.verifyManagementAccess();
-
-    //   const title = payload.title || 'Untitled Blog';
-    //   const slug = payload.seo.slug || title.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
-    //   const seo = payload.seo;
-
-    //   // Standardize case to lowercase (or UPPERCASE/Capitalized depending on your DB constraint)
-    //   const formattedStatus = status.toLowerCase(); // e.g., 'draft' or 'published'
-
-    //   // 1. Upsert List Entry (cms_blogs)
-    //   const { data: blog, error: blogError } = await supabase
-    //     .from('cms_blogs')
-    //     .upsert(
-    //       {
-    //         id: existingBlogId,
-    //         title,
-    //         slug,
-    //         seo,
-    //         status: formattedStatus, // Send formatted string
-    //         updated_at: new Date().toISOString(),
-    //       },
-    //       { onConflict: 'slug' }
-    //     )
-    //     .select('id')
-    //     .single();
-
-    //   if (blogError) throw blogError;
-
-    //   // 2. Upsert Details Entry (cms_blogs_details)
-    //   const { error: detailsError } = await supabase
-    //     .from('cms_blogs_details')
-    //     .upsert(
-    //       {
-    //         cms_blogs_id: blog.id,
-    //         sections: storedSections,
-    //         updated_at: new Date().toISOString(),
-    //       },
-    //       { onConflict: 'cms_blogs_id' }
-    //     );
-
-    //   if (detailsError) throw detailsError;
-
-    //   return { success: true, blogId: blog.id };
-    // }
-
+  
     /**
      * DELETE Blog
      */
