@@ -537,17 +537,42 @@ export class CmsBlogRepository {
     /**
      * Fetch blogs list with details snippet based on access level
      */
-    public async fetchBlogsList() {
+    // public async fetchBlogsList() {
+    //     const role = await this.getCurrentUserRole();
+    //     const canViewDrafts = role === 'admin' || role === 'manager';
+
+    //     let query = supabase
+    //         .from('cms_blogs')
+    //         .select('id, title, slug, status, views_count, seo, created_at, updated_at, cms_blogs_details(sections)')
+    //         .order('updated_at', { ascending: false });
+
+    //     if (!canViewDrafts) {
+    //         query = query.eq('status', 'published');
+    //     }
+
+    //     const { data, error } = await query;
+    //     if (error) throw error;
+    //     return data;
+    // }
+
+    public async fetchBlogsList(limit?: number) {
         const role = await this.getCurrentUserRole();
         const canViewDrafts = role === 'admin' || role === 'manager';
 
         let query = supabase
             .from('cms_blogs')
-            .select('id, title, slug, status, views_count, seo, created_at, updated_at, cms_blogs_details(sections)')
-            .order('updated_at', { ascending: false });
+            .select('id, title, slug, status, views_count, seo, created_at, updated_at, cms_blogs_details(sections)');
 
         if (!canViewDrafts) {
             query = query.eq('status', 'published');
+        }
+
+        if (limit) {
+            // Limited fetch = "recent/news" view: newest-created first, capped to `limit`.
+            query = query.order('created_at', { ascending: false }).limit(limit);
+        } else {
+            // Unlimited fetch = existing behavior, unchanged.
+            query = query.order('updated_at', { ascending: false });
         }
 
         const { data, error } = await query;
@@ -629,7 +654,7 @@ export class CmsBlogRepository {
 
         return { success: true, blogId: blog.id };
     }
-  
+
     /**
      * DELETE Blog
      */
