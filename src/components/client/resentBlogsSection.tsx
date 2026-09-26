@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Calendar, Eye } from "lucide-react";
+import { cmsBlog } from "@/services/api/endpoints";
+import { syncRecentBlogsToStorage } from "@/services/blog";
 
 const STORAGE_KEY = 'recent_blogs';
 
@@ -11,29 +13,69 @@ export default function ResentBlogsSection() {
     const [loading, setLoading] = useState<boolean>(true);
     const skeletonCount = 4;
 
-    useEffect(() => {
-        function loadBlogsFromStorage() {
-            try {
-                // Fetch saved recent blogs array from localStorage
-                const storedRaw = localStorage.getItem(STORAGE_KEY);
-                const recentBlogs = storedRaw ? JSON.parse(storedRaw) : [];
+    // useEffect(() => {
+    //     function loadBlogsFromStorage() {
+    //         try {
+    //             const data = await cmsBlog.fetchBlogsList()
+                 
+    //             // if storedRaw is null first set from data then if also, but when we refresh then get from cmsBlog.fetchBlogsList() , and setBlogs
 
-                // console.log(recentBlogs)
-                if (Array.isArray(recentBlogs)) {
-                    setBlogs(recentBlogs);
-                }
-            } catch (error) {
-                console.error("Error reading blogs from localStorage:", error);
-            } finally {
+    //             // Fetch saved recent blogs array from localStorage
+    //             const storedRaw = localStorage.getItem(STORAGE_KEY);
+    //             const recentBlogs = storedRaw ? JSON.parse(storedRaw) : [];
+
+    //             // console.log(recentBlogs)
+    //             if (Array.isArray(recentBlogs)) {
+    //                 setBlogs(recentBlogs);
+    //             }
+    //         } catch (error) {
+    //             console.error("Error reading blogs from localStorage:", error);
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     }
+
+    //     loadBlogsFromStorage();
+    // }, []);
+
+
+    useEffect(() => {
+    async function loadBlogs() {
+        // 1. Show whatever's cached immediately, so a returning visitor
+        //    sees content instantly instead of a skeleton while the
+        //    network request is in flight.
+        try {
+            const storedRaw = localStorage.getItem(STORAGE_KEY);
+            const cachedBlogs = storedRaw ? JSON.parse(storedRaw) : null;
+
+            if (Array.isArray(cachedBlogs) && cachedBlogs.length > 0) {
+                setBlogs(cachedBlogs);
                 setLoading(false);
             }
+        } catch (error) {
+            console.error("Error reading blogs from localStorage:", error);
         }
 
-        loadBlogsFromStorage();
-    }, []);
+        // 2. Always hit the API — this fills the list on a first-ever
+        //    visit (no cache yet), and on every refresh it replaces the
+        //    cache with the latest data.
+        try {
+            const response = await cmsBlog.fetchBlogsList();
+            const freshBlogs = Array.isArray(response)
+                ? response
+                : response ?? [];
 
+            setBlogs(freshBlogs);
+            syncRecentBlogsToStorage(freshBlogs);
+        } catch (error) {
+            console.error("Error fetching blogs from API:", error);
+        } finally {
+            setLoading(false);
+        }
+    }
 
-
+    loadBlogs();
+}, []);
 
     return (
         <div className="bg-slate-50 py-10">
