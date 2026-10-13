@@ -517,6 +517,9 @@ export class CmsBlogRepository {
             .single();
 
         if (error) return null;
+        this.updateCount({ id: data.id }).catch((err) =>
+            console.error('Failed to update view count', err)
+        );
         return data;
     }
 
@@ -592,9 +595,7 @@ export class CmsBlogRepository {
 
         if (error) throw error;
 
-        this.updateCount({ id: blogId }).catch((err) =>
-            console.error('Failed to update view count', err)
-        );
+        
         return data;
     }
 
