@@ -277,7 +277,7 @@ export default async function BlogDetailsPage({ params }: PageProps) {
                     : 'bg-cyan-950/50 border-cyan-800/50 text-cyan-400'
                 }`}>
                   <Eye className="w-3.5 h-3.5 opacity-80 shrink-0" />
-                  <span>{(blogData.views_count || 10).toLocaleString()} views</span>
+                   <span>{(blogData.views_count <= 10 ? blogData.views_count + 10 : blogData.views_count).toLocaleString()} views</span>
                 </div>
               </div>
 
