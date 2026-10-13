@@ -115,7 +115,7 @@ export default function BlogsSection() {
 
                                     <div className="flex items-center gap-1 text-cyan-600 font-medium">
                                         <Eye className="w-3.5 h-3.5 text-slate-400" />
-                                        <span>{(blog.views_count || 10).toLocaleString()} views</span>
+                                        <span>{(blog.views_count || 10*(1 + blog.id )).toLocaleString()} views</span>
                                     </div>
                                 </div>
 

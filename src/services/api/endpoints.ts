@@ -591,9 +591,22 @@ export class CmsBlogRepository {
             .single();
 
         if (error) throw error;
+
+        this.updateCount({ id: blogId }).catch((err) =>
+            console.error('Failed to update view count', err)
+        );
         return data;
     }
 
+    public async updateCount(identifier: { id?: string; slug?: string }) {
+        const { data, error } = await supabase.rpc('increment_blog_views', {
+            p_id: identifier.id ?? null,
+            p_slug: identifier.slug ?? null,
+        });
+
+        if (error) throw error;
+        return data as number; // new views_count
+    }
     /**
      * Save / Upsert Blog
      */
