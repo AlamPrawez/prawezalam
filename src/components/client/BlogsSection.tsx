@@ -110,7 +110,7 @@ export default function BlogsSection() {
                                 <div className="flex items-center justify-between text-xs text-slate-500">
                                     <div className="flex items-center gap-1.5">
                                         <Calendar className="w-3.5 h-3.5 text-indigo-600" />
-                                        <span>{new Date(blog.updated_at || blog.created_at).toLocaleDateString()}</span>
+                                        <span>{new Date(blog.created_at || blog.updated_at ).toLocaleDateString()}</span>
                                     </div>
 
                                     <div className="flex items-center gap-1 text-cyan-600 font-medium">
