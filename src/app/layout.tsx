@@ -18,6 +18,37 @@ const geistMono = Geist_Mono({
 
 
 
+
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Place the script here in the head */}
+        <script src="https://analytics.ahrefs.com/analytics.js" data-key="shO09nrtYl4h6+p++cxBZw" async></script>
+        {/* <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        /> */}
+      </head>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning
+      >
+        {children}
+      </body>
+    </html>
+  );
+}
+
+
+
+
 // export const metadata: Metadata = {
 //   metadataBase: new URL("https://prawez.com"),
 
@@ -179,39 +210,6 @@ const geistMono = Geist_Mono({
 //     }
 //   ]
 // };
-
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-
-
-
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        {/* Place the script here in the head */}
-        <script src="https://analytics.ahrefs.com/analytics.js" data-key="shO09nrtYl4h6+p++cxBZw" async></script>
-        {/* <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        /> */}
-      </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        suppressHydrationWarning
-      >
-        {children}
-      </body>
-    </html>
-  );
-}
-
-
-
-
 
 
 // export const metadata: Metadata = {

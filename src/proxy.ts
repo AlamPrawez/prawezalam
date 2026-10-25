@@ -3,7 +3,7 @@ import { updateSession } from "./lib/supabase";
 
 const ROUTE_PERMISSIONS: Record<string, string[]> = {
     "/admin": ["admin"],
-    "/manager": ["manager"],
+    "/manager": ["manager", "admin"],
     "/dashboard": ["admin", "manager"],
 };
 

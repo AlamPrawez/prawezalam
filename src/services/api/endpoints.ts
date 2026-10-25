@@ -4,6 +4,16 @@ import { PageBuilderValues } from "@/app/(dashboard)/manager/blogs/types";
 import { supabase } from "@/lib/supabase";
 import { Message } from "react-hook-form";
 
+import type { PostgrestError } from '@supabase/supabase-js';
+
+import type {
+  DownloadPlatform,
+  Product,
+  ProductListItem,
+  ProductStatus,
+  ProductType,
+} from '@/@types/product';
+
 export type UserRole = 'admin' | 'manager' | 'editor' | 'viewer';
 
 export type HireTask = {
@@ -687,3 +697,377 @@ export class CmsBlogRepository {
 }
 
 export const cmsBlog = new CmsBlogRepository();
+
+
+
+export interface ListParams {
+  page: number;
+  pageSize: number;
+  search?: string;
+  status?: ProductStatus | 'all';
+  type?: ProductType | 'all';
+}
+ 
+export interface SaveProductInput {
+  id: string;
+  slug: string;
+  title: string;
+  short_description: string;
+  details_html: string;
+  product_type: ProductType;
+  status: ProductStatus;
+  live_url: string | null;
+  thumbnail_url: string | null;
+  thumbnail_path: string | null;
+  meta_title: string | null;
+  meta_description: string | null;
+  meta_keywords: string[];
+  canonical_url: string | null;
+  og_title: string | null;
+  og_description: string | null;
+  og_image_url: string | null;
+  no_index: boolean;
+  downloads: {
+    platform: DownloadPlatform;
+    label: string | null;
+    url: string;
+    version: string | null;
+    sort_order: number;
+  }[];
+  screenshots: {
+    image_url: string;
+    storage_path: string;
+    alt_text: string | null;
+    sort_order: number;
+  }[];
+}
+ 
+export class CmsProductRepository {
+  private static readonly BUCKET = process.env.NEXT_PUBLIC_SUPABASE_BUCKET || 'prawez-com';
+  private static readonly FULL_SELECT =
+    '*, details:product_details(*), downloads:product_downloads(*), screenshots:product_screenshots(*)';
+ 
+  /**
+   * Helper: Get current authenticated user's role
+   */
+  public async getCurrentUserRole(): Promise<string | null> {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+ 
+    if (!user) return null;
+ 
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+ 
+    if (error || !data) return null;
+    return data.role as string;
+  }
+ 
+  /**
+   * Helper: Guard check for Admin or Manager permissions
+   */
+  public async verifyManagementAccess(): Promise<void> {
+    const role = await this.getCurrentUserRole();
+    if (role !== 'admin' && role !== 'manager') {
+      throw new Error('Unauthorized: Only Admins and Managers can perform this action.');
+    }
+  }
+ 
+  /**
+   * Map Postgres / PostgREST errors to readable messages
+   */
+  private toError(error: PostgrestError): Error {
+    if (error.code === '23505') return new Error('A product with this slug already exists. Choose a different slug.');
+    if (error.code === '42501') return new Error('Unauthorized: Only Admins and Managers can perform this action.');
+    if (error.code === '23514') {
+      if (error.message.includes('products_web_requires_url')) {
+        return new Error('Published websites and web apps need a live URL.');
+      }
+      return new Error(`A value failed validation: ${error.message}`);
+    }
+    return new Error(error.message || 'Something went wrong. Please try again.');
+  }
+ 
+  /**
+   * Fetch paginated products list (CMS view, all statuses)
+   */
+  public async listProducts(params: ListParams): Promise<{ items: ProductListItem[]; total: number }> {
+    await this.verifyManagementAccess();
+ 
+    const { page, pageSize, search, status = 'all', type = 'all' } = params;
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+ 
+    let query = supabase
+      .from('products')
+      .select(
+        'id, slug, title, short_description, product_type, status, thumbnail_url, updated_at',
+        { count: 'exact' }
+      )
+      .order('updated_at', { ascending: false })
+      .range(from, to);
+ 
+    if (status !== 'all') query = query.eq('status', status);
+    if (type !== 'all') query = query.eq('product_type', type);
+    if (search?.trim()) {
+      const escaped = search.trim().replace(/[\\%_]/g, (c) => `\\${c}`);
+      query = query.ilike('title', `%${escaped}%`);
+    }
+ 
+    const { data, error, count } = await query;
+    if (error) throw this.toError(error);
+    return { items: (data ?? []) as ProductListItem[], total: count ?? 0 };
+  }
+ 
+  /**
+   * Fetch single product with downloads + screenshots for editing / viewing
+   */
+  public async getProduct(id: string): Promise<Product> {
+    const { data, error } = await supabase
+      .from('products')
+      .select(CmsProductRepository.FULL_SELECT)
+      .eq('id', id)
+      .single();
+ 
+    if (error) throw this.toError(error);
+    return this.normalize(data);
+  }
+
+   /**
+   * Public site: published products list (card columns only, newest first).
+   * Optional `limit` for "latest products" blocks, optional `type` filter.
+   */
+  public async fetchProductsList(
+    opts: { limit?: number; type?: ProductType | 'all' } = {}
+  ): Promise<ProductListItem[]> {
+    const { limit, type = 'all' } = opts;
+ 
+    let query = supabase
+      .from('products')
+      .select('id, slug, title, short_description, product_type, status, thumbnail_url, updated_at')
+      .eq('status', 'published')
+      .order('published_at', { ascending: false });
+ 
+    if (type !== 'all') query = query.eq('product_type', type);
+    if (limit) query = query.limit(limit);
+ 
+    const { data, error } = await query;
+    if (error) throw this.toError(error);
+    return (data ?? []) as ProductListItem[];
+  }
+ 
+ 
+  /**
+   * Public site: fetch a published product by slug (null if missing / not published)
+   */
+  public async getProductBySlug(slug: string): Promise<Product | null> {
+    const { data, error } = await supabase
+      .from('products')
+      .select(CmsProductRepository.FULL_SELECT)
+      .eq('slug', slug)
+      .eq('status', 'published')
+      .maybeSingle();
+ 
+    if (error || !data) return null;
+    return this.normalize(data);
+  }
+ 
+  /**
+   * Fetch all published products for the sitemap generator
+   */
+  public async productsSitemapGenerator() {
+    const { data, error } = await supabase
+      .from('products')
+      .select('id, slug, status, updated_at')
+      .eq('status', 'published')
+      .eq('no_index', false)
+      .order('updated_at', { ascending: false });
+ 
+    if (error) throw this.toError(error);
+    return data;
+  }
+ 
+  /**
+   * Save / Upsert product (atomic: product + downloads + screenshots)
+   */
+  public async saveProduct(input: SaveProductInput): Promise<string> {
+    await this.verifyManagementAccess();
+ 
+    const { data, error } = await supabase.rpc('save_product', { payload: input });
+    if (error) throw this.toError(error);
+    return data as string;
+  }
+ 
+  /**
+   * DELETE product (children cascade; storage files removed best-effort)
+   */
+  public async deleteProduct(id: string) {
+    await this.verifyManagementAccess();
+ 
+    const { data: existing } = await supabase
+      .from('products')
+      .select('thumbnail_path, screenshots:product_screenshots(storage_path)')
+      .eq('id', id)
+      .maybeSingle();
+ 
+    const { error } = await supabase.from('products').delete().eq('id', id);
+    if (error) throw this.toError(error);
+ 
+    const paths: string[] = [];
+    if (existing?.thumbnail_path) paths.push(existing.thumbnail_path);
+    for (const s of (existing?.screenshots ?? []) as { storage_path: string }[]) {
+      if (s.storage_path) paths.push(s.storage_path);
+    }
+    await this.removeImages(paths);
+ 
+    return { success: true };
+  }
+ 
+  /**
+   * Upload an image to the product-assets bucket.
+   * NOTE: this is the single place to swap in the blogs upload helper.
+   */
+  public async uploadImage(
+    productId: string,
+    file: File,
+    folder: 'thumbnail' | 'screenshots'
+  ): Promise<{ path: string; url: string }> {
+    await this.verifyManagementAccess();
+ 
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+    const path = `products/${productId}/${folder}/${crypto.randomUUID()}.${ext}`;
+ 
+    const { error } = await supabase.storage.from(CmsProductRepository.BUCKET).upload(path, file, {
+      cacheControl: '31536000',
+      contentType: file.type,
+      upsert: false,
+    });
+    if (error) throw new Error(`Image upload failed: ${error.message}`);
+ 
+    const { data } = supabase.storage.from(CmsProductRepository.BUCKET).getPublicUrl(path);
+    return { path, url: data.publicUrl };
+  }
+ 
+  /**
+   * Best-effort cleanup. Never throws: orphaned files are harmless, a failed save is not.
+   */
+  public async removeImages(paths: string[]): Promise<void> {
+    const unique = Array.from(new Set(paths.filter(Boolean)));
+    if (unique.length === 0) return;
+    try {
+      await supabase.storage.from(CmsProductRepository.BUCKET).remove(unique);
+    } catch {
+      /* ignore */
+    }
+  }
+ 
+  /**
+   * Flatten the product_details row into the Product shape and sort children,
+   * so components keep working with a single flat Product object.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private normalize(raw: any): Product {
+    const { details, ...base } = raw;
+    const d = Array.isArray(details) ? details[0] : details;
+ 
+    const product: Product = {
+      ...base,
+      details_html: d?.details_html ?? '',
+      meta_title: d?.meta_title ?? null,
+      meta_description: d?.meta_description ?? null,
+      meta_keywords: d?.meta_keywords ?? [],
+      canonical_url: d?.canonical_url ?? null,
+      og_title: d?.og_title ?? null,
+      og_description: d?.og_description ?? null,
+      og_image_url: d?.og_image_url ?? null,
+    };
+    product.downloads = [...(base.downloads ?? [])].sort((a, b) => a.sort_order - b.sort_order);
+    product.screenshots = [...(base.screenshots ?? [])].sort((a, b) => a.sort_order - b.sort_order);
+    return product;
+  }
+}
+ 
+export const cmsProduct = new CmsProductRepository();
+
+
+// =====================================================================
+// APPEND THIS to the same file that exports cmsBlog / cmsService /
+// cmsProduct (it already imports `supabase`). Nothing else changes there.
+// =====================================================================
+
+export type ContentCounts = Pick<DashboardCounts, 'blogs' | 'services' | 'products'>;
+export interface DashboardCounts {
+    blogs: { total: number | null; published: number | null };
+    services: { total: number | null; published: number | null };
+    products: { total: number | null; published: number | null };
+    orders: { total: number | null };
+    messages: { total: number | null };
+}
+
+export class CmsDashboardRepository {
+    /**
+     * Count rows without downloading them (HEAD request + exact count).
+     */
+    private async count(
+        table: string,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        filter?: (query: any) => any
+    ): Promise<number> {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let query: any = supabase.from(table).select('id', { count: 'exact', head: true });
+        if (filter) query = filter(query);
+
+        const { count, error } = await query;
+        if (error) throw error;
+        return count ?? 0;
+    }
+
+    /** One failing count must not blank the whole dashboard. */
+    private safe(promise: Promise<number>): Promise<number | null> {
+        return promise.catch((err) => {
+            console.error('Dashboard count failed', err);
+            return null;
+        });
+    }
+
+    /**
+     * All dashboard numbers in parallel.
+     * Status values match how each module saves them:
+     * blogs 'published', services 'Published', products 'published'.
+     */
+    public async getCounts(): Promise<DashboardCounts> {
+        const [
+            blogsTotal,
+            blogsPublished,
+            servicesTotal,
+            servicesPublished,
+            productsTotal,
+            productsPublished,
+            ordersTotal,
+            messagesTotal,
+        ] = await Promise.all([
+            this.safe(this.count('cms_blogs')),
+            this.safe(this.count('cms_blogs', (q) => q.eq('status', 'published'))),
+            this.safe(this.count('cms_services')),
+            this.safe(this.count('cms_services', (q) => q.eq('status', 'Published'))),
+            this.safe(this.count('products')),
+            this.safe(this.count('products', (q) => q.eq('status', 'published'))),
+            this.safe(this.count('hire_tasks')),
+            this.safe(this.count('contact_inquiries')),
+        ]);
+
+        return {
+            blogs: { total: blogsTotal, published: blogsPublished },
+            services: { total: servicesTotal, published: servicesPublished },
+            products: { total: productsTotal, published: productsPublished },
+            orders: { total: ordersTotal },
+            messages: { total: messagesTotal },
+        };
+    }
+}
+
+export const cmsDashboard = new CmsDashboardRepository();
