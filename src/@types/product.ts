@@ -9,6 +9,11 @@ export type DownloadPlatform =
   | 'linux'
   | 'other';
 
+/** A single schema.org JSON-LD node, e.g. { "@context": "...", "@type": "SoftwareApplication", ... } */
+export type JsonLdObject = Record<string, unknown>;
+/** Stored JSON-LD: one object, or an array of objects. */
+export type JsonLdValue = JsonLdObject | JsonLdObject[];
+
 export interface ProductDownload {
   id: string;
   product_id: string;
@@ -46,6 +51,7 @@ export interface Product {
   og_title: string | null;
   og_description: string | null;
   og_image_url: string | null;
+  json_ld: JsonLdValue | null;
   no_index: boolean;
   published_at: string | null;
   created_at: string;

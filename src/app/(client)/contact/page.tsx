@@ -185,14 +185,14 @@ export default function ContactPage() {
         {/* Communication Channels Sub-stack - Restructured to run vertically to perfectly match the ultra-large image height */}
         <div className="flex-1 flex flex-col gap-4 w-full h-full md:min-h-[288px] justify-between">
             {/* Direct Email Card */}
-            <a href="mailto:prawezalam9@gmail.com" className="bg-gray-50/40 hover:bg-white border border-gray-100 hover:border-indigo-200 p-6 rounded-xl shadow-3xs transition-all duration-200 flex items-center gap-5 group/item flex-1">
+            <a href="mailto:contact@prawez.com" className="bg-gray-50/40 hover:bg-white border border-gray-100 hover:border-indigo-200 p-6 rounded-xl shadow-3xs transition-all duration-200 flex items-center gap-5 group/item flex-1">
                 <div className="bg-indigo-50/70 p-4 rounded-xl text-indigo-600 border border-indigo-100/30 shrink-0 group-hover/item:bg-indigo-600 group-hover/item:text-white transition-all duration-200">
                     <Mail size={24} className="stroke-[2.5]" />
                 </div>
                 <div className="overflow-hidden">
                     <p className="text-[10px] uppercase tracking-wider font-bold font-mono text-gray-400">Email Address</p>
                     <p className="font-bold text-base sm:text-lg text-gray-800 transition-colors block truncate mt-1">
-                        prawezalam9@gmail.com
+                        contact@prawez.com
                     </p>
                 </div>
             </a>

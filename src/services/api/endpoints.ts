@@ -8,6 +8,7 @@ import type { PostgrestError } from '@supabase/supabase-js';
 
 import type {
   DownloadPlatform,
+  JsonLdValue,
   Product,
   ProductListItem,
   ProductStatus,
@@ -726,6 +727,7 @@ export interface SaveProductInput {
   og_title: string | null;
   og_description: string | null;
   og_image_url: string | null;
+  json_ld: JsonLdValue | null;
   no_index: boolean;
   downloads: {
     platform: DownloadPlatform;
@@ -984,6 +986,7 @@ export class CmsProductRepository {
       og_title: d?.og_title ?? null,
       og_description: d?.og_description ?? null,
       og_image_url: d?.og_image_url ?? null,
+      json_ld:d?.json_ld ?? null,
     };
     product.downloads = [...(base.downloads ?? [])].sort((a, b) => a.sort_order - b.sort_order);
     product.screenshots = [...(base.screenshots ?? [])].sort((a, b) => a.sort_order - b.sort_order);

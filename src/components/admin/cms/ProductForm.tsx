@@ -8,6 +8,8 @@ import {
   ArrowDown,
   ArrowLeft,
   ArrowUp,
+  Braces,
+  FileJson,
   ImagePlus,
   Loader2,
   Plus,
@@ -47,6 +49,7 @@ const ReactQuill = dynamic(() => import('react-quill-new'), {
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/avif', 'image/gif'];
 const MAX_SCREENSHOTS = 12;
+const MAX_JSON_LD_CHARS = 20000;
 const URL_RE = /^https?:\/\/[^\s/$.?#].[^\s]*$/i;
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
@@ -55,6 +58,8 @@ const inputCls =
 const labelCls = 'mb-1 flex items-center justify-between text-[11px] font-semibold uppercase text-slate-400';
 const btnPrimary =
   'inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-xs font-bold text-white shadow-lg shadow-indigo-600/30 transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60';
+const btnSecondary =
+  'inline-flex items-center gap-1.5 rounded-lg bg-slate-800 px-2.5 py-1.5 text-[11px] font-bold normal-case text-slate-200 transition hover:bg-slate-700';
 
 const slugify = (v: string) =>
   v
@@ -82,6 +87,46 @@ function validateImage(file: File): string | null {
   if (file.size > MAX_IMAGE_BYTES) return `${file.name}: image must be 5 MB or smaller.`;
   return null;
 }
+
+// ---- JSON-LD ----
+type JsonLdObject = Record<string, unknown>;
+type JsonLdValue = JsonLdObject | JsonLdObject[];
+
+const isPlainObject = (v: unknown): v is JsonLdObject => typeof v === 'object' && v !== null && !Array.isArray(v);
+
+/** Parses the JSON-LD textarea. Empty input is valid and becomes `null`. */
+function parseJsonLd(raw: string): { value: JsonLdValue | null; error: string | null } {
+  const text = (raw ?? '').trim();
+  if (!text) return { value: null, error: null };
+  if (text.length > MAX_JSON_LD_CHARS) {
+    return { value: null, error: `JSON-LD must be ${MAX_JSON_LD_CHARS.toLocaleString()} characters or fewer.` };
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch (e) {
+    return { value: null, error: `Invalid JSON: ${(e as Error).message}` };
+  }
+
+  if (Array.isArray(parsed)) {
+    if (parsed.length === 0 || !parsed.every(isPlainObject)) {
+      return { value: null, error: 'JSON-LD must be an object, or a non-empty array of objects.' };
+    }
+    return { value: parsed as JsonLdObject[], error: null };
+  }
+  if (!isPlainObject(parsed)) {
+    return { value: null, error: 'JSON-LD must be an object, or a non-empty array of objects.' };
+  }
+  return { value: parsed, error: null };
+}
+
+const stringifyJsonLd = (v: unknown) => (v ? JSON.stringify(v, null, 2) : '');
+
+const APP_CATEGORY: Record<string, string> = {
+  website: 'WebApplication',
+  web_app: 'WebApplication',
+};
 
 // Rich-text editor config. Images and video are intentionally NOT available:
 // they are missing from the toolbar AND from `formats`, so pasted or dropped
@@ -156,6 +201,7 @@ interface FormValues {
   og_title: string;
   og_description: string;
   og_image_url: string;
+  json_ld: string; // raw JSON text; parsed on submit
   no_index: boolean;
 }
 
@@ -184,6 +230,7 @@ function toDefaults(p?: Product | null): FormValues {
       og_title: '',
       og_description: '',
       og_image_url: '',
+      json_ld: '',
       no_index: false,
     };
   }
@@ -208,6 +255,7 @@ function toDefaults(p?: Product | null): FormValues {
     og_title: p.og_title ?? '',
     og_description: p.og_description ?? '',
     og_image_url: p.og_image_url ?? '',
+    json_ld: stringifyJsonLd(p.json_ld),
     no_index: p.no_index,
   };
 }
@@ -270,6 +318,7 @@ export default function ProductForm({ initial = null, onCancel, onSaved }: Props
   const shortDescription = watch('short_description');
   const metaTitle = watch('meta_title');
   const metaDescription = watch('meta_description');
+  const jsonLd = watch('json_ld');
 
   const [slugTouched, setSlugTouched] = useState(Boolean(initial));
   const [thumb, setThumb] = useState<ImageDraft | null>(
@@ -327,6 +376,30 @@ export default function ProductForm({ initial = null, onCancel, onSaved }: Props
       replace(isAppType(next) ? [blankDownload(next)] : []);
     }
     prevType.current = next;
+  };
+
+  // ---- JSON-LD helpers ----
+  const formatJsonLd = () => {
+    const { value, error } = parseJsonLd(getValues('json_ld'));
+    if (error || !value) return; // validation message is already shown
+    setValue('json_ld', JSON.stringify(value, null, 2), { shouldValidate: true, shouldDirty: true });
+  };
+
+  const insertJsonLdTemplate = () => {
+    const v = getValues();
+    const pageUrl = `${(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://prawez.com').replace(/\/$/, '')}/products/${
+      v.slug.trim() || 'your-slug'
+    }`;
+    const template: JsonLdObject = {
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareApplication',
+      name: v.title.trim() || 'Product name',
+      description: v.short_description.trim() || 'Short description',
+      url: pageUrl,
+      applicationCategory: APP_CATEGORY[v.product_type] ?? 'BusinessApplication',
+      operatingSystem: isWebType(v.product_type) ? 'Web' : 'Windows, macOS, Linux',
+    };
+    setValue('json_ld', JSON.stringify(template, null, 2), { shouldValidate: true, shouldDirty: true });
   };
 
   // ---- images ----
@@ -392,6 +465,12 @@ export default function ProductForm({ initial = null, onCancel, onSaved }: Props
       return;
     }
 
+    const { value: jsonLdValue, error: jsonLdError } = parseJsonLd(values.json_ld);
+    if (jsonLdError) {
+      setFormError(jsonLdError);
+      return;
+    }
+
     setSubmitting(true);
     const productId = initial?.id ?? crypto.randomUUID();
     const uploadedPaths: string[] = []; // for rollback if the save fails
@@ -448,6 +527,7 @@ export default function ProductForm({ initial = null, onCancel, onSaved }: Props
         og_title: emptyToNull(values.og_title),
         og_description: emptyToNull(values.og_description),
         og_image_url: emptyToNull(values.og_image_url),
+        json_ld: jsonLdValue,
         no_index: values.no_index,
         downloads: downloads.map((d, i) => ({
           platform: d.platform,
@@ -901,6 +981,42 @@ export default function ProductForm({ initial = null, onCancel, onSaved }: Props
                 />
               </div>
 
+              {/* JSON-LD structured data */}
+              <div className="sm:col-span-2">
+                <label className={labelCls} htmlFor="json_ld">
+                  <span>JSON-LD structured data</span>
+                  <span className="flex items-center gap-2">
+                    <Counter value={jsonLd ?? ''} max={MAX_JSON_LD_CHARS} />
+                    <button type="button" onClick={insertJsonLdTemplate} className={btnSecondary}>
+                      <FileJson className="h-3.5 w-3.5" /> Insert template
+                    </button>
+                    <button
+                      type="button"
+                      onClick={formatJsonLd}
+                      disabled={!jsonLd?.trim()}
+                      className={`${btnSecondary} disabled:cursor-not-allowed disabled:opacity-40`}
+                    >
+                      <Braces className="h-3.5 w-3.5" /> Format
+                    </button>
+                  </span>
+                </label>
+                <textarea
+                  id="json_ld"
+                  rows={12}
+                  spellCheck={false}
+                  placeholder={'{\n  "@context": "https://schema.org",\n  "@type": "SoftwareApplication",\n  "name": "..."\n}'}
+                  className={`${inputCls} resize-y font-mono leading-relaxed`}
+                  {...register('json_ld', {
+                    validate: (v) => parseJsonLd(v).error ?? true,
+                  })}
+                />
+                <FieldError msg={errors.json_ld?.message} />
+                <p className="mt-1 text-[10px] text-slate-500">
+                  Paste a single schema.org object (or an array of objects). Leave empty to skip. Do not include{' '}
+                  <code className="text-slate-400">&lt;script&gt;</code> tags.
+                </p>
+              </div>
+
               <label className="flex cursor-pointer items-center gap-2 text-xs text-slate-300 sm:col-span-2">
                 <input type="checkbox" className="h-4 w-4 accent-indigo-500" {...register('no_index')} />
                 Hide from search engines (<code className="text-[11px] text-slate-400">noindex</code>)
@@ -1020,10 +1136,13 @@ export default function ProductForm({ initial = null, onCancel, onSaved }: Props
     </form>
   );
 }
+
+
 // 'use client';
 
 // import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-// import { useFieldArray, useForm } from 'react-hook-form';
+// import dynamic from 'next/dynamic';
+// import { Controller, useFieldArray, useForm } from 'react-hook-form';
 // import {
 //   AlertTriangle,
 //   ArrowDown,
@@ -1037,9 +1156,6 @@ export default function ProductForm({ initial = null, onCancel, onSaved }: Props
 //   Upload,
 //   X,
 // } from 'lucide-react';
-// // import { removeImages, saveProduct, uploadImage, type SaveProductInput } from '@/lib/products/api';
-
-// import { cmsProduct, SaveProductInput } from '@/services/api/endpoints';
 
 // import {
 //   PRODUCT_STATUSES,
@@ -1053,6 +1169,17 @@ export default function ProductForm({ initial = null, onCancel, onSaved }: Props
 //   type ProductStatus,
 //   type ProductType,
 // } from '@/@types/product';
+
+// import 'react-quill-new/dist/quill.snow.css';
+// import { cmsProduct, SaveProductInput } from '@/services/api/endpoints';
+
+// // Quill touches `document`, so it must only load in the browser.
+// const ReactQuill = dynamic(() => import('react-quill-new'), {
+//   ssr: false,
+//   loading: () => (
+//     <div className="h-[340px] animate-pulse rounded-xl border border-slate-800 bg-slate-900" />
+//   ),
+// });
 
 // // ---------------------------------------------------------------------
 // // Constants & helpers
@@ -1095,6 +1222,48 @@ export default function ProductForm({ initial = null, onCancel, onSaved }: Props
 //   if (file.size > MAX_IMAGE_BYTES) return `${file.name}: image must be 5 MB or smaller.`;
 //   return null;
 // }
+
+// // Rich-text editor config. Images and video are intentionally NOT available:
+// // they are missing from the toolbar AND from `formats`, so pasted or dropped
+// // images are stripped too.
+// const QUILL_MODULES = {
+//   toolbar: [
+//     [{ header: [2, 3, false] }],
+//     ['bold', 'italic', 'underline', 'strike'],
+//     [{ list: 'ordered' }, { list: 'bullet' }],
+//     ['blockquote'],
+//     ['link'],
+//     ['clean'],
+//   ],
+// };
+
+// const QUILL_FORMATS = [
+//   'header',
+//   'bold',
+//   'italic',
+//   'underline',
+//   'strike',
+//   'list',
+//   'blockquote',
+//   'link',
+// ];
+
+// // Quill represents an empty document as <p><br></p>; store that as ''.
+// const normalizeQuillHtml = (html: string) => (html === '<p><br></p>' ? '' : html);
+
+// // Dark theme for the Quill snow UI, scoped to this wrapper.
+// const QUILL_THEME =
+//   '[&_.ql-toolbar]:rounded-t-xl [&_.ql-toolbar]:border-slate-800 [&_.ql-toolbar]:bg-slate-900 ' +
+//   '[&_.ql-container]:rounded-b-xl [&_.ql-container]:border-slate-800 [&_.ql-container]:bg-slate-900 ' +
+//   '[&_.ql-editor]:min-h-[280px] [&_.ql-editor]:max-h-[520px] [&_.ql-editor]:overflow-y-auto ' +
+//   '[&_.ql-editor]:text-sm [&_.ql-editor]:leading-relaxed [&_.ql-editor]:text-slate-100 ' +
+//   '[&_.ql-editor.ql-blank::before]:text-slate-600! [&_.ql-editor.ql-blank::before]:not-italic ' +
+//   '[&_.ql-stroke]:stroke-slate-300! [&_.ql-fill]:fill-slate-300! ' +
+//   '[&_.ql-picker]:text-slate-300! [&_.ql-picker-options]:border-slate-700! [&_.ql-picker-options]:bg-slate-900! ' +
+//   '[&_button:hover_.ql-stroke]:stroke-indigo-400! [&_button.ql-active_.ql-stroke]:stroke-indigo-400! ' +
+//   '[&_button:hover_.ql-fill]:fill-indigo-400! [&_button.ql-active_.ql-fill]:fill-indigo-400! ' +
+//   '[&_.ql-tooltip]:border-slate-700! [&_.ql-tooltip]:bg-slate-900! [&_.ql-tooltip]:text-slate-200! ' +
+//   '[&_.ql-tooltip_input]:border-slate-700! [&_.ql-tooltip_input]:bg-slate-950! [&_.ql-tooltip_input]:text-white!';
 
 // interface ImageDraft {
 //   key: string;
@@ -1537,18 +1706,29 @@ export default function ProductForm({ initial = null, onCancel, onSaved }: Props
 //             </div>
 
 //             <div>
-//               <label className={labelCls} htmlFor="details_html">
+//               <label className={labelCls}>
 //                 <span>Detailed description</span>
-//                 <span className="text-[9px] font-normal normal-case text-indigo-400">HTML supported</span>
+//                 <span className="text-[9px] font-normal normal-case text-indigo-400">Rich text</span>
 //               </label>
-//               <textarea
-//                 id="details_html"
-//                 rows={14}
-//                 placeholder="<h2>Overview</h2><p>Describe the product, key features, and use cases…</p>"
-//                 className={`${inputCls} font-mono leading-relaxed`}
-//                 {...register('details_html')}
-//               />
-//               <p className="mt-1 text-[10px] text-slate-500">Content is sanitized when displayed.</p>
+//               <div className={QUILL_THEME}>
+//                 <Controller
+//                   name="details_html"
+//                   control={control}
+//                   render={({ field }) => (
+//                     <ReactQuill
+//                       theme="snow"
+//                       value={field.value}
+//                       onChange={(html: string) => field.onChange(normalizeQuillHtml(html))}
+//                       modules={QUILL_MODULES}
+//                       formats={QUILL_FORMATS}
+//                       placeholder="Describe the product, key features, and use cases…"
+//                     />
+//                   )}
+//                 />
+//               </div>
+//               <p className="mt-1 text-[10px] text-slate-500">
+//                 Images can&apos;t be added here (use Screenshots). Content is sanitized when displayed.
+//               </p>
 //             </div>
 //           </Card>
 
